@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
-#define _a_z -2
-#define _0_9 -3
+#define all_letters -2
+#define all_numbers -3
 
 namespace Compiler {
 
@@ -29,9 +29,9 @@ namespace Compiler {
             for (auto &transition : transitions) {
                 if (transition.input == input) {
                     return transition.state;
-                } else if (input >= 'a' && input <= 'z' && transition.input == _a_z) {
+                } else if (input >= 'a' && input <= 'z' && transition.input == all_letters) {
                     return transition.state;
-                } else if (input >= '0' && input <= '9' && transition.input == _0_9) {
+                } else if (input >= '0' && input <= '9' && transition.input == all_numbers) {
                     return transition.state;
                 }
             }
