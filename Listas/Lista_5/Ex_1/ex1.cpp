@@ -47,10 +47,6 @@ int main () {
         input += c;
     }
 
-    system("clear");
-
-    std::cout << "String inputted:\n" << input << std::endl;
-
     automata.inputString(input);
 
 }

@@ -75,7 +75,7 @@ namespace Compiler {
                     currentState = this->initialState;
                     index--;
                 } else {
-                    std::cout << "ERROR" << std::endl;
+                    std::cout << "ERRO" << std::endl;
                     currentState = this->initialState;
                 }
                 
