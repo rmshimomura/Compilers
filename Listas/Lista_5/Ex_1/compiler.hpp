@@ -18,8 +18,8 @@ namespace Compiler {
 
     public:
 
-        std::string name;
-        State(std::string name) : name(name) {}
+        std::string name, type;
+        State(std::string name, std::string type) : name(name), type(type) {}
 
         void addTransition(char input, State &state) {
             transitions.push_back({input, &state});
@@ -54,8 +54,14 @@ namespace Compiler {
         }
 
         void inputString(std::string &input) {
+
             State *currentState = this->initialState;
             std::string currentToken = "";
+            std::string currentFinalToken = "";
+
+            int indexLastFinal = -1;
+            State *ptrLastFinal = NULL;
+
             for (int index = 0; index < input.length(); index++) {
 
                 if (input[index] == '\n') {
@@ -67,20 +73,31 @@ namespace Compiler {
                 State* nextState = currentState->getNextState(input[index]);
 
                 if (nextState != NULL) {
-                    currentState = nextState;
                     currentToken += input[index];
-                } else if (currentToken.length() > 0) {
-                    std::cout << currentToken << std::endl;
-                    currentToken = "";
-                    currentState = this->initialState;
-                    index--;
+                    currentState = nextState;
+                    if (currentState->type == "final") {
+                        indexLastFinal = index;
+                        ptrLastFinal = currentState;
+                        currentFinalToken = currentToken;
+                    }
                 } else {
-                    std::cout << "ERRO" << std::endl;
-                    currentState = this->initialState;
+                    if (ptrLastFinal != NULL) {
+                        std::cout << currentFinalToken << std::endl;
+                        index = indexLastFinal;
+                        currentToken = "";
+                        currentState = this->initialState;
+                        ptrLastFinal = NULL;
+                    } else {
+                        std::cout << "ERRO" << std::endl;
+                        currentToken = "";
+                        currentState = this->initialState;
+                    }
                 }
                 
             }
+
             std::cout << currentToken << std::endl;
+
         }
     };
 

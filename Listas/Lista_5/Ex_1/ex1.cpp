@@ -3,14 +3,14 @@
 int main () {
 
 
-    Compiler::State q1("q1");
-    Compiler::State q2("q2");
-    Compiler::State q3("q3");
-    Compiler::State q4("q4");
-    Compiler::State q5("q5");
-    Compiler::State q6("q6");
-    Compiler::State q7("q7");
-    Compiler::State q8("q8");
+    Compiler::State q1("q1", "normal");
+    Compiler::State q2("q2", "final");
+    Compiler::State q3("q3", "final");
+    Compiler::State q4("q4", "final");
+    Compiler::State q5("q5", "final");
+    Compiler::State q6("q6", "normal");
+    Compiler::State q7("q7", "normal");
+    Compiler::State q8("q8", "final");
 
     q1.addTransition(all_letters, q2);
     q1.addTransition(all_numbers, q5);
