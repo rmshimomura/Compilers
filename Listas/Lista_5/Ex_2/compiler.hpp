@@ -69,63 +69,72 @@ class Automata {
     }
 
     void inputString(std::string &input) {
-        
         State *currentState = this->initialState;
         std::string currentToken = "";
+        std::string currentFinalToken = "";
 
-        std::cout << std::endl;
+        int indexLastFinal = -1;
+        State *ptrLastFinal = NULL;
 
         for (int index = 0; index < input.length(); index++) {
 
-            if (input[index] == '\n' && currentToken.length() == 0) {
-                currentToken = "";
-                continue;
-            }
-
             State *nextState = currentState->getNextState(input[index]);
 
-            currentToken += input[index];
+            if (input[index] != ' ' && input[index] != '\n') {
+                currentToken += input[index];
+            }
 
-            if (nextState != NULL) {
+            if (nextState) {
 
                 currentState = nextState;
 
-                if (index == input.length() - 1 && input[index] == '\n') {
-                    currentToken.pop_back();
-                    std::cout << currentToken << " " << currentState->token << std::endl;
+                if (currentState->type == "final") {
+                    indexLastFinal = index;
+                    ptrLastFinal = currentState;
+                    currentFinalToken = currentToken;
+                    
                 }
 
-            } else if (nextState == NULL) {
-                
-                if(currentToken.length() > 0 && currentState->type == "final" && currentToken[0] != ' ') {
+                if (index == input.length() - 1) {
+                    if (ptrLastFinal) {
+                        std::cout <<  currentFinalToken << " " << ptrLastFinal->token << std::endl;
+                    } else {
+                        std::cout <<  currentToken << " " << currentState->token << std::endl;
+                    }
+                }
 
-                    currentToken.pop_back();
-                    index--;
 
-                    if(currentToken[currentToken.length() - 1] == '\n') {
-                        currentToken.pop_back();
-                        index--;
+            } else {
+
+                if (ptrLastFinal) {
+
+                    if (currentFinalToken.length() > 0) {
+                        std::cout << currentFinalToken << " " << ptrLastFinal->token << std::endl;
+                    } else {
+                        std::cout << ptrLastFinal->token << std::endl;
                     }
 
-                    std::cout << currentToken << " " << currentState->token << std::endl;
+                    index = indexLastFinal;
                     currentToken = "";
                     currentState = this->initialState;
+                    ptrLastFinal = NULL;
+                    indexLastFinal = -1;
+                    currentFinalToken = "";
 
-                } else if(currentState->type == "final" && currentToken[0] == ' ') {
-
-                    std::cout << currentState->token << std::endl;
-                    currentToken = "";
-                    currentState = this->initialState;
-                    index--;
 
                 } else {
 
-                    std::cout << currentToken << " error" << std::endl;
+                    if(currentToken.length() > 0) {
+                        std::cout << currentToken << " error" << std::endl;
+                    } else {
+                        std::cout << currentState->token << std::endl;
+                    }
                     currentToken = "";
                     currentState = this->initialState;
-                }
 
+                }
             }
+
         }
     }
 };
