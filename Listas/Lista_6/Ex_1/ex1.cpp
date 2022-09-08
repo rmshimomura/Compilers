@@ -24,6 +24,7 @@ int main () {
     Compiler::State s20("s20", "normal", "");
     Compiler::State s21("s21", "normal", "");
     Compiler::State s22("s22", "final", "REAL");
+    Compiler::State s23("s23", "final", "ERRO");
 
     s1.addTransition('+', s17);
     s1.addTransition('-', s18);
@@ -31,6 +32,8 @@ int main () {
     s1.addTransition('h', s2);
     s1.addTransition('s', s4);
     s1.addTransition('c', s11);
+    s1.addTransition(' ', s23);
+    s1.addTransition('\n', s23);
 
     s2.addTransition('e', s3);
     s2.addTransition('i', s7);
@@ -88,6 +91,7 @@ int main () {
     automata.addState(s20);
     automata.addState(s21);
     automata.addState(s22);
+    automata.addState(s23);
 
     std::string input = "";
     char c;
