@@ -51,6 +51,7 @@ class Automata {
     }
 
     void inputString(std::string input) {
+
         State *currentState = this->initialState;
         State *lastFinalState = NULL;
         std::string token = "";
@@ -60,60 +61,53 @@ class Automata {
         int tokensCount = 0;
 
         for (int i = 0; i < input.size(); i++) {
-            State *nextState = currentState->getNextState(input[i]);
 
-            if (nextState) {
-                if (!token.length()) {
-                    tokenStartIndex = i;
-                }
+            State *nextState = currentState->getNextState(input[i]); // Attempt to get next state
+
+            if (nextState) { // If there is a next state
+
+                if (!token.length()) tokenStartIndex = i; // If token is empty, set token start index
 
                 currentState = nextState;
                 token += input[i];
 
-                if (currentState->type == "final") {
+                if (currentState->type == "final") { // If current state is final
                     lastFinalState = currentState;
                     lastFinalStateIndex = i;
                     currentFinalToken = token;
                 }
 
-                if (i == input.length() - 1) {
-                    if (lastFinalState) {
-                        if (lastFinalState->token == "INTEIRO" || lastFinalState->token == "REAL") {
-                            if (tokensCount > 0) {
-                                std::cout << std::endl;
-                            }
+                if (i == input.length() - 1) { // If it is the last character
 
-                            std::cout << lastFinalState->token << " " << currentFinalToken;
+                    if (lastFinalState) { // If there is a final state
 
-                        } else {
-                            if (currentState->token == "ERRO") {
-                            } else {
-                                if (tokensCount > 0) {
-                                    std::cout << std::endl;
-                                }
-                                std::cout << currentState->token;
-                            }
+                        if (lastFinalState->token == "INTEIRO" || lastFinalState->token == "REAL") { // If it is a number
+
+                            tokensCount > 0 ? std::cout << std::endl << lastFinalState->token << " " << currentFinalToken : std::cout << lastFinalState->token << " " << currentFinalToken;
+
+                        } else { // If it is not a number
+
+                            if (currentState->token != "ERRO") tokensCount > 0 ? std::cout << std::endl << currentState->token : std::cout << std::endl;
+
                         }
 
                         tokensCount++;
 
-                    } else {
-                        if (currentState->token == "ERRO") {
-                        } else {
-                            if (tokensCount > 0) {
-                                std::cout << std::endl;
-                            }
-                            std::cout << "ERRO";
-                        }
+                    } else { // If there is no final state
+
+                        if (currentState->token != "ERRO") tokensCount > 0 ? std::cout << std::endl << "ERRO" : std::cout << std::endl;
 
                         tokensCount++;
+
                     }
+
                 }
 
             } else {
-                if (currentState->type == "normal") {  // Se eu estiver em um estado normal
 
-                    if (lastFinalState) {  // Se eu tiver um estado final anterior
+                if (currentState->type == "normal") {  // If current state is normal
+
+                    if (lastFinalState) {  // If there is a final state
 
                         if (tokensCount > 0) {
                             std::cout << std::endl;
@@ -126,10 +120,6 @@ class Automata {
                             std::cout << lastFinalState->token;
                         }
 
-                        // if(lastFinalStateIndex != input.length() - 1) {
-                        //     std::cout << std::endl;
-                        // }
-
                         tokensCount++;
 
                         currentState = this->initialState;
@@ -139,7 +129,7 @@ class Automata {
                         token.clear();
                         i = -1;
 
-                    } else {  // Se eu não tiver um estado final anterior
+                    } else { // If there is no final state
 
                         if (tokensCount > 0) {
                             std::cout << std::endl;
@@ -147,22 +137,19 @@ class Automata {
 
                         std::cout << "ERRO";
 
-                        // if(tokenStartIndex != input.length() - 1) {
-                        //     std::cout << std::endl;
-                        // }
                         tokensCount++;
 
                         currentState = this->initialState;
                         lastFinalState = NULL;
                         lastFinalStateIndex = -1;
                         token.clear();
-                        input = input.substr(tokenStartIndex + 1);  // A próxima string a ser analisada é a string atual sem o primeiro caractere
+                        input = input.substr(tokenStartIndex + 1);  // Remove first character from input
                         i = -1;
                     }
 
-                } else if (currentState->type == "final") {  // Se eu estiver em um estado final
+                } else if (currentState->type == "final") {  // If current state is final
 
-                    if (currentState->token == "ERRO") {
+                    if (currentState->token == "ERRO") { // If current state is error
                         currentState = this->initialState;
                         lastFinalState = NULL;
                         lastFinalStateIndex = -1;
@@ -176,18 +163,16 @@ class Automata {
                         std::cout << std::endl;
                     }
 
-                    if (currentState->token == "INTEIRO" || currentState->token == "REAL") {
+                    if (currentState->token == "INTEIRO" || currentState->token == "REAL") { // If it is a number
+                    
                         std::cout << currentState->token << " " << currentFinalToken;
 
-                    } else {
+                    } else { // If it is not a number
+
                         std::cout << currentState->token;
                     }
 
                     tokensCount++;
-
-                    // if(lastFinalStateIndex != input.length() - 1) {
-                    //     std::cout << std::endl;
-                    // }
 
                     currentState = this->initialState;
                     lastFinalState = NULL;
