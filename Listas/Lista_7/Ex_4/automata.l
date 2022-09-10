@@ -103,8 +103,7 @@ int main (int argc, char *argv[]) {
         not_blank_no_comment = total_lines - blank_lines - lines_with_comment;
 
         fclose(file);
-
-        // printf("%d\t%d\t%d\t%d\t%d\t%d\t%s\n", total_lines, blank_lines, lines_with_comment, not_blank_no_comment, semi_colons, preprocessor_directives, argv[i]);
+        
         format_number_with_spaces(total_lines, 0);
         format_number_with_spaces(blank_lines, 2);
         format_number_with_spaces(lines_with_comment, 2);
