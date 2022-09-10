@@ -80,6 +80,14 @@ namespace Compiler {
                         ptrLastFinal = currentState;
                         currentFinalToken = currentToken;
                     }
+
+                    if(index == input.length() - 1) {
+                        if (currentState->type == "final") {
+                            std::cout << currentToken << std::endl;
+                        }
+                    break;
+                }
+
                 } else {
                     if (ptrLastFinal != NULL) {
                         std::cout << currentFinalToken << std::endl;
@@ -95,8 +103,6 @@ namespace Compiler {
                 }
                 
             }
-
-            std::cout << currentToken << std::endl;
 
         }
     };
