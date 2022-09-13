@@ -99,12 +99,12 @@
 }
 
 <COMMENT>{
+"/*/".*					{last_line = total_lines; BEGIN(INITIAL);}
 " "                     {characters++;}
 "//"
 "/*"					{ last_line = total_lines; check_new_line(print_number); warning_message(last_line, characters, "'/*' within block comment"); print_number++; characters += 2; unput('*');}
 "*/"                    { BEGIN(INITIAL); print_number++; }
 "*"
-\t                      { characters += 2; puts("IRRA"); }
 [^\n]                   { characters += strlen(yytext); }
 \n                      { characters = 1; total_lines++; }
 <<EOF>>					{ check_new_line(print_number); error_message(last_line, characters, "unterminated comment"); print_number++; return -1; }
