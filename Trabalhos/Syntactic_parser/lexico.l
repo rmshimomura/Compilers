@@ -94,21 +94,21 @@
 \\
 \'
 \"		
-\n						{ total_lines++; columns = 1; column_start_comment = 1; }
-"}"						{ check_new_line(print_number); columns += strlen(yytext); printf("R_CURLY_BRACKET"); print_number++; }
-.						{ check_new_line(print_number); error_message(total_lines, columns, yytext); print_number++; }
+\n                      { total_lines++; columns = 1; column_start_comment = 1; }
+"}"                     { check_new_line(print_number); columns += strlen(yytext); printf("R_CURLY_BRACKET"); print_number++; }
+.                       { check_new_line(print_number); error_message(total_lines, columns, yytext); print_number++; }
 }
 
 <COMMENT>{
-"/*/".*					{ last_line = total_lines; BEGIN(INITIAL); columns += strlen(yytext); column_start_comment = columns; }
+"/*/".*                 { last_line = total_lines; BEGIN(INITIAL); columns += strlen(yytext); column_start_comment = columns; }
 " "                     { columns++; }
 "//"
-"/*"					{ last_line = total_lines; check_new_line(print_number); warning_message(last_line, columns, "'/*' within block comment"); print_number++; columns += 2; unput('*'); }
+"/*"                    { last_line = total_lines; check_new_line(print_number); warning_message(last_line, columns, "'/*' within block comment"); print_number++; columns += 2; unput('*'); }
 "*/"                    { BEGIN(INITIAL); print_number++; columns += 2; }
 "*"
 [^\n]                   { columns += strlen(yytext); }
 \n                      { columns = 1; total_lines++; }
-<<EOF>>					{ check_new_line(print_number); error_message(last_line, column_start_comment, "unterminated comment"); print_number++; return -1; }
+<<EOF>>                 { check_new_line(print_number); error_message(last_line, column_start_comment, "unterminated comment"); print_number++; return -1; }
 }
 
 %%
