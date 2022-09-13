@@ -21,21 +21,21 @@
       
 <INITIAL>{
 
-" "						{ columns++;}
-"void"					{ check_new_line(print_number); columns += strlen(yytext); printf("VOID"); print_number++; }
-"int"					{ check_new_line(print_number); columns += strlen(yytext); printf("INT"); print_number++; }
-"char"					{ check_new_line(print_number); columns += strlen(yytext); printf("CHAR"); print_number++; }
-"return"				{ check_new_line(print_number); columns += strlen(yytext); printf("RETURN"); print_number++; }
-"break"					{ check_new_line(print_number); columns += strlen(yytext); printf("BREAK"); print_number++; }
-"switch"				{ check_new_line(print_number); columns += strlen(yytext); printf("SWITCH"); print_number++; }
-"case"					{ check_new_line(print_number); columns += strlen(yytext); printf("CASE"); print_number++; }
-"default"				{ check_new_line(print_number); columns += strlen(yytext); printf("DEFAULT"); print_number++; }
-"do"					{ check_new_line(print_number); columns += strlen(yytext); printf("DO"); print_number++; }
-"while"					{ check_new_line(print_number); columns += strlen(yytext); printf("WHILE"); print_number++; }
-"for"					{ check_new_line(print_number); columns += strlen(yytext); printf("FOR"); print_number++; }
-"if"					{ check_new_line(print_number); columns += strlen(yytext); printf("IF"); print_number++; }
-"else"					{ check_new_line(print_number); columns += strlen(yytext); printf("ELSE"); print_number++; }
-"typedef"				{ check_new_line(print_number); columns += strlen(yytext); printf("TYPEDEF"); print_number++; }
+" "                     { columns++;}
+"void"                  { check_new_line(print_number); columns += strlen(yytext); printf("VOID"); print_number++; }
+"int"                   { check_new_line(print_number); columns += strlen(yytext); printf("INT"); print_number++; }
+"char"                  { check_new_line(print_number); columns += strlen(yytext); printf("CHAR"); print_number++; }
+"return"                { check_new_line(print_number); columns += strlen(yytext); printf("RETURN"); print_number++; }
+"break"                 { check_new_line(print_number); columns += strlen(yytext); printf("BREAK"); print_number++; }
+"switch"                { check_new_line(print_number); columns += strlen(yytext); printf("SWITCH"); print_number++; }
+"case"                  { check_new_line(print_number); columns += strlen(yytext); printf("CASE"); print_number++; }
+"default"               { check_new_line(print_number); columns += strlen(yytext); printf("DEFAULT"); print_number++; }
+"do"                    { check_new_line(print_number); columns += strlen(yytext); printf("DO"); print_number++; }
+"while"                 { check_new_line(print_number); columns += strlen(yytext); printf("WHILE"); print_number++; }
+"for"                   { check_new_line(print_number); columns += strlen(yytext); printf("FOR"); print_number++; }
+"if"                    { check_new_line(print_number); columns += strlen(yytext); printf("IF"); print_number++; }
+"else"                  { check_new_line(print_number); columns += strlen(yytext); printf("ELSE"); print_number++; }
+"typedef"               { check_new_line(print_number); columns += strlen(yytext); printf("TYPEDEF"); print_number++; }
 "struct"                { check_new_line(print_number); columns += strlen(yytext); printf("STRUCT"); print_number++; }
 "+"                     { check_new_line(print_number); columns += strlen(yytext); printf("PLUS"); print_number++; }
 "-"                     { check_new_line(print_number); columns += strlen(yytext); printf("MINUS"); print_number++; }
