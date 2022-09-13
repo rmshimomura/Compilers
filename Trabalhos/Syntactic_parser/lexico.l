@@ -21,7 +21,6 @@
       
 <INITIAL>{
 
-"//"[^\n]*              { total_lines++; columns += strlen(yytext); }
 " "                     { columns++; }
 "void"                  { check_new_line(print_number); columns += strlen(yytext); printf("VOID"); print_number++; }
 "int"                   { check_new_line(print_number); columns += strlen(yytext); printf("INT"); print_number++; }
@@ -79,7 +78,7 @@
 "define"                { check_new_line(print_number); columns += strlen(yytext); printf("DEFINE"); print_number++; }
 "exit"                  { check_new_line(print_number); columns += strlen(yytext); printf("EXIT"); print_number++; }
 "/*"                    { last_line = total_lines; BEGIN(COMMENT);  column_start_comment = columns; columns += strlen(yytext); }
-"//".*\n                { total_lines++; }
+"//".*                  { total_lines++; }
 [_a-zA-Z][_a-zA-Z0-9]*  { check_new_line(print_number); check_errors(total_lines, columns, yytext) ? : printf("IDENTIFIER(%s)", yytext); columns += strlen(yytext); print_number++; }
 "0"[1-7][0-7]*          { check_new_line(print_number); check_errors(total_lines, columns, yytext) ? : printf("NUM_OCTAL(%s)", yytext); columns += strlen(yytext); print_number++; }
 [0-9][0-9]*             { check_new_line(print_number); check_errors(total_lines, columns, yytext) ? : printf("NUM_INTEGER(%s)", yytext); columns += strlen(yytext); print_number++; }
