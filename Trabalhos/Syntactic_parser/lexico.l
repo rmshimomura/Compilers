@@ -36,55 +36,55 @@
 "if"					{ check_new_line(print_number); columns += strlen(yytext); printf("IF"); print_number++; }
 "else"					{ check_new_line(print_number); columns += strlen(yytext); printf("ELSE"); print_number++; }
 "typedef"				{ check_new_line(print_number); columns += strlen(yytext); printf("TYPEDEF"); print_number++; }
-"struct"				{ check_new_line(print_number); columns += strlen(yytext); printf("STRUCT"); print_number++; }
-"+"						{ check_new_line(print_number); columns += strlen(yytext); printf("PLUS"); print_number++; }
-"-"						{ check_new_line(print_number); columns += strlen(yytext); printf("MINUS"); print_number++; }
-"*"						{ check_new_line(print_number); columns += strlen(yytext); printf("MULTIPLY"); print_number++; }
-"/"						{ check_new_line(print_number); columns += strlen(yytext); printf("DIV"); print_number++; }
-"%"						{ check_new_line(print_number); columns += strlen(yytext); printf("REMAINDER"); print_number++; }
-"++"					{ check_new_line(print_number); columns += strlen(yytext); printf("INC"); print_number++; }
-"--"					{ check_new_line(print_number); columns += strlen(yytext); printf("DEC"); print_number++; }
-"&"						{ check_new_line(print_number); columns += strlen(yytext); printf("BITWISE_AND"); print_number++; }
-"|"						{ check_new_line(print_number); columns += strlen(yytext); printf("BITWISE_OR"); print_number++; }
-"~"						{ check_new_line(print_number); columns += strlen(yytext); printf("BITWISE_NOT"); print_number++; }
-"^"						{ check_new_line(print_number); columns += strlen(yytext); printf("BITWISE_XOR"); print_number++; }
-"!"						{ check_new_line(print_number); columns += strlen(yytext); printf("NOT"); print_number++; }
-"&&"					{ check_new_line(print_number); columns += strlen(yytext); printf("LOGICAL_AND"); print_number++; }
-"||"					{ check_new_line(print_number); columns += strlen(yytext); printf("LOGICAL_OR"); print_number++; }
-"=="					{ check_new_line(print_number); columns += strlen(yytext); printf("EQUAL"); print_number++; }
-"!="					{ check_new_line(print_number); columns += strlen(yytext); printf("NOT_EQUAL"); print_number++; }
-"<"						{ check_new_line(print_number); columns += strlen(yytext); printf("LESS_THAN"); print_number++; }
-">"						{ check_new_line(print_number); columns += strlen(yytext); printf("GREATER_THAN"); print_number++; }
-"<="					{ check_new_line(print_number); columns += strlen(yytext); printf("LESS_EQUAL"); print_number++; }
-">="					{ check_new_line(print_number); columns += strlen(yytext); printf("GREATER_EQUAL"); print_number++; }
-">>"					{ check_new_line(print_number); columns += strlen(yytext); printf("R_SHIFT"); print_number++; }
-"<<"					{ check_new_line(print_number); columns += strlen(yytext); printf("L_SHIFT"); print_number++; }
-"="						{ check_new_line(print_number); columns += strlen(yytext); printf("ASSIGN"); print_number++; }
-"+="					{ check_new_line(print_number); columns += strlen(yytext); printf("ADD_ASSIGN"); print_number++; }
-"-="					{ check_new_line(print_number); columns += strlen(yytext); printf("MINUS_ASSIGN"); print_number++; }
-";"						{ check_new_line(print_number); columns += strlen(yytext); printf("SEMICOLON"); print_number++; }
-","						{ check_new_line(print_number); columns += strlen(yytext); printf("COMMA"); print_number++; }
-":"						{ check_new_line(print_number); columns += strlen(yytext); printf("COLON"); print_number++; }
-"("						{ check_new_line(print_number); columns += strlen(yytext); printf("L_PAREN"); print_number++; }
-")"						{ check_new_line(print_number); columns += strlen(yytext); printf("R_PAREN"); print_number++; }
-"{"						{ check_new_line(print_number); columns += strlen(yytext); printf("L_CURLY_BRACKET"); print_number++; }
-"["						{ check_new_line(print_number); columns += strlen(yytext); printf("L_SQUARE_BRACKET"); print_number++; }
-"]"						{ check_new_line(print_number); columns += strlen(yytext); printf("R_SQUARE_BRACKET"); print_number++; }
-"?"						{ check_new_line(print_number); columns += strlen(yytext); printf("TERNARY_CONDITIONAL"); print_number++; }
-"#"						{ check_new_line(print_number); columns += strlen(yytext); printf("NUMBER_SIGN"); print_number++; }
-"->"					{ check_new_line(print_number); columns += strlen(yytext); printf("POINTER"); print_number++; }
-"printf"				{ check_new_line(print_number); columns += strlen(yytext); printf("PRINTF"); print_number++; }
-"scanf"					{ check_new_line(print_number); columns += strlen(yytext); printf("SCANF"); print_number++; }
-"define"				{ check_new_line(print_number); columns += strlen(yytext); printf("DEFINE"); print_number++; }
-"exit"					{ check_new_line(print_number); columns += strlen(yytext); printf("EXIT"); print_number++; }
-"/*" 					{ last_line = total_lines; BEGIN(COMMENT);  column_start_comment = columns; columns += strlen(yytext); }
-"//".*\n				{ total_lines++; }
-[_a-zA-Z][_a-zA-Z0-9]*	{ check_new_line(print_number); check_errors(total_lines, columns, yytext) ? : printf("IDENTIFIER(%s)", yytext); columns += strlen(yytext); print_number++; }
-"0"[1-7][0-7]*			{ check_new_line(print_number); check_errors(total_lines, columns, yytext) ? : printf("NUM_OCTAL(%s)", yytext); columns += strlen(yytext); print_number++; }
-[0-9][0-9]*				{ check_new_line(print_number); check_errors(total_lines, columns, yytext) ? : printf("NUM_INTEGER(%s)", yytext); columns += strlen(yytext); print_number++; }
-"0"[x|X][a-fA-F0-9]*	{ check_new_line(print_number); check_errors(total_lines, columns, yytext) ? : printf("NUM_HEXA(%s)", yytext); columns += strlen(yytext); print_number++; }
-\"(\\.|[^"\\])*\"		{ check_new_line(print_number); check_errors(total_lines, columns, yytext) ? : printf("STRING(%s)", fixed_string(yytext)); columns += strlen(yytext); print_number++; }
-'([^'\\\n]|\\.)'		{ check_new_line(print_number); check_errors(total_lines, columns, yytext) ? : printf("CHARACTER(%s)", fix_char(yytext)); columns += strlen(yytext); print_number++; }
+"struct"                { check_new_line(print_number); columns += strlen(yytext); printf("STRUCT"); print_number++; }
+"+"                     { check_new_line(print_number); columns += strlen(yytext); printf("PLUS"); print_number++; }
+"-"                     { check_new_line(print_number); columns += strlen(yytext); printf("MINUS"); print_number++; }
+"*"                     { check_new_line(print_number); columns += strlen(yytext); printf("MULTIPLY"); print_number++; }
+"/"                     { check_new_line(print_number); columns += strlen(yytext); printf("DIV"); print_number++; }
+"%"                     { check_new_line(print_number); columns += strlen(yytext); printf("REMAINDER"); print_number++; }
+"++"                    { check_new_line(print_number); columns += strlen(yytext); printf("INC"); print_number++; }
+"--"                    { check_new_line(print_number); columns += strlen(yytext); printf("DEC"); print_number++; }
+"&"                     { check_new_line(print_number); columns += strlen(yytext); printf("BITWISE_AND"); print_number++; }
+"|"                     { check_new_line(print_number); columns += strlen(yytext); printf("BITWISE_OR"); print_number++; }
+"~"                     { check_new_line(print_number); columns += strlen(yytext); printf("BITWISE_NOT"); print_number++; }
+"^"                     { check_new_line(print_number); columns += strlen(yytext); printf("BITWISE_XOR"); print_number++; }
+"!"                     { check_new_line(print_number); columns += strlen(yytext); printf("NOT"); print_number++; }
+"&&"                    { check_new_line(print_number); columns += strlen(yytext); printf("LOGICAL_AND"); print_number++; }
+"||"                    { check_new_line(print_number); columns += strlen(yytext); printf("LOGICAL_OR"); print_number++; }
+"=="                    { check_new_line(print_number); columns += strlen(yytext); printf("EQUAL"); print_number++; }
+"!="                    { check_new_line(print_number); columns += strlen(yytext); printf("NOT_EQUAL"); print_number++; }
+"<"                     { check_new_line(print_number); columns += strlen(yytext); printf("LESS_THAN"); print_number++; }
+">"                     { check_new_line(print_number); columns += strlen(yytext); printf("GREATER_THAN"); print_number++; }
+"<="                    { check_new_line(print_number); columns += strlen(yytext); printf("LESS_EQUAL"); print_number++; }
+">="                    { check_new_line(print_number); columns += strlen(yytext); printf("GREATER_EQUAL"); print_number++; }
+">>"                    { check_new_line(print_number); columns += strlen(yytext); printf("R_SHIFT"); print_number++; }
+"<<"                    { check_new_line(print_number); columns += strlen(yytext); printf("L_SHIFT"); print_number++; }
+"="                     { check_new_line(print_number); columns += strlen(yytext); printf("ASSIGN"); print_number++; }
+"+="                    { check_new_line(print_number); columns += strlen(yytext); printf("ADD_ASSIGN"); print_number++; }
+"-="                    { check_new_line(print_number); columns += strlen(yytext); printf("MINUS_ASSIGN"); print_number++; }
+";"                     { check_new_line(print_number); columns += strlen(yytext); printf("SEMICOLON"); print_number++; }
+","                     { check_new_line(print_number); columns += strlen(yytext); printf("COMMA"); print_number++; }
+":"                     { check_new_line(print_number); columns += strlen(yytext); printf("COLON"); print_number++; }
+"("                     { check_new_line(print_number); columns += strlen(yytext); printf("L_PAREN"); print_number++; }
+")"                     { check_new_line(print_number); columns += strlen(yytext); printf("R_PAREN"); print_number++; }
+"{"                     { check_new_line(print_number); columns += strlen(yytext); printf("L_CURLY_BRACKET"); print_number++; }
+"["                     { check_new_line(print_number); columns += strlen(yytext); printf("L_SQUARE_BRACKET"); print_number++; }
+"]"                     { check_new_line(print_number); columns += strlen(yytext); printf("R_SQUARE_BRACKET"); print_number++; }
+"?"                     { check_new_line(print_number); columns += strlen(yytext); printf("TERNARY_CONDITIONAL"); print_number++; }
+"#"                     { check_new_line(print_number); columns += strlen(yytext); printf("NUMBER_SIGN"); print_number++; }
+"->"                    { check_new_line(print_number); columns += strlen(yytext); printf("POINTER"); print_number++; }
+"printf"                { check_new_line(print_number); columns += strlen(yytext); printf("PRINTF"); print_number++; }
+"scanf"                 { check_new_line(print_number); columns += strlen(yytext); printf("SCANF"); print_number++; }
+"define"                { check_new_line(print_number); columns += strlen(yytext); printf("DEFINE"); print_number++; }
+"exit"                  { check_new_line(print_number); columns += strlen(yytext); printf("EXIT"); print_number++; }
+"/*"                    { last_line = total_lines; BEGIN(COMMENT);  column_start_comment = columns; columns += strlen(yytext); }
+"//".*\n                { total_lines++; }
+[_a-zA-Z][_a-zA-Z0-9]*  { check_new_line(print_number); check_errors(total_lines, columns, yytext) ? : printf("IDENTIFIER(%s)", yytext); columns += strlen(yytext); print_number++; }
+"0"[1-7][0-7]*          { check_new_line(print_number); check_errors(total_lines, columns, yytext) ? : printf("NUM_OCTAL(%s)", yytext); columns += strlen(yytext); print_number++; }
+[0-9][0-9]*             { check_new_line(print_number); check_errors(total_lines, columns, yytext) ? : printf("NUM_INTEGER(%s)", yytext); columns += strlen(yytext); print_number++; }
+"0"[x|X][a-fA-F0-9]*    { check_new_line(print_number); check_errors(total_lines, columns, yytext) ? : printf("NUM_HEXA(%s)", yytext); columns += strlen(yytext); print_number++; }
+\"(\\.|[^"\\])*\"       { check_new_line(print_number); check_errors(total_lines, columns, yytext) ? : printf("STRING(%s)", fixed_string(yytext)); columns += strlen(yytext); print_number++; }
+'([^'\\\n]|\\.)'        { check_new_line(print_number); check_errors(total_lines, columns, yytext) ? : printf("CHARACTER(%s)", fix_char(yytext)); columns += strlen(yytext); print_number++; }
 \a
 \b
 \f
