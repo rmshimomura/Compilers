@@ -125,6 +125,15 @@ char* fix_char(char *string) {
 
     int index = 0;
 
+    // If the string is \' just return the second and third characters
+
+    if(!strcmp(string, "'\\'\'")) {
+        new_string[0] = string[1];
+        new_string[1] = string[2];
+        new_string[2] = '\0';
+        return new_string;
+    }
+
     for(int i = 0; i < strlen(string) - 1; i++) {
         if(string[i] != '\'') {
             new_string[index] = string[i];
