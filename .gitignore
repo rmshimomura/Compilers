@@ -1,6 +1,7 @@
 *.o
 .vscode/
 *.out
-l*
+l[0-9]*
+lex.yy.c
 *.txt
 *.sh
