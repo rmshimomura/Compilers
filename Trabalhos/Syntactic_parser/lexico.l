@@ -21,7 +21,8 @@
       
 <INITIAL>{
 
-" "                     { columns++;}
+"//"[^\n]*              { total_lines++; columns += strlen(yytext); }
+" "                     { columns++; }
 "void"                  { check_new_line(print_number); columns += strlen(yytext); printf("VOID"); print_number++; }
 "int"                   { check_new_line(print_number); columns += strlen(yytext); printf("INT"); print_number++; }
 "char"                  { check_new_line(print_number); columns += strlen(yytext); printf("CHAR"); print_number++; }
