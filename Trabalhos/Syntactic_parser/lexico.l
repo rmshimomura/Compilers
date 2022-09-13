@@ -11,6 +11,7 @@
     void error_message(int last_line, int first_error_character, char* message);
     void warning_message(int last_line, int first_error_character, char* message);
     char* fix_char(char *string);
+    int check_errors(int total_lines, int characters, char* word);
 %}
 
 %x COMMENT
@@ -77,12 +78,12 @@
 "exit"					{check_new_line(print_number); characters += strlen(yytext); printf("EXIT"); print_number++;}
 "/*" 					{last_line = total_lines; BEGIN(COMMENT);}
 "//".*\n				{total_lines++;}
-[_a-zA-Z][_a-zA-Z0-9]*	{check_new_line(print_number); characters += strlen(yytext); printf("IDENTIFIER(%s)", yytext); print_number++;}
-"0"[1-7][0-7]*			{check_new_line(print_number); characters += strlen(yytext); printf("NUM_OCTAL(%s)", yytext); print_number++;}
-[0-9][0-9]*				{check_new_line(print_number); characters += strlen(yytext); printf("NUM_INTEGER(%s)", yytext); print_number++;}
-"0"[x|X][a-fA-F0-9]*	{check_new_line(print_number); characters += strlen(yytext); printf("NUM_HEXA(%s)", yytext); print_number++;}
-\"(\\.|[^"\\])*\"		{check_new_line(print_number); characters += strlen(yytext); printf("STRING(%s)", fixed_string(yytext)); print_number++;}
-'([^'\\\n]|\\.)'		{check_new_line(print_number); characters += strlen(yytext); printf("CHARACTER(%s)", fix_char(yytext)); print_number++;}
+[_a-zA-Z][_a-zA-Z0-9]*	{check_new_line(print_number); check_errors(total_lines, characters, yytext) ? : printf("IDENTIFIER(%s)", yytext); characters += strlen(yytext); print_number++;}
+"0"[1-7][0-7]*			{check_new_line(print_number); check_errors(total_lines, characters, yytext) ? : printf("NUM_OCTAL(%s)", yytext); characters += strlen(yytext); print_number++;}
+[0-9][0-9]*				{check_new_line(print_number); check_errors(total_lines, characters, yytext) ? : printf("NUM_INTEGER(%s)", yytext); characters += strlen(yytext); print_number++;}
+"0"[x|X][a-fA-F0-9]*	{check_new_line(print_number); check_errors(total_lines, characters, yytext) ? : printf("NUM_HEXA(%s)", yytext); characters += strlen(yytext); print_number++;}
+\"(\\.|[^"\\])*\"		{check_new_line(print_number); check_errors(total_lines, characters, yytext) ? : printf("STRING(%s)", fixed_string(yytext)); characters += strlen(yytext); print_number++;}
+'([^'\\\n]|\\.)'		{check_new_line(print_number); check_errors(total_lines, characters, yytext) ? : printf("CHARACTER(%s)", fix_char(yytext)); characters += strlen(yytext); print_number++;}
 \a
 \b
 \f
@@ -98,12 +99,13 @@
 }
 
 <COMMENT>{
+" "                     {characters++;}
 "//"
-"/*"					{ last_line = total_lines; check_new_line(print_number); warning_message(last_line, characters, "'/*' within block comment"); print_number++; characters++; unput('*');}
+"/*"					{ last_line = total_lines; check_new_line(print_number); warning_message(last_line, characters, "'/*' within block comment"); print_number++; characters += 2; unput('*');}
 "*/"                    { BEGIN(INITIAL); print_number++; }
 "*"
 \t                      { characters += 2; puts("IRRA"); }
-[^\n]                 { characters += strlen(yytext); }
+[^\n]                   { characters += strlen(yytext); }
 \n                      { characters = 1; total_lines++; }
 <<EOF>>					{ check_new_line(print_number); error_message(last_line, characters, "unterminated comment"); print_number++; return -1; }
 }
@@ -134,10 +136,13 @@ char* fix_char(char *string) {
 
 }
 
-void check_errors(int total_lines, int characters, char* word) {
+int check_errors(int total_lines, int characters, char* word) {
     if(strlen(word) > 255) {
         error_message(total_lines, characters, "identifier too long");
+        return 1;
     }
+    return 0;
+
 }
 
 void error_message(int last_line, int first_error_character, char* message) {
@@ -145,7 +150,7 @@ void error_message(int last_line, int first_error_character, char* message) {
 }
 
 void warning_message(int last_line, int first_error_character, char* message) {
-    printf("warning:lexical:%d:%d: %s", last_line, first_error_character, message);
+    printf("warning:%d:%d: %s", last_line, first_error_character, message);
 }
 
 char* fixed_string(char* string) {
