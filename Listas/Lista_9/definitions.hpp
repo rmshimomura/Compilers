@@ -14,7 +14,6 @@ enum TOKENS {
 };
 
 std::string tokenNames[] = {
-    // All lowercase
     "if",
     "then",
     "else",

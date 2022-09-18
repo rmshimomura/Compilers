@@ -18,6 +18,7 @@ int main () {
 
             analyzer.newLine();
             std::cout << "CADEIA ACEITA";
+            
         }
 
         analyzer.accepted = true;

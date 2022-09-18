@@ -11,7 +11,6 @@ namespace Compiler {
         std::string sentence;
         std::string currentToken;
         int token;
-        int currentLine;
         bool accepted = true;
         int numberOfPrints = 0;
 
@@ -30,6 +29,26 @@ namespace Compiler {
 
         }
 
+        void sanitizeToken() {
+            
+            std::string::iterator start_pos = sentence.begin();
+            std::string::reverse_iterator end_pos = sentence.rbegin();
+
+            while(std::isspace(*start_pos)) {
+                start_pos++;
+            }
+
+            while(std::isspace(*end_pos)) {
+                end_pos++;
+            }
+
+            sentence = std::string(start_pos, end_pos.base());
+
+            sentence.push_back(' ');
+
+
+        }
+
         int getToken(){
 
             sanitizeToken();
@@ -37,7 +56,7 @@ namespace Compiler {
             std::stringstream ss(sentence);
             ss >> currentToken;
             
-            sentence.erase(0, sentence.find(" ") + 1);
+            sentence.find(" ") == std::string::npos ? sentence = "" : sentence = sentence.substr(sentence.find(" ") + 1);
 
             if(currentToken == "if"){
                 return IF;
@@ -106,26 +125,6 @@ namespace Compiler {
         void advance() {
 
             token = getToken();
-
-        }
-
-        void sanitizeToken() {
-            
-            std::string::iterator start_pos = sentence.begin();
-            std::string::reverse_iterator end_pos = sentence.rbegin();
-
-            while(std::isspace(*start_pos)) {
-                start_pos++;
-            }
-
-            while(std::isspace(*end_pos)) {
-                end_pos++;
-            }
-
-            sentence = std::string(start_pos, end_pos.base());
-
-            sentence.push_back(' ');
-
 
         }
 
