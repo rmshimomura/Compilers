@@ -12,16 +12,10 @@ int main () {
 
         if (line.empty()) break;
 
-        analyzer.analyzeString();
-
-        if(analyzer.accepted) {
-
+        if(analyzer.analyzeString()) {
             analyzer.newLine();
             std::cout << "CADEIA ACEITA";
-            
         }
-
-        analyzer.accepted = true;
 
         analyzer.numberOfPrints++;
 

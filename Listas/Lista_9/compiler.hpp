@@ -1,226 +1,223 @@
 #include <bits/stdc++.h>
+
 #include "definitions.hpp"
 
-
 namespace Compiler {
-    
-    class Analyzer {
 
-    public:
+class Analyzer {
+   public:
+    std::string sentence;
+    std::string currentToken;
+    int token;
+    int numberOfPrints = 0;
 
-        std::string sentence;
-        std::string currentToken;
-        int token;
-        bool accepted = true;
-        int numberOfPrints = 0;
+    void newLine() {
+        if (numberOfPrints > 0) {
+            std::cout << std::endl;
+        }
+    }
 
+    int analyzeString() {
+        token = getToken();
 
-        void newLine() {
-            if(numberOfPrints > 0) {
-                std::cout << std::endl;
-            }
-        } 
+        return S();
+    }
 
-        void analyzeString() {
+    void sanitizeToken() {
+        std::string::iterator start_pos = sentence.begin();
+        std::string::reverse_iterator end_pos = sentence.rbegin();
 
-            token = getToken();
-
-            S();
-
+        while (std::isspace(*start_pos)) {
+            start_pos++;
         }
 
-        void sanitizeToken() {
-            
-            std::string::iterator start_pos = sentence.begin();
-            std::string::reverse_iterator end_pos = sentence.rbegin();
-
-            while(std::isspace(*start_pos)) {
-                start_pos++;
-            }
-
-            while(std::isspace(*end_pos)) {
-                end_pos++;
-            }
-
-            sentence = std::string(start_pos, end_pos.base());
-
-            sentence.push_back(' ');
-
-
+        while (std::isspace(*end_pos)) {
+            end_pos++;
         }
 
-        int getToken(){
+        sentence = std::string(start_pos, end_pos.base());
+    }
 
-            sanitizeToken();
+    int getToken() {
 
-            std::stringstream ss(sentence);
+        sanitizeToken();
+
+        std::stringstream ss(sentence);
+
+        if(!sentence.empty())
             ss >> currentToken;
-            
-            sentence.find(" ") == std::string::npos ? sentence = "" : sentence = sentence.substr(sentence.find(" ") + 1);
+        else
+            currentToken = std::string("");
 
-            if(currentToken == "if"){
-                return IF;
-            } else if(currentToken == "then"){
-                return THEN;
-            } else if(currentToken == "else"){
-                return ELSE;
-            } else if(currentToken == "begin"){
-                return BEGIN;
-            } else if(currentToken == "end"){
-                return END;
-            } else if(currentToken == "print"){
-                return PRINT;
-            } else if(currentToken == ";"){
-                return SEMI;
-            } else if(currentToken == "="){
-                return EQ;
-            } else {
+        sentence.erase(0, currentToken.length());
 
-                if(validNum(currentToken)) {
-                    return NUM;
-                } else {
-                    return -1;
-                }
-
-            }
-
+        if(sentence.empty() && currentToken.empty()) {
+            return -2;
         }
 
-        bool validNum(std::string received_token){
+        if (currentToken == "if") {
+            return IF;
+        } else if (currentToken == "then") {
+            return THEN;
+        } else if (currentToken == "else") {
+            return ELSE;
+        } else if (currentToken == "begin") {
+            return BEGIN;
+        } else if (currentToken == "end") {
+            return END;
+        } else if (currentToken == "print") {
+            return PRINT;
+        } else if (currentToken == ";") {
+            return SEMI;
+        } else if (currentToken == "=") {
+            return EQ;
+        } else {
+            if (validNum(currentToken)) {
+                return NUM;
+            } else {
+                return -1;
+            }
+        }
+    }
 
-            if(received_token.length() == 1 && (received_token[0] == '-' || received_token[0] == '+')){
+    bool validNum(std::string received_token) {
+        if (received_token.length() == 1 && (received_token[0] == '-' || received_token[0] == '+')) {
+            return false;
+        }
+
+        for (int i = 0; i < received_token.length(); i++) {
+            if (received_token[0] == '+' || received_token[0] == '-') {
+                continue;
+            }
+
+            if (!isdigit(received_token[i])) {
                 return false;
             }
-
-            for(int i = 0; i < received_token.length(); i++){
-                
-                if(received_token[0] == '+' || received_token[0] == '-'){
-                    continue;
-                }
-                
-                if(!isdigit(received_token[i])){
-                    return false;
-                }
-
-            }
-
-            return true;
-
         }
 
-        void eat(int i) {
+        return true;
+    }
 
-            if(i == token) {
-                advance();
-            } else {
+    int eat(int i) {
+
+        if (i == token) {
+
+            advance();
+
+            return 1;
+
+        } else if(i != token) {
+            
+            if(token == -2) {
                 newLine();
-                std::cout << "ERRO SINTATICO EM: " << tokenNames[token] << " ESPERADO: " << tokenNames[i];
-                accepted = false;
+                std::cout << "ERRO SINTATICO: CADEIA INCOMPLETA";
                 numberOfPrints++;
-                return;
+                return 0;
+            } else if (token == -1) {
+                newLine();
+                std::cout << "ERRO SINTATICO EM: " << currentToken  << " TOKEN NAO IDENTIFICADO";
+                return 0;
             }
 
+            newLine();
+            std::cout << "ERRO SINTATICO EM: " << tokenNames[token] << " ESPERADO: " << tokenNames[i];
+            numberOfPrints++;
+            return 0;
         }
 
-        void advance() {
+        return 1;
+    }
 
-            token = getToken();
+    void advance() {
+        token = getToken();
+    }
 
-        }
+    int S() {
+        switch (token) {
+            case IF: {
+                if (!eat(IF)) return 0;
 
-        void S() {
+                if (!E()) return 0;
 
-            switch(token) {
+                if (!eat(THEN)) return 0;
 
-                case IF: {
+                if (!S()) return 0;
 
-                    eat(IF);
-                    if(accepted) {
-                        E();
-                        if(accepted) {
-                            eat(THEN);
-                            if(accepted) {
-                                S();
-                                if(accepted) {
-                                    eat(ELSE);
-                                    if(accepted) {
-                                        S();
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    break;
-                }
-                case BEGIN: {
-                    eat(BEGIN); 
-                    if(accepted) {
-                        S();
-                        if(accepted) {
-                            L();
-                        }
-                    }
-                    break;
-                } 
-                case PRINT: {
-                    eat(PRINT); 
-                    if(accepted) {
-                        E();
-                    }
-                    break;
-                }
-                default: {
-                    newLine();
-                    std::cout << "ERRO SINTATICO EM: " << tokenNames[token] << " ESPERADO: " << tokenNames[IF] << ", " << tokenNames[BEGIN] << ", " << tokenNames[PRINT]; accepted = false; 
-                    numberOfPrints++; 
-                    break;
-                }
-                
+                if (!eat(ELSE)) return 0;
+
+                if (!S()) return 0;
+
+                return 1;
             }
+            case BEGIN: {
+                if (!eat(BEGIN)) return 0;
 
-        }
+                if (!S()) return 0;
 
-        void L() {
+                if (!L()) return 0;
 
-            switch(token) {
-                case END: {
-                    eat(END); 
-                    break;
-                } 
-                case SEMI: {
-                    eat(SEMI); 
-                    if(accepted) {
-                        S();
-                        if(accepted) {
-                            L();
-                        }
-                    }
-                    break;
-                }
-                default: {
-
-                    newLine();
-                    std::cout << "ERRO SINTATICO EM: " << tokenNames[token] << " ESPERADO: " << tokenNames[END] << ", " << tokenNames[SEMI]; 
-                    accepted = false; 
-                    numberOfPrints++; 
-                    break;
-
-                }
+                return 1;
             }
+            case PRINT: {
+                if (!eat(PRINT)) return 0;
 
-        }
+                if (!E()) return 0;
 
-        void E() {
-
-            eat(NUM); 
-            if(accepted) {
-                eat(EQ); 
-                if(accepted) {
-                    eat(NUM); 
-                }
+                return 1;
             }
+            default: {
+                newLine();
 
+                if(token == -1) {
+                    std::cout << "ERRO SINTATICO EM: " << currentToken  << " ESPERADO: " << tokenNames[IF] << ", " << tokenNames[BEGIN] << ", " << tokenNames[PRINT];
+                } else {
+                    std::cout << "ERRO SINTATICO EM: " << tokenNames[token] << " ESPERADO: " << tokenNames[IF] << ", " << tokenNames[BEGIN] << ", " << tokenNames[PRINT];
+                }
+
+                numberOfPrints++;
+                return 0;
+            }
+        }
+    }
+
+    int L() {
+        switch (token) {
+            case END: {
+                if (!eat(END)) return 0;
+                return 1;
+            }
+            case SEMI: {
+                if (!eat(SEMI)) return 0;
+
+                if (!S()) return 0;
+
+                if (!L()) return 0;
+
+                return 1;
+            }
+            default: {
+                newLine();
+                if(token == -1) {
+                    std::cout << "ERRO SINTATICO EM: " << currentToken  << " ESPERADO: " << tokenNames[END] << ", " << tokenNames[SEMI];
+                } else {
+                    std::cout << "ERRO SINTATICO EM: " << tokenNames[token] << " ESPERADO: " << tokenNames[END] << ", " << tokenNames[SEMI];
+                }
+                numberOfPrints++;
+                return 0;
+            }
         }
 
-    };
-}
+        return 1;
+    }
+
+    int E() {
+        if (!eat(NUM)) return 0;
+
+        if (!eat(EQ)) return 0;
+
+        if (!eat(NUM)) return 0;
+
+        return 1;
+    }
+};
+}  // namespace Compiler
