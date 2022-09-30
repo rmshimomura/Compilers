@@ -14,19 +14,18 @@ class Lexic_Analyzer {
     std::string sentence;
     // std::string currentToken;
 
-    int transistions_table[3][127]{0};
-    int final_states[3]{0,0,1};
-    std::string final_states_names[3] = {"error","error","ID"};
+    int transistions_table[8][127]{0};
+    int final_states[8]{0,0,1,1,1,1,1,1};
 
     void initialize_matrix() {
         u("1 az 2");
         u("2 az 2");
         u("2 09 2");
-        u("1 + 2");
-        u("1 * 2");
-        u("1 ( 2");
-        u("1 ) 2");
-        u("1 $ 2");
+        u("1 + 3");
+        u("1 * 4");
+        u("1 ( 5");
+        u("1 ) 6");
+        u("1 $ 7");
     }
 
     void u(std::string line) {
@@ -131,22 +130,7 @@ class Syntactic_analyzer {
 
     public:
 
-        void syntax_analyze() {
-
-            for(int sentences_iterator = 0; sentences_iterator < valid_strings.size(); sentences_iterator++) {
-
-                if(valid_strings[sentences_iterator].size() == 1 && valid_strings[sentences_iterator][0] == "ERRO LEXICO: ") {
-                    std::cout << valid_strings[sentences_iterator][0] << std::endl;
-                } else {
-                    for(int tokens_iterator = 0; tokens_iterator < valid_strings[sentences_iterator].size(); tokens_iterator++) {
-                        std::cout << valid_strings[sentences_iterator][tokens_iterator] << " ";
-                    }
-                    std::cout << std::endl;
-                }
-
-            }
-
-        }
+        
 
 };
 
