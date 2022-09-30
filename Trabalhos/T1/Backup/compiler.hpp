@@ -7,7 +7,7 @@
 
 namespace Compiler {
 
-class Analyzer {
+class Lexic_Analyzer {
    public:
     std::string sentence;
     // std::string currentToken;
@@ -96,15 +96,19 @@ class Analyzer {
 
                 if(i == line.length() - 1) {
 
-                    if(final_states_names[last_final_state] != "white space") {
+                    if(final_states[current_state] == 1){
+                        if(final_states_names[last_final_state] != "white space") {
 
-                        if(last_final_token[last_final_token.length() - 1] == '\n') {
-                            last_final_token.pop_back();
+                            if(last_final_token[last_final_token.length() - 1] == '\n') {
+                                last_final_token.pop_back();
+                            }
+                            std::cout << last_final_token << " " << final_states_names[last_final_state] << std::endl;
+                        } else {
+                            
+                            std::cout << final_states_names[last_final_state] << std::endl;
                         }
-                        std::cout << last_final_token << " " << final_states_names[last_final_state] << std::endl;
                     } else {
-                        
-                        std::cout << final_states_names[last_final_state] << std::endl;
+                        std::cout << "error" << std::endl;
                     }
                 }
 

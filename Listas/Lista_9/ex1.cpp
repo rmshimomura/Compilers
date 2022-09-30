@@ -2,7 +2,7 @@
 
 int main () {
 
-    Compiler::Analyzer analyzer;
+    Compiler::Lexic_Analyzer analyzer;
 
     while (1) {
 

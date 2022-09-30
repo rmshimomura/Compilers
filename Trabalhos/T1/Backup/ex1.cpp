@@ -3,7 +3,7 @@
 
 int main () {
 
-    Compiler::Analyzer lexic;
+    Compiler::Lexic_Analyzer lexic;
 
     lexic.initialize_matrix();
 

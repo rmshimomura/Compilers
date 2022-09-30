@@ -6,7 +6,7 @@
 
 namespace Compiler {
 
-class Analyzer {
+class Lexic_Analyzer {
    public:
     std::string sentence;
     std::string currentToken;
