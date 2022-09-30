@@ -82,7 +82,7 @@
 [_a-zA-Z][_a-zA-Z0-9]*  { check_new_line(print_number); check_errors(total_lines, columns, yytext) ? : printf("IDENTIFIER(%s)", yytext); columns += strlen(yytext); print_number++; }
 "0"[1-7][0-7]*          { check_new_line(print_number); check_errors(total_lines, columns, yytext) ? : printf("NUM_OCTAL(%s)", yytext); columns += strlen(yytext); print_number++; }
 [0-9][0-9]*             { check_new_line(print_number); check_errors(total_lines, columns, yytext) ? : printf("NUM_INTEGER(%s)", yytext); columns += strlen(yytext); print_number++; }
-"0"[x|X][a-fA-F0-9]*    { check_new_line(print_number); check_errors(total_lines, columns, yytext) ? : printf("NUM_HEXA(%s)", yytext); columns += strlen(yytext); print_number++; }
+"0"[x|X][a-fA-F0-9]+    { check_new_line(print_number); check_errors(total_lines, columns, yytext) ? : printf("NUM_HEXA(%s)", yytext); columns += strlen(yytext); print_number++; }
 \"([^"\\\n]|\\.|\\\n)*\"    { check_new_line(print_number); check_errors(total_lines, columns, yytext) ? : printf("STRING(%s)", fixed_string(yytext)); columns += strlen(yytext); print_number++; }
 '([^'\\\n]|\\.)'        { check_new_line(print_number); check_errors(total_lines, columns, yytext) ? : printf("CHARACTER(%s)", fix_char(yytext)); columns += strlen(yytext); print_number++; }
 \a
