@@ -38,6 +38,8 @@ int main () {
 
     syntactic.syntax_analyze();
 
+    syntactic.results();
+
     return 0;
 
 

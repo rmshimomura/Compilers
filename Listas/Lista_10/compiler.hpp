@@ -130,7 +130,34 @@ class Syntactic_analyzer {
 
     public:
 
-        
+        void syntax_analyze() {
+
+            for(int sentences_iterator = 0; sentences_iterator < valid_strings.size(); sentences_iterator++) {
+
+                if(valid_strings[sentences_iterator].size() == 1 && valid_strings[sentences_iterator][0] == "ERRO LEXICO: ") {
+                    continue;
+                } else {
+                }
+
+            }
+
+        }
+
+        void results() {
+
+            for(int sentences_iterator = 0; sentences_iterator < valid_strings.size(); sentences_iterator++) {
+
+                if(valid_strings[sentences_iterator].size() == 1 && valid_strings[sentences_iterator][0] == "ERRO LEXICO: ") {
+                    std::cout << valid_strings[sentences_iterator][0] << std::endl;
+                } else {
+                    for(int tokens_iterator = 0; tokens_iterator < valid_strings[sentences_iterator].size(); tokens_iterator++) {
+                        std::cout << valid_strings[sentences_iterator][tokens_iterator] << " ";
+                    }
+                    std::cout << std::endl;
+                }
+
+            }
+        }
 
 };
 
