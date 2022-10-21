@@ -1,3 +1,4 @@
+from curses.ascii import islower
 import xml.etree.ElementTree as ET
 import re
 
@@ -65,7 +66,8 @@ def expand_re(regex):
    for i in range(0, 255):
     if(re.match(regex, chr(i))):
         expansion.append(chr(i))
-
+        if(islower(i)):
+            expansion.append(chr(i).upper())
    return expansion
     
 def main():
@@ -76,6 +78,14 @@ def main():
     transitions = get_transitions(root)
 
     matrix = [[0 for x in range(ascii_range)] for y in range(len(get_states(root)) + 1)]
+
+    matrix[1][32] = 171
+    for i in range(2,144):
+        for j in range(65, 91):
+            matrix[i][j] = 172
+        for j in range(97, 123):
+            matrix[i][j] = 172
+            
     
     for transition in transitions:
 
@@ -95,7 +105,7 @@ def main():
     else:
         digits = len(str(max_state))
 
-    print('int automaton[' + str(len(get_states(root)) + 1) + '][' + str(ascii_range) + '] = {')
+    print('int transistions_table[' + str(len(get_states(root)) + 1) + '][' + str(ascii_range) + '] = {')
 
     print('/*' + ' ' * (digits + 8), end='')
     for i in range(ascii_range):
@@ -131,10 +141,14 @@ def main():
         else:
             print(f'\t// {i}\n}};\n')
     
-    print('string tokens[{}] = {{'.format(len(get_states(root)) + 1))
+    print('std::string tokens[{}] = {{'.format(len(get_states(root)) + 1))
     for state in root.iter('state'):
-        if (state.find('label') is not None):
+        if (int(state.get('id')) == 171):
+            print('\t"{}",\t// {}'.format("", state.get('id')))
+        elif (state.find('label') is not None):
             print('\t"{}",\t// {}'.format(state.find('label').text, state.get('id')))
+        elif (state.find('final') is not None and state.find('label') is None and int(state.get('id')) > 1 and int(state.get('id')) < 144):
+            print('\t"{}",\t// {}'.format("ID", state.get('id')))
         else:
             print('\t"ERRO",\t// {}'.format(state.get('id')))
     print('};')
