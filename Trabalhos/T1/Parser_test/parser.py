@@ -1,45 +1,147 @@
-import xml.sax
+import xml.etree.ElementTree as ET
+import re
 
-class Portugol( xml.sax.ContentHandler ):
-   def __init__(self):
-      self.CurrentData = ""   
-      self.origin = ""
-      self.destination = ""
-      self.read = ""
+# parse XML file into ElementTree object
 
-   # Call when an element starts
-   def startElement(self, tag, attributes):
-      self.CurrentData = tag
-         
-   # Call when an elements ends
-   def endElement(self, tag):
-      if self.CurrentData == "from":
-         print ("from:", self.origin)
-      elif self.CurrentData == "to":
-         print ("to:", self.destination)
-      elif self.CurrentData == "read":
-         print ("read:", self.read)
-         print("")
-      self.CurrentData = ""
 
-   # Call when a character is read
-   def characters(self, content):
-      if self.CurrentData == "from":
-         self.origin = content
-      elif self.CurrentData == "to":
-         self.destination = content
-      elif self.CurrentData == "read":
-         self.read = content
-  
-if ( __name__ == "__main__"):
-   
-   # create an XMLReader
-   parser = xml.sax.make_parser()
-   # turn off namepsaces
-   parser.setFeature(xml.sax.handler.feature_namespaces, 0)
+def parse_xml(filename):
+    tree = ET.parse(filename)
+    root = tree.getroot()
+    return root
 
-   # override the default ContextHandler
-   Handler = Portugol()
-   parser.setContentHandler( Handler )
-   print("TRANSITIONS: \n")
-   parser.parse("/home/rodrigo/Documents/Compiladores/Trabalhos/T1/portugol.jff")
+# get all states from XML file
+
+
+def get_states(root):
+    states = []
+    for state in root.iter('state'):
+        states.append(state.get('id'))
+    return states
+
+# get all transitions from XML file
+
+
+def get_transitions(root):
+    transitions = []
+    for transition in root.iter('transition'):
+        transitions.append((transition.find('from').text, transition.find(
+            'to').text, transition.find('read').text))
+    return transitions
+
+# get all final states from XML file
+
+
+def get_final_states(root):
+    final_states = []
+    for state in root.iter('state'):
+        if state.find('final') is not None:
+            final_states.append(state.get('id'))
+    return final_states
+
+# get all initial states from XML file
+
+
+def get_initial_states(root):
+    initial_states = []
+    for state in root.iter('state'):
+        if state.find('initial') is not None:
+            initial_states.append(state.get('id'))
+    return initial_states
+
+# get all symbols from XML file
+
+
+def get_symbols(root):
+    symbols = []
+    for transition in root.iter('transition'):
+        if transition.find('read').text not in symbols:
+            symbols.append(transition.find('read').text)
+    return symbols
+
+
+def expand_re(regex):
+   expansion = []
+
+   for i in range(0, 255):
+    if(re.match(regex, chr(i))):
+        expansion.append(chr(i))
+
+   return expansion
+    
+def main():
+
+    ascii_range = 256
+    
+    root = parse_xml('/home/rodrigo/Documents/Compiladores/Trabalhos/T1/Parser_test/sofrimento.jff')
+    transitions = get_transitions(root)
+
+    matrix = [[0 for x in range(ascii_range)] for y in range(len(get_states(root)) + 1)]
+    
+    for transition in transitions:
+
+        list = expand_re(transition[2])
+        for item in list:
+            matrix[int(transition[0])][ord(item)] = transition[1]
+
+    print('int initial_state = ' + get_initial_states(root)[0] + ';\n')
+
+    max_state = 0
+    for state in get_states(root):
+        if (int(state) > max_state):
+            max_state = int(state)
+
+    if ascii_range > max_state:
+        digits = len(str(ascii_range))
+    else:
+        digits = len(str(max_state))
+
+    print('int automaton[' + str(len(get_states(root)) + 1) + '][' + str(ascii_range) + '] = {')
+
+    print('/*' + ' ' * (digits + 8), end='')
+    for i in range(ascii_range):
+        if i < 32 or i > 126:
+            print(str(i).rjust(digits), end='')
+        else:
+            print(chr(i).rjust(digits), end='')
+        if (i != ascii_range - 1):
+            print('  ', end='')
+    print('*/')
+    
+    for i in range(len(get_states(root)) + 1):
+        print('/* {} */\t{{'.format(str(i).rjust(digits)), end='')
+        for j in range(ascii_range):
+            print('{}'.format(str(matrix[i][j]).rjust(digits)), end='')
+            if (j != ascii_range - 1):
+                print(', ', end='')
+        print('}', end='')
+        if (i != len(get_states(root))):
+            print(',')
+        else:
+            print('\n};\n')
+
+    
+    print('bool final_states[' + str(len(get_states(root)) + 1) + '] = {')
+    for i in range(len(get_states(root)) + 1):
+        if (str(i) in get_final_states(root)):
+            print('\t1', end='')
+        else:
+            print('\t0', end='')
+        if (i != len(get_states(root))):
+            print(',\t// {}'.format(i))
+        else:
+            print(f'\t// {i}\n}};\n')
+    
+    print('string tokens[{}] = {{'.format(len(get_states(root)) + 1))
+    for state in root.iter('state'):
+        if (state.find('label') is not None):
+            print('\t"{}",\t// {}'.format(state.find('label').text, state.get('id')))
+        else:
+            print('\t"ERRO",\t// {}'.format(state.get('id')))
+    print('};')
+
+
+
+
+# create a main function to test the get transitions function
+if __name__ == '__main__':
+    main()
