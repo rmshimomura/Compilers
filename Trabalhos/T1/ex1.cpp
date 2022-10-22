@@ -1,29 +1,38 @@
 #include "compiler.hpp"
-
-std::vector<std::string> transform_input() {
-    std::vector<std::string> strings;
-    std::string line;
-    while (std::getline(std::cin, line)) {
-        strings.push_back(line);
-    }
-    return strings;
-}
+#include "definitions.hpp"
 
 int main () {
 
-    Compiler::Lexic_Analyzer lexic;
+    input = "";
+    char c;
 
-    std::vector<std::string> strings = transform_input();
-    
-    for(int i = 0; i < strings.size(); i++) {
-        lexic.lexic_analyze(strings[i]);
+    while ((c = getchar()) != EOF) {
+        input += c;
     }
+
+    Compiler::Lexic_Analyzer lexic;
 
     Compiler::Syntactic_analyzer syntactic;
 
-    // syntactic.syntax_analyze();
+    int correct_program = 1;
+    
+    while(input.size() > 0) {
 
-    syntactic.results();
+        int value = lexic.lexic_analyze(input);
+
+        if(value == 0) {
+            correct_program = 0;
+            break;
+        }
+
+        // syntactic.syntactic_analyze(value);
 
 
+    }
+
+    if(correct_program) {
+        std::cout << "PROGRAMA CORRETO.";
+    }
+
+    return 0;
 }
