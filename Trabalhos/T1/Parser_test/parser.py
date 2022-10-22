@@ -74,7 +74,7 @@ def main():
 
     ascii_range = 256
     
-    root = parse_xml('/home/rodrigo/Documents/Compiladores/Trabalhos/T1/Parser_test/sofrimento.jff')
+    root = parse_xml('/home/rodrigo/Documents/Compiladores/Trabalhos/T1/Parser_test/drawing.jff')
     transitions = get_transitions(root)
 
     matrix = [[0 for x in range(ascii_range)] for y in range(len(get_states(root)) + 1)]
@@ -141,16 +141,14 @@ def main():
         else:
             print(f'\t// {i}\n}};\n')
     
-    print('std::string tokens[{}] = {{'.format(len(get_states(root)) + 1))
+    print('final_state_names tokens[{}] = {{'.format(len(get_states(root)) + 1))
     for state in root.iter('state'):
-        if (int(state.get('id')) == 171):
-            print('\t"{}",\t// {}'.format("", state.get('id')))
-        elif (state.find('label') is not None):
-            print('\t"{}",\t// {}'.format(state.find('label').text, state.get('id')))
+        if (state.find('label') is not None):
+            print('\t{},\t// {}'.format(state.find('label').text, state.get('id')))
         elif (state.find('final') is not None and state.find('label') is None and int(state.get('id')) > 1 and int(state.get('id')) < 144):
-            print('\t"{}",\t// {}'.format("ID", state.get('id')))
+            print('\t{},\t// {}'.format("ID", state.get('id')))
         else:
-            print('\t"ERRO",\t// {}'.format(state.get('id')))
+            print('\tERRO,\t// {}'.format(state.get('id')))
     print('};')
 
 
