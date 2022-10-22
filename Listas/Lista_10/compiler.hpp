@@ -161,11 +161,13 @@ class Syntactic_analyzer {
 
             std::string stack_top = stack_analyzer.top();
 
-            for(int w = 0; w < syntactic_accepted.size(); w++) {
-                std::cout << syntactic_accepted[w] << " ";
+            for (int w = 0; w < syntactic_accepted.size(); w++) {
+                std:: cout << syntactic_accepted[w] << " ";
             }
 
-            std::cout << std::endl << stack_analyzer.top() << std::endl << token << std::endl << k << std::endl << sentence.size() -1 << std::endl;
+            std::cout << std::endl;
+
+            printf("\n%s-%s\n", stack_top.c_str(), token.c_str());
 
             if (token == "+") {
                 if(stack_top == "E\'") {
@@ -175,21 +177,22 @@ class Syntactic_analyzer {
                     syntactic_accepted.push_back("+");
                     k++;
                     if(k == sentence.size() - 1 && stack_analyzer.top() != "$" && sentence[k] != "$") {
+                        std::string custom_error = "ERRO SINTATICO: " + sentence[k];
                         if(stack_analyzer.top() == "E") {
                             valid_strings[sentences_iterator].clear();
-                            valid_strings[sentences_iterator].push_back("ERRO SINTATICO:  ESPERADO: id, (");
+                            valid_strings[sentences_iterator].push_back(custom_error + " ESPERADO: id, (");
                         } else if (stack_analyzer.top() == "T") {
                             valid_strings[sentences_iterator].clear();
-                            valid_strings[sentences_iterator].push_back("ERRO SINTATICO:  ESPERADO: id, (");
+                            valid_strings[sentences_iterator].push_back(custom_error + " ESPERADO: id, (");
                         } else if (stack_analyzer.top() == "F") {
                             valid_strings[sentences_iterator].clear();
-                            valid_strings[sentences_iterator].push_back("ERRO SINTATICO:  ESPERADO: id, (");
+                            valid_strings[sentences_iterator].push_back(custom_error + " ESPERADO: id, (");
                         } else if (stack_analyzer.top() == "E\'") {
                             valid_strings[sentences_iterator].clear();
-                            valid_strings[sentences_iterator].push_back("ERRO SINTATICO:  ESPERADO: +, ), $");
+                            valid_strings[sentences_iterator].push_back(custom_error + " ESPERADO: +, ), $");
                         } else if (stack_analyzer.top() == "T\'") {
                             valid_strings[sentences_iterator].clear();
-                            valid_strings[sentences_iterator].push_back("ERRO SINTATICO:  ESPERADO: +, *, ), $");
+                            valid_strings[sentences_iterator].push_back(custom_error + " ESPERADO: +, *, ), $");
                         }
                         return;
                     }
@@ -198,13 +201,15 @@ class Syntactic_analyzer {
                     stack_analyzer.pop();
                 } else if(stack_top == "E" || stack_top == "T" || stack_top == "F" || stack_top == "S") {
                     valid_strings[sentences_iterator].clear();
-                    valid_strings[sentences_iterator][0] = "ERRO SINTATICO: + ESPERADO: id, (";
+                    valid_strings[sentences_iterator].push_back("ERRO SINTATICO: + ESPERADO: id, (");
                     return;
                 } else {
-                    if(stack_top == ")") {
-                        stack_analyzer.pop();
-                        syntactic_accepted.push_back(")");
+                    syntactic_accepted.push_back(stack_analyzer.top());
+                    stack_analyzer.pop();
+                    if(stack_analyzer.top() != "$") {
+
                         k++;
+                        token = sentence[k];
                     }
                 }
 
@@ -216,34 +221,37 @@ class Syntactic_analyzer {
                     syntactic_accepted.push_back("*");
                     k++;
                     if(k == sentence.size() - 1 && stack_analyzer.top() != "$" && sentence[k] != "$") {
+                        std::string custom_error = "ERRO SINTATICO: " + sentence[k];
                         if(stack_analyzer.top() == "E") {
                             valid_strings[sentences_iterator].clear();
-                            valid_strings[sentences_iterator].push_back("ERRO SINTATICO:  ESPERADO: id, (");
+                            valid_strings[sentences_iterator].push_back(custom_error + " ESPERADO: id, (");
                         } else if (stack_analyzer.top() == "T") {
                             valid_strings[sentences_iterator].clear();
-                            valid_strings[sentences_iterator].push_back("ERRO SINTATICO:  ESPERADO: id, (");
+                            valid_strings[sentences_iterator].push_back(custom_error + " ESPERADO: id, (");
                         } else if (stack_analyzer.top() == "F") {
                             valid_strings[sentences_iterator].clear();
-                            valid_strings[sentences_iterator].push_back("ERRO SINTATICO:  ESPERADO: id, (");
+                            valid_strings[sentences_iterator].push_back(custom_error + " ESPERADO: id, (");
                         } else if (stack_analyzer.top() == "E\'") {
                             valid_strings[sentences_iterator].clear();
-                            valid_strings[sentences_iterator].push_back("ERRO SINTATICO:  ESPERADO: +, ), $");
+                            valid_strings[sentences_iterator].push_back(custom_error + " ESPERADO: +, ), $");
                         } else if (stack_analyzer.top() == "T\'") {
                             valid_strings[sentences_iterator].clear();
-                            valid_strings[sentences_iterator].push_back("ERRO SINTATICO:  ESPERADO: +, *, ), $");
+                            valid_strings[sentences_iterator].push_back(custom_error + " ESPERADO: +, *, ), $");
                         }
                         return;
                     }
                     token = sentence[k];
                 } else if(stack_top == "E" || stack_top == "T" || stack_top == "F" || stack_top == "S") {
                     valid_strings[sentences_iterator].clear();
-                    valid_strings[sentences_iterator][0] = "ERRO SINTATICO: * ESPERADO: id, (, +, ), $";
+                    valid_strings[sentences_iterator].push_back("ERRO SINTATICO: * ESPERADO: id, (");
                     return;
                 } else {
-                    if(stack_top == ")") {
-                        stack_analyzer.pop();
-                        syntactic_accepted.push_back(")");
+                    syntactic_accepted.push_back(stack_analyzer.top());
+                    stack_analyzer.pop();
+                    if(stack_analyzer.top() != "$") {
+
                         k++;
+                        token = sentence[k];
                     }
                 }
             } else if (token == "(") {
@@ -262,21 +270,22 @@ class Syntactic_analyzer {
                     syntactic_accepted.push_back("(");
                     k++;
                     if(k == sentence.size() - 1 && stack_analyzer.top() != "$" && sentence[k] != "$") {
+                        std::string custom_error = "ERRO SINTATICO: " + sentence[k];
                         if(stack_analyzer.top() == "E") {
                             valid_strings[sentences_iterator].clear();
-                            valid_strings[sentences_iterator].push_back("ERRO SINTATICO:  ESPERADO: id, (");
+                            valid_strings[sentences_iterator].push_back(custom_error + " ESPERADO: id, (");
                         } else if (stack_analyzer.top() == "T") {
                             valid_strings[sentences_iterator].clear();
-                            valid_strings[sentences_iterator].push_back("ERRO SINTATICO:  ESPERADO: id, (");
+                            valid_strings[sentences_iterator].push_back(custom_error + " ESPERADO: id, (");
                         } else if (stack_analyzer.top() == "F") {
                             valid_strings[sentences_iterator].clear();
-                            valid_strings[sentences_iterator].push_back("ERRO SINTATICO:  ESPERADO: id, (");
+                            valid_strings[sentences_iterator].push_back(custom_error + " ESPERADO: id, (");
                         } else if (stack_analyzer.top() == "E\'") {
                             valid_strings[sentences_iterator].clear();
-                            valid_strings[sentences_iterator].push_back("ERRO SINTATICO:  ESPERADO: +, ), $");
+                            valid_strings[sentences_iterator].push_back(custom_error + " ESPERADO: +, ), $");
                         } else if (stack_analyzer.top() == "T\'") {
                             valid_strings[sentences_iterator].clear();
-                            valid_strings[sentences_iterator].push_back("ERRO SINTATICO:  ESPERADO: +, *, ), $");
+                            valid_strings[sentences_iterator].push_back(custom_error + " ESPERADO: +, *, ), $");
                         }
                         return;
                     }
@@ -289,11 +298,14 @@ class Syntactic_analyzer {
                     valid_strings[sentences_iterator].clear();
                     valid_strings[sentences_iterator].push_back("ERRO SINTATICO: ( ESPERADO: +, *, ), $");
                     return;
-                }else {
-                    if(stack_top == ")") {
-                        stack_analyzer.pop();
-                        syntactic_accepted.push_back(")");
+                } else {
+                    syntactic_accepted.push_back(stack_analyzer.top());
+                    stack_analyzer.pop();
+
+                    if(stack_analyzer.top() != "$") {
+
                         k++;
+                        token = sentence[k];
                     }
                 }
             } else if (token == ")") {
@@ -305,24 +317,38 @@ class Syntactic_analyzer {
                     valid_strings[sentences_iterator].clear();
                     valid_strings[sentences_iterator].push_back("ERRO SINTATICO: ) ESPERADO: id, (");
                     return;
-                }else {
-                    if(stack_top == ")") {
-                        stack_analyzer.pop();
-                        syntactic_accepted.push_back(")");
+                } else if (stack_top == "$") {
+
+                    valid_strings[sentences_iterator].clear();
+                    valid_strings[sentences_iterator].push_back("ERRO SINTATICO: ) ESPERADO: $");
+                    return;
+
+                } else {
+                    syntactic_accepted.push_back(stack_analyzer.top());
+                    stack_analyzer.pop();
+                    if(stack_analyzer.top() != "$") {
+
                         k++;
+                        token = sentence[k];
                     }
                 }
             } else if (token == "$") {
                 if(stack_top == "E\'") {
                     stack_analyzer.pop();
-                    k++;
                 } else if(stack_top == "T\'") {
                     stack_analyzer.pop();
-                    k++;
                 } else if(stack_top == "E" || stack_top == "T" || stack_top == "F" || stack_top == "S") {
                     valid_strings[sentences_iterator].clear();
-                    valid_strings[sentences_iterator].push_back("ERRO SINTATICO: ESPERADO: id, (");
+                    valid_strings[sentences_iterator].push_back("ERRO SINTATICO: $ ESPERADO: id, (");
                     return;
+                } else {
+                    syntactic_accepted.push_back(stack_analyzer.top());
+                    stack_analyzer.pop();
+                    if(stack_analyzer.top() != "$") {
+
+                        k++;
+                        token = sentence[k];
+                    }
                 }
 
                 if(stack_analyzer.empty() && k != sentence.size() - 1) {
@@ -346,21 +372,22 @@ class Syntactic_analyzer {
                     syntactic_accepted.push_back(token);
                     k++;
                     if(k == sentence.size() - 1 && stack_analyzer.top() != "$" && sentence[k] != "$") {
+                        std::string custom_error = "ERRO SINTATICO: " + sentence[k];
                         if(stack_analyzer.top() == "E") {
                             valid_strings[sentences_iterator].clear();
-                            valid_strings[sentences_iterator].push_back("ERRO SINTATICO:  ESPERADO: id, (");
+                            valid_strings[sentences_iterator].push_back(custom_error + " ESPERADO: id, (");
                         } else if (stack_analyzer.top() == "T") {
                             valid_strings[sentences_iterator].clear();
-                            valid_strings[sentences_iterator].push_back("ERRO SINTATICO:  ESPERADO: id, (");
+                            valid_strings[sentences_iterator].push_back(custom_error + " ESPERADO: id, (");
                         } else if (stack_analyzer.top() == "F") {
                             valid_strings[sentences_iterator].clear();
-                            valid_strings[sentences_iterator].push_back("ERRO SINTATICO:  ESPERADO: id, (");
+                            valid_strings[sentences_iterator].push_back(custom_error + " ESPERADO: id, (");
                         } else if (stack_analyzer.top() == "E\'") {
                             valid_strings[sentences_iterator].clear();
-                            valid_strings[sentences_iterator].push_back("ERRO SINTATICO:  ESPERADO: +, ), $");
+                            valid_strings[sentences_iterator].push_back(custom_error + " ESPERADO: $");
                         } else if (stack_analyzer.top() == "T\'") {
                             valid_strings[sentences_iterator].clear();
-                            valid_strings[sentences_iterator].push_back("ERRO SINTATICO:  ESPERADO: +, *, ), $");
+                            valid_strings[sentences_iterator].push_back(custom_error + " ESPERADO: $");
                         }
                         return;
                     }
@@ -370,15 +397,16 @@ class Syntactic_analyzer {
                     stack_analyzer.push("$");
                     stack_analyzer.push("E");
                 } else if (stack_top == "E\'" || stack_top == "T\'") {
+
+                    std::string result_string = token == "$" ? "$" : "id";
                     valid_strings[sentences_iterator].clear();
-                    valid_strings[sentences_iterator].push_back("ERRO SINTATICO: id ESPERADO: +, *, ), $");
+                    valid_strings[sentences_iterator].push_back("ERRO SINTATICO: " + result_string + " ESPERADO: +, *, ), $");
                     return;
                 } else {
-                    if(stack_top == ")") {
-                        stack_analyzer.pop();
-                        syntactic_accepted.push_back(")");
-                        k++;
-                    }
+                    syntactic_accepted.push_back(stack_analyzer.top());
+                    stack_analyzer.pop();
+                    k++;
+                    token = sentence[k];
                 }
             }
 
@@ -391,7 +419,7 @@ class Syntactic_analyzer {
 
     void results() {
         for (int sentences_iterator = 0; sentences_iterator < valid_strings.size(); sentences_iterator++) {
-            if (valid_strings[sentences_iterator].size() == 1 && valid_strings[sentences_iterator][0] == "ERRO LEXICO: ") {
+            if (valid_strings[sentences_iterator].size() == 1) {
                 std::cout << valid_strings[sentences_iterator][0] << std::endl;
             } else {
                 for (int tokens_iterator = 0; tokens_iterator < valid_strings[sentences_iterator].size(); tokens_iterator++) {
