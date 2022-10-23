@@ -16,7 +16,12 @@ int main () {
 
     int correct_program = 1;
     
-    stack_analyzer.push("programa");
+    stack_analyzer.push("algoritmo");
+    stack_analyzer.push("id");
+    stack_analyzer.push(";");
+    stack_analyzer.push("BlocoVariaveis");
+    stack_analyzer.push("ProcedimentoFuncao");
+    stack_analyzer.push("BlocoComandos");
 
     while(input.size() > 0) {
 
