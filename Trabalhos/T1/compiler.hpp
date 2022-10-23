@@ -121,6 +121,27 @@ class Syntactic_analyzer {
             case FECHA_COL:
                 close_bracket_function();
                 break;
+            case VETOR:
+                vector_function();
+                break;
+            case MATRIZ:
+                matrix_function();
+                break;
+            case NUMERO_INTEIRO:
+                integer_number_function();
+                break;
+            case INTEIRO:
+                integer_function();
+                break;
+            case REAL:
+                real_function();
+                break;
+            case CARACTERE:
+                character_function();
+                break;
+            case LOGICO:
+                logical_function();
+                break;
             break;
         }
     }
@@ -626,6 +647,224 @@ class Syntactic_analyzer {
             
         }
 
+    }
+
+    void vector_function() {
+        if (s.top() == "VetorMatriz") {
+            s.pop();
+            s.push("vetor");
+        } else {
+            if (std::any_of(token.begin(), token.end(), ::isupper)) {
+                std::cout << "ERRO SINTATICO. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token << "\'";
+                exit(0);
+            }
+            s.pop();
+        }
+    }
+
+    void matrix_function() {
+        if (s.top() == "VetorMatriz") {
+            s.pop();
+            s.push("matriz");
+        } else {
+            if (std::any_of(token.begin(), token.end(), ::isupper)) {
+                std::cout << "ERRO SINTATICO. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token << "\'";
+                exit(0);
+            }
+            s.pop();
+        }
+    }
+
+    void integer_number_function() {
+        if (s.top() == "Dimensao") {
+            s.pop();
+            s.push("Dimensao\'");
+            s.push("numero_inteiro");
+            s.push(":");
+            s.push("numero_inteiro");
+        } else if (s.top() == "Expressao") {
+            s.pop();
+            s.push("Expressao\'\'");
+            s.push("ExpressaoSimples");
+        } else if (s.top() == "ExpressaoSimples") {
+            s.pop();
+            s.push("ExpressaoSimples\'\'");
+            s.push("Termo");
+        } else if (s.top() == "Termo") {
+            s.pop();
+            s.push("Termo\'\'");
+            s.push("Fator");
+        } else if (s.top() == "Fator") {
+            s.pop();
+            s.push("numero_inteiro");
+        } else if (s.top() == "ExprIter") {
+            s.pop();
+            s.push("ExprIter\'");
+            s.push("Expressao\'\'");
+            s.push("ExpressaoSimples\'\'");
+            s.push("Termo\'\'");
+            s.push("numero_inteiro");
+        }
+    }
+
+    void integer_function() {
+        if (s.top() == "DeclaraParametros") {
+            s.pop();
+            s.push("Declaracoes");
+        } else if (s.top() == "Declaracoes") {
+            s.pop();
+            s.push("Declaracoes\'");
+            s.push("DeclaraVariaveis");
+        } else if (s.top() == "DeclaraVariaveis") {
+            s.pop();
+            s.push(";");
+            s.push("DeclaraIdentificador");
+            s.push(":");
+            s.push("TipoBasico");
+        } else if (s.top() == "TipoBasico") {
+            s.pop();
+            s.push("inteiro");
+        } else if (s.top() == "Declaracoes\'") {
+            s.pop();
+            s.push("Declaracoes\'");
+            s.push(";");
+            s.push("DeclaraIdentificador");
+            s.push(":");
+            s.push("inteiro");
+        } else if (s.top() == "Declaracoes\'\'") {
+            s.pop();
+            s.push("Declaracoes\'");
+            s.push(";");
+            s.push("DeclaraIdentificador");
+            s.push(":");
+            s.push("inteiro");
+        } else {
+            if (std::any_of(token.begin(), token.end(), ::isupper)) {
+                std::cout << "ERRO SINTATICO. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token << "\'";
+                exit(0);
+            }
+            s.pop();
+        }
+    }
+
+    void real_function() {
+        if (s.top() == "DeclaraParametros") {
+            s.pop();
+            s.push("Declaracoes");
+        } else if (s.top() == "Declaracoes") {
+            s.pop();
+            s.push("Declaracoes\'");
+            s.push("DeclaraVariaveis");
+        } else if (s.top() == "DeclaraVariaveis") {
+            s.pop();
+            s.push(";");
+            s.push("DeclaraIdentificador");
+            s.push(":");
+            s.push("TipoBasico");
+        } else if (s.top() == "TipoBasico") {
+            s.pop();
+            s.push("real");
+        } else if (s.top() == "Declaracoes\'") {
+            s.pop();
+            s.push("Declaracoes\'");
+            s.push(";");
+            s.push("DeclaraIdentificador");
+            s.push(":");
+            s.push("real");
+        } else if (s.top() == "Declaracoes\'\'") {
+            s.pop();
+            s.push("Declaracoes\'");
+            s.push(";");
+            s.push("DeclaraIdentificador");
+            s.push(":");
+            s.push("real");
+        } else {
+            if (std::any_of(token.begin(), token.end(), ::isupper)) {
+                std::cout << "ERRO SINTATICO. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token << "\'";
+                exit(0);
+            }
+            s.pop();
+        }
+    }
+
+    void character_function () {
+        if (s.top() == "DeclaraParametros") {
+            s.pop();
+            s.push("Declaracoes");
+        } else if (s.top() == "Declaracoes") {
+            s.pop();
+            s.push("Declaracoes\'");
+            s.push("DeclaraVariaveis");
+        } else if (s.top() == "DeclaraVariaveis") {
+            s.pop();
+            s.push(";");
+            s.push("DeclaraIdentificador");
+            s.push(":");
+            s.push("TipoBasico");
+        } else if (s.top() == "TipoBasico") {
+            s.pop();
+            s.push("caractere");
+        } else if (s.top() == "Declaracoes\'") {
+            s.pop();
+            s.push("Declaracoes\'");
+            s.push(";");
+            s.push("DeclaraIdentificador");
+            s.push(":");
+            s.push("caractere");
+        } else if (s.top() == "Declaracoes\'\'") {
+            s.pop();
+            s.push("Declaracoes\'");
+            s.push(";");
+            s.push("DeclaraIdentificador");
+            s.push(":");
+            s.push("caractere");
+        } else {
+            if (std::any_of(token.begin(), token.end(), ::isupper)) {
+                std::cout << "ERRO SINTATICO. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token << "\'";
+                exit(0);
+            }
+            s.pop();
+        }
+    }
+
+    void logical_function () {
+        if (s.top() == "DeclaraParametros") {
+            s.pop();
+            s.push("Declaracoes");
+        } else if (s.top() == "Declaracoes") {
+            s.pop();
+            s.push("Declaracoes\'");
+            s.push("DeclaraVariaveis");
+        } else if (s.top() == "DeclaraVariaveis") {
+            s.pop();
+            s.push(";");
+            s.push("DeclaraIdentificador");
+            s.push(":");
+            s.push("TipoBasico");
+        } else if (s.top() == "TipoBasico") {
+            s.pop();
+            s.push("logico");
+        } else if (s.top() == "Declaracoes\'") {
+            s.pop();
+            s.push("Declaracoes\'");
+            s.push(";");
+            s.push("DeclaraIdentificador");
+            s.push(":");
+            s.push("logico");
+        } else if (s.top() == "Declaracoes\'\'") {
+            s.pop();
+            s.push("Declaracoes\'");
+            s.push(";");
+            s.push("DeclaraIdentificador");
+            s.push(":");
+            s.push("logico");
+        } else {
+            if (std::any_of(token.begin(), token.end(), ::isupper)) {
+                std::cout << "ERRO SINTATICO. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token << "\'";
+                exit(0);
+            }
+            s.pop();
+        }
     }
 
 };
