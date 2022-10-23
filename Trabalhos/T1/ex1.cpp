@@ -16,6 +16,8 @@ int main () {
 
     int correct_program = 1;
     
+    stack_analyzer.push("programa");
+
     while(input.size() > 0) {
 
         int value = lexic.lexic_analyze(input);

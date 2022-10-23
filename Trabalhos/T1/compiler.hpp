@@ -87,7 +87,11 @@ class Syntactic_analyzer {
     std::vector<std::string> sentence;
 
     void syntax_analyze(int token_value) {
-        // Gramática aqui bla bla bla
+        
+        switch (token_value) {
+            
+        }
+
     }
 
 };

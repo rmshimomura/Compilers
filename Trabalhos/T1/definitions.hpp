@@ -669,6 +669,6 @@ final_state_ints tokens[174] = {
     ID,	// 172
 };
 
-std::stack<int> stack_analyzer;
+std::stack<std::string> stack_analyzer;
 
 #endif
