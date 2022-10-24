@@ -16,24 +16,31 @@ int main () {
 
     int correct_program = 1;
     
-    stack_analyzer.push("algoritmo");
-    stack_analyzer.push("id");
-    stack_analyzer.push(";");
-    stack_analyzer.push("BlocoVariaveis");
-    stack_analyzer.push("ProcedimentoFuncao");
-    stack_analyzer.push("BlocoComandos");
+    s.push("BlocoComandos");
+    s.push("ProcedimentoFuncao");
+    s.push("BlocoVariaveis");
+    s.push(";");
+    s.push("id");
+    s.push("algoritmo");
 
     while(input.size() > 0) {
 
-        int value = lexic.lexic_analyze(input);
+        if(ask_for_new_token) {
 
-        if(value == 0) {
-            correct_program = 0;
-            break;
+            token_read_value = lexic.lexic_analyze(input);
+
+            if(token_read_value == 0) {
+                correct_program = 0;
+                break;
+            } else if (token_read_value == 54 || token_read_value == 55 || token_read_value == 57) {
+                continue;
+            }
+
         }
 
-        // syntactic.syntactic_analyze(value);
+        std::cout << "Token lido: " << token_read << " " << s.top() << " " << token_read_value << std::endl;
 
+        syntactic.syntax_analyze(token_read_value);
 
     }
 
