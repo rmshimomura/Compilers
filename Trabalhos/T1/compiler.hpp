@@ -202,7 +202,34 @@ class Syntactic_analyzer {
             case TEXTO:
                 text_function();
                 break;
+            case VIRGULA:
+                comma_function();
+                break;
+            case PASSO:
+                step_function();
+                break;
+            case SENAO:
+                else_function();
+                break;
             break;
+            case DIFERENTE:
+                different_function();
+                break;
+            case MENOR:
+                less_function();
+                break;
+            case MENOR_IGUAL:
+                less_equal_function();
+                break;
+            case MAIOR:
+                greater_function();
+                break;
+            case MAIOR_IGUAL:
+                greater_equal_function();
+                break;
+            case OU:
+                or_function();
+                break;
         }
     }
 
@@ -1489,6 +1516,280 @@ class Syntactic_analyzer {
             s.push("ExpressaoSimples\'\'");
             s.push("Termo\'\'");
             s.push("texto");
+        } else {
+            if (std::any_of(token.begin(), token.end(), ::isupper)) {
+                std::cout << "ERRO SINTATICO. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token << "\'";
+                exit(0);
+            }
+            s.pop();
+        }
+    }
+
+    void comma_function() {
+        if (s.top() == "FatorExtra") {
+            s.pop();
+            s.push("Variavel\'");
+        } else if (s.top() == "ExprIterExtra") {
+            s.pop();
+            s.push("ExprIter\'");
+            s.push("Expressao\'\'");
+            s.push("ExpressaoSimples\'\'");
+            s.push("Termo\'\'");
+            s.push("Variavel\'");
+        } else if (s.top() == "DeclaraIdentificador") {
+            s.pop();
+            s.push("DeclaraIdentificador");
+            s.push(",");
+        } else if (s.top() == "Dimensao\'") {
+            s.pop();
+            s.push("Dimensao");
+            s.push(",");
+        } else if (s.top() == "Variavel\'") {
+            s.pop();
+        } else if (s.top() == "ExprIter\'") {
+            s.pop();
+        } else if (s.top() == "Expressao\'\'") {
+            s.pop();
+        } else if (s.top() == "ExpressaoSimples\'\'") {
+            s.pop();
+        } else if (s.top() == "Termo\'\'") {
+            s.pop();
+        } else {
+            if (std::any_of(token.begin(), token.end(), ::isupper)) {
+                std::cout << "ERRO SINTATICO. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token << "\'";
+                exit(0);
+            }
+            s.pop();
+        }
+    }
+
+    void step_function() {
+        if (s.top() == "FatorExtra") {
+            s.pop();
+            s.push("Variavel\'");
+        } else if (s.top() == "Comandos\'") {
+            s.pop();
+            s.push("para");
+            s.push("fim");
+            s.push("ListaComandos");
+            s.push("faca");
+            s.push("Expressao");
+            s.push("passo");
+        } else if (s.top() == "Variavel\'") {
+            s.pop();
+        } else if (s.top() == "Expressao\'\'") {
+            s.pop();
+        } else if (s.top() == "ExpressaoSimples\'\'") {
+            s.pop();
+        } else if (s.top() == "Termo\'\'") {
+            s.pop();
+        } else {
+            if (std::any_of(token.begin(), token.end(), ::isupper)) {
+                std::cout << "ERRO SINTATICO. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token << "\'";
+                exit(0);
+            }
+            s.pop();
+        }
+    }
+
+    void else_function() {
+        if (s.top() == "ListaComandos\'") {
+            s.pop();
+        } else if (s.top() == "Comandos\'\'") {
+            s.pop();
+            s.push("se");
+            s.push("fim");
+            s.push("ListaComandos");
+            s.push("senao");
+        } else {
+            if (std::any_of(token.begin(), token.end(), ::isupper)) {
+                std::cout << "ERRO SINTATICO. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token << "\'";
+                exit(0);
+            }
+            s.pop();
+        }
+    }
+
+    void different_function() {
+        if (s.top() == "FatorExtra") {
+            s.pop();
+            s.push("Variavel\'");
+        } else if (s.top() == "ExprIterExtra") {
+            s.pop();
+            s.push("ExprIter\'");
+            s.push("Expressao\'\'");
+            s.push("ExpressaoSimples\'\'");
+            s.push("Termo\'\'");
+            s.push("Variavel\'");
+        } else if (s.top() == "Expressao\'") {
+            s.pop();
+            s.push("ExpressaoSimples");
+            s.push("<>");
+        } else if (s.top() == "Variavel\'") {
+            s.pop();
+        } else if (s.top() == "Expressao\'\'") {
+            s.pop();
+        } else if (s.top() == "ExpressaoSimples\'\'") {
+            s.pop();
+        } else if (s.top() == "Termo\'\'") {
+            s.pop();
+        } else {
+            if (std::any_of(token.begin(), token.end(), ::isupper)) {
+                std::cout << "ERRO SINTATICO. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token << "\'";
+                exit(0);
+            }
+            s.pop();
+        }
+    }
+
+    void less_function() {
+        if (s.top() == "FatorExtra") {
+            s.pop();
+            s.push("Variavel\'");
+        } else if (s.top() == "ExprIterExtra") {
+            s.pop();
+            s.push("ExprIter\'");
+            s.push("Expressao\'\'");
+            s.push("ExpressaoSimples\'\'");
+            s.push("Termo\'\'");
+            s.push("Variavel\'");
+        } else if (s.top() == "Expressao\'") {
+            s.pop();
+            s.push("ExpressaoSimples");
+            s.push("<");
+        } else if (s.top() == "Variavel\'") {
+            s.pop();
+        } else if (s.top() == "Expressao\'\'") {
+            s.pop();
+        } else if (s.top() == "ExpressaoSimples\'\'") {
+            s.pop();
+        } else if (s.top() == "Termo\'\'") {
+            s.pop();
+        } else {
+            if (std::any_of(token.begin(), token.end(), ::isupper)) {
+                std::cout << "ERRO SINTATICO. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token << "\'";
+                exit(0);
+            }
+            s.pop();
+        }
+    }
+
+    void less_equal_function() {
+        if (s.top() == "FatorExtra") {
+            s.pop();
+            s.push("Variavel\'");
+        } else if (s.top() == "ExprIterExtra") {
+            s.pop();
+            s.push("ExprIter\'");
+            s.push("Expressao\'\'");
+            s.push("ExpressaoSimples\'\'");
+            s.push("Termo\'\'");
+            s.push("Variavel\'");
+        } else if (s.top() == "Expressao\'") {
+            s.pop();
+            s.push("ExpressaoSimples");
+            s.push("<=");
+        } else if (s.top() == "Variavel\'") {
+            s.pop();
+        } else if (s.top() == "Expressao\'\'") {
+            s.pop();
+        } else if (s.top() == "ExpressaoSimples\'\'") {
+            s.pop();
+        } else if (s.top() == "Termo\'\'") {
+            s.pop();
+        } else {
+            if (std::any_of(token.begin(), token.end(), ::isupper)) {
+                std::cout << "ERRO SINTATICO. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token << "\'";
+                exit(0);
+            }
+            s.pop();
+        }
+    }
+
+    void greater_function() {
+        if (s.top() == "FatorExtra") {
+            s.pop();
+            s.push("Variavel\'");
+        } else if (s.top() == "ExprIterExtra") {
+            s.pop();
+            s.push("ExprIter\'");
+            s.push("Expressao\'\'");
+            s.push("ExpressaoSimples\'\'");
+            s.push("Termo\'\'");
+            s.push("Variavel\'");
+        } else if (s.top() == "Expressao\'") {
+            s.pop();
+            s.push("ExpressaoSimples");
+            s.push(">");
+        } else if (s.top() == "Variavel\'") {
+            s.pop();
+        } else if (s.top() == "Expressao\'\'") {
+            s.pop();
+        } else if (s.top() == "ExpressaoSimples\'\'") {
+            s.pop();
+        } else if (s.top() == "Termo\'\'") {
+            s.pop();
+        } else {
+            if (std::any_of(token.begin(), token.end(), ::isupper)) {
+                std::cout << "ERRO SINTATICO. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token << "\'";
+                exit(0);
+            }
+            s.pop();
+        }
+    }
+
+    void greater_equal_function() {
+        if (s.top() == "FatorExtra") {
+            s.pop();
+            s.push("Variavel\'");
+        } else if (s.top() == "ExprIterExtra") {
+            s.pop();
+            s.push("ExprIter\'");
+            s.push("Expressao\'\'");
+            s.push("ExpressaoSimples\'\'");
+            s.push("Termo\'\'");
+            s.push("Variavel\'");
+        } else if (s.top() == "Expressao\'") {
+            s.pop();
+            s.push("ExpressaoSimples");
+            s.push(">=");
+        } else if (s.top() == "Variavel\'") {
+            s.pop();
+        } else if (s.top() == "Expressao\'\'") {
+            s.pop();
+        } else if (s.top() == "ExpressaoSimples\'\'") {
+            s.pop();
+        } else if (s.top() == "Termo\'\'") {
+            s.pop();
+        } else {
+            if (std::any_of(token.begin(), token.end(), ::isupper)) {
+                std::cout << "ERRO SINTATICO. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token << "\'";
+                exit(0);
+            }
+            s.pop();
+        }
+    }
+
+    void or_function() {
+        if (s.top() == "Variavel\'") {
+            s.pop();
+            s.push("ExprIter\'");
+            s.push("Expressao\'\'");
+            s.push("ExpressaoSimples\'\'");
+            s.push("Termo\'\'");
+            s.push("Variavel\'");
+        } else if (s.top() == "ExpressaoSimples\'") {
+            s.pop();
+            s.push("Termo");
+            s.push("ou");
+        } else if (s.top() == "Variavel\'") {
+            s.pop();
+        } else if (s.top() == "ExpressaoSimples\'\'") {
+            s.pop();
+            s.push("ExpressaoSimples\'\'");
+            s.push("ExpressaoSimples\'");
+        } else if (s.top() == "Termo\'\'") {
+            s.pop();
         } else {
             if (std::any_of(token.begin(), token.end(), ::isupper)) {
                 std::cout << "ERRO SINTATICO. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token << "\'";
