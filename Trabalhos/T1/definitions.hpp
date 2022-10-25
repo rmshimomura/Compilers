@@ -12,7 +12,7 @@
 
 std::string input;
 int line_number = 1;
-int column_number = 0;
+int column_number = 1;
 bool ask_for_new_token = true;
 std::string token_read;
 int token_read_value = 0;

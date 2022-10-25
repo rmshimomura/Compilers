@@ -20,9 +20,7 @@ class Lexic_Analyzer {
 
                 if (line[i] == '\n') {
                     line_number++;
-                    column_number = 0;
-                } else if(line[i] == '\t') {
-                    column_number += 4;
+                    column_number = 1;
                 } else {
                     column_number++;
                 }
@@ -45,6 +43,7 @@ class Lexic_Analyzer {
                 }
 
             } else {
+
                 if (last_final_state != 0) {
                     if (last_final_token != " ") {
                         input.erase(0, last_final_state_position + 1);
@@ -58,15 +57,15 @@ class Lexic_Analyzer {
                         last_final_state_position = 0;
                         last_final_token = "";
                         current_token = "";
+                        column_number++;
                         continue;
                     } else if (line[i] == '\n') {
                         line_number++;
-                        column_number = 0;
+                        column_number = 1;
                         input.erase(0, i + 1);
                         token_read = last_final_token;
                         return OUTRO;
                     }
-                    column_number++;
                     std::cout << "ERRO LEXICO. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << current_token << "\'";
                     return ERRO;
                 }
@@ -253,6 +252,7 @@ class Syntactic_analyzer {
     void algorithm_function() {
 
         if (std::any_of(s.top().begin(), s.top().end(), ::isupper) || s.top() != "algoritmo") {
+            column_number -= token_read.size();
             std::cout << "ERRO DE SINTAXE. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token_read << "\'";
             exit(0);
         }
@@ -265,6 +265,7 @@ class Syntactic_analyzer {
         ask_for_new_token = false;
 
         if (std::any_of(s.top().begin(), s.top().end(), ::isupper) || s.top() != ".") {
+            column_number -= token_read.size();
             std::cout << "ERRO DE SINTAXE. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token_read << "\'";
             exit(0);
         }
@@ -349,6 +350,7 @@ class Syntactic_analyzer {
         } else {
 
             if (std::any_of(s.top().begin(), s.top().end(), ::isupper)) {
+                column_number -= token_read.size();
                 std::cout << "ERRO DE SINTAXE. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token_read << "\'";
                 exit(0);
             }
@@ -389,6 +391,7 @@ class Syntactic_analyzer {
         } else {
 
             if (std::any_of(s.top().begin(), s.top().end(), ::isupper) || s.top() != ";") {
+                column_number -= token_read.size();
                 std::cout << "ERRO DE SINTAXE. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token_read << "\'";
                 exit(0);
             }
@@ -424,6 +427,7 @@ class Syntactic_analyzer {
         } else {
 
             if (std::any_of(s.top().begin(), s.top().end(), ::isupper) || s.top() != "procedimento") {
+                column_number -= token_read.size();
                 std::cout << "ERRO DE SINTAXE. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token_read << "\'";
                 exit(0);
             }
@@ -462,6 +466,7 @@ class Syntactic_analyzer {
         } else {
 
             if (std::any_of(s.top().begin(), s.top().end(), ::isupper) || s.top() != "funcao") {
+                column_number -= token_read.size();
                 std::cout << "ERRO DE SINTAXE. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token_read << "\'";
                 exit(0);
             }
@@ -479,6 +484,7 @@ class Syntactic_analyzer {
         } else {
 
             if (std::any_of(s.top().begin(), s.top().end(), ::isupper) || s.top() != ":") {
+                column_number -= token_read.size();
                 std::cout << "ERRO DE SINTAXE. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token_read << "\'";
                 exit(0);
             }
@@ -552,6 +558,7 @@ class Syntactic_analyzer {
         } else {
 
             if (std::any_of(s.top().begin(), s.top().end(), ::isupper) || s.top() != "(") {
+                column_number -= token_read.size();
                 std::cout << "ERRO DE SINTAXE. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token_read << "\'";
                 exit(0);
             }
@@ -589,6 +596,7 @@ class Syntactic_analyzer {
         } else {
 
             if (std::any_of(s.top().begin(), s.top().end(), ::isupper) || s.top() != ")") {
+                column_number -= token_read.size();
                 std::cout << "ERRO DE SINTAXE. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token_read << "\'";
                 exit(0);
             }
@@ -614,6 +622,7 @@ class Syntactic_analyzer {
         } else {
 
             if (std::any_of(s.top().begin(), s.top().end(), ::isupper) || s.top() != "variaveis") {
+                column_number -= token_read.size();
                 std::cout << "ERRO DE SINTAXE. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token_read << "\'";
                 exit(0);
             }
@@ -671,6 +680,7 @@ class Syntactic_analyzer {
         } else {
 
             if (std::any_of(s.top().begin(), s.top().end(), ::isupper) || s.top() != "tipo") {
+                column_number -= token_read.size();
                 std::cout << "ERRO DE SINTAXE. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token_read << "\'";
                 exit(0);
             }
@@ -711,6 +721,7 @@ class Syntactic_analyzer {
         } else {
 
             if (std::any_of(s.top().begin(), s.top().end(), ::isupper) || s.top() != "=") {
+                column_number -= token_read.size();
                 std::cout << "ERRO DE SINTAXE. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token_read << "\'";
                 exit(0);
             }
@@ -753,6 +764,7 @@ class Syntactic_analyzer {
         } else {
 
             if (std::any_of(s.top().begin(), s.top().end(), ::isupper) || s.top() != "[") {
+                column_number -= token_read.size();
                 std::cout << "ERRO DE SINTAXE. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token_read << "\'";
                 exit(0);
             }
@@ -790,6 +802,7 @@ class Syntactic_analyzer {
         } else {
 
             if (std::any_of(s.top().begin(), s.top().end(), ::isupper) || s.top() != "]") {
+                column_number -= token_read.size();
                 std::cout << "ERRO DE SINTAXE. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token_read << "\'";
                 exit(0);
             }
@@ -808,6 +821,7 @@ class Syntactic_analyzer {
             s.push("vetor");
         } else {
             if (std::any_of(s.top().begin(), s.top().end(), ::isupper) || s.top() != "vetor") {
+                column_number -= token_read.size();
                 std::cout << "ERRO DE SINTAXE. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token_read << "\'";
                 exit(0);
             }
@@ -823,6 +837,7 @@ class Syntactic_analyzer {
             s.push("matriz");
         } else {
             if (std::any_of(s.top().begin(), s.top().end(), ::isupper) || s.top() != "matriz") {
+                column_number -= token_read.size();
                 std::cout << "ERRO DE SINTAXE. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token_read << "\'";
                 exit(0);
             }
@@ -863,6 +878,7 @@ class Syntactic_analyzer {
             s.push("numero_inteiro");
         } else {
             if (std::any_of(s.top().begin(), s.top().end(), ::isupper) || s.top() != "numero_inteiro") {
+                column_number -= token_read.size();
                 std::cout << "ERRO DE SINTAXE. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token_read << "\'";
                 exit(0);
             }
@@ -905,6 +921,7 @@ class Syntactic_analyzer {
             s.push("inteiro");
         } else {
             if (std::any_of(s.top().begin(), s.top().end(), ::isupper) || s.top() != "inteiro") {
+                column_number -= token_read.size();
                 std::cout << "ERRO DE SINTAXE. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token_read << "\'";
                 exit(0);
             }
@@ -947,6 +964,7 @@ class Syntactic_analyzer {
             s.push("real");
         } else {
             if (std::any_of(s.top().begin(), s.top().end(), ::isupper) || s.top() != "real") {
+                column_number -= token_read.size();
                 std::cout << "ERRO DE SINTAXE. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token_read << "\'";
                 exit(0);
             }
@@ -989,6 +1007,7 @@ class Syntactic_analyzer {
             s.push("caractere");
         } else {
             if (std::any_of(s.top().begin(), s.top().end(), ::isupper) || s.top() != "caractere") {
+                column_number -= token_read.size();
                 std::cout << "ERRO DE SINTAXE. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token_read << "\'";
                 exit(0);
             }
@@ -1031,6 +1050,7 @@ class Syntactic_analyzer {
             s.push("logico");
         } else {
             if (std::any_of(s.top().begin(), s.top().end(), ::isupper) || s.top() != "logico") {
+                column_number -= token_read.size();
                 std::cout << "ERRO DE SINTAXE. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token_read << "\'";
                 exit(0);
             }
@@ -1058,6 +1078,7 @@ class Syntactic_analyzer {
             s.pop();
         } else {
             if (std::any_of(s.top().begin(), s.top().end(), ::isupper) || s.top() != "inicio") {
+                column_number -= token_read.size();
                 std::cout << "ERRO DE SINTAXE. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token_read << "\'";
                 exit(0);
             }
@@ -1076,6 +1097,7 @@ class Syntactic_analyzer {
             s.push("fim");
         } else {
             if (std::any_of(s.top().begin(), s.top().end(), ::isupper) || s.top() != "fim") {
+                column_number -= token_read.size();
                 std::cout << "ERRO DE SINTAXE. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token_read << "\'";
                 exit(0);
             }
@@ -1109,6 +1131,7 @@ class Syntactic_analyzer {
             s.push("se");
         } else {
             if (std::any_of(s.top().begin(), s.top().end(), ::isupper) || s.top() != "se") {
+                column_number -= token_read.size();
                 std::cout << "ERRO DE SINTAXE. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token_read << "\'";
                 exit(0);
             }
@@ -1132,6 +1155,7 @@ class Syntactic_analyzer {
             s.pop();
         } else {
             if (std::any_of(s.top().begin(), s.top().end(), ::isupper) || s.top() != "entao") {
+                column_number -= token_read.size();
                 std::cout << "ERRO DE SINTAXE. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token_read << "\'";
                 exit(0);
             }
@@ -1169,6 +1193,7 @@ class Syntactic_analyzer {
             s.push("para");
         } else {
             if (std::any_of(s.top().begin(), s.top().end(), ::isupper) || s.top() != "para") {
+                column_number -= token_read.size();
                 std::cout << "ERRO DE SINTAXE. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token_read << "\'";
                 exit(0);
             }
@@ -1181,6 +1206,7 @@ class Syntactic_analyzer {
         ask_for_new_token = false;
 
         if (std::any_of(s.top().begin(), s.top().end(), ::isupper) || s.top() != "de") {
+            column_number -= token_read.size();
             std::cout << "ERRO DE SINTAXE. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token_read << "\'";
             exit(0);
         }
@@ -1205,6 +1231,7 @@ class Syntactic_analyzer {
             s.pop();
         } else {
             if (std::any_of(s.top().begin(), s.top().end(), ::isupper) || s.top() != "ate") {
+                column_number -= token_read.size();
                 std::cout << "ERRO DE SINTAXE. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token_read << "\'";
                 exit(0);
             }
@@ -1240,6 +1267,7 @@ class Syntactic_analyzer {
             s.push("enquanto");
         } else {
             if (std::any_of(s.top().begin(), s.top().end(), ::isupper) || s.top() != "enquanto") {
+                column_number -= token_read.size();
                 std::cout << "ERRO DE SINTAXE. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token_read << "\'";
                 exit(0);
             }
@@ -1269,6 +1297,7 @@ class Syntactic_analyzer {
             s.pop();
         } else {
             if (std::any_of(s.top().begin(), s.top().end(), ::isupper) || s.top() != "faca") {
+                column_number -= token_read.size();
                 std::cout << "ERRO DE SINTAXE. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token_read << "\'";
                 exit(0);
             }
@@ -1300,6 +1329,7 @@ class Syntactic_analyzer {
             s.push("repita");
         } else {
             if (std::any_of(s.top().begin(), s.top().end(), ::isupper) || s.top() != "repita") {
+                column_number -= token_read.size();
                 std::cout << "ERRO DE SINTAXE. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token_read << "\'";
                 exit(0);
             }
@@ -1331,6 +1361,7 @@ class Syntactic_analyzer {
             s.push("leia");
         } else {
             if (std::any_of(s.top().begin(), s.top().end(), ::isupper) || s.top() != "leia") {
+                column_number -= token_read.size();
                 std::cout << "ERRO DE SINTAXE. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token_read << "\'";
                 exit(0);
             }
@@ -1362,6 +1393,7 @@ class Syntactic_analyzer {
             s.push("imprima");
         } else {
             if (std::any_of(s.top().begin(), s.top().end(), ::isupper) || s.top() != "imprima") {
+                column_number -= token_read.size();
                 std::cout << "ERRO DE SINTAXE. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token_read << "\'";
                 exit(0);
             }
@@ -1388,6 +1420,7 @@ class Syntactic_analyzer {
             s.pop();
         } else {
             if (std::any_of(s.top().begin(), s.top().end(), ::isupper) || s.top() != "<-") {
+                column_number -= token_read.size();
                 std::cout << "ERRO DE SINTAXE. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token_read << "\'";
                 exit(0);
             }
@@ -1438,6 +1471,7 @@ class Syntactic_analyzer {
             s.pop();
         } else {
             if (std::any_of(s.top().begin(), s.top().end(), ::isupper) || s.top() != "+") {
+                column_number -= token_read.size();
                 std::cout << "ERRO DE SINTAXE. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token_read << "\'";
                 exit(0);
             }
@@ -1488,6 +1522,7 @@ class Syntactic_analyzer {
             s.pop();
         } else {
             if (std::any_of(s.top().begin(), s.top().end(), ::isupper) || s.top() != "-") {
+                column_number -= token_read.size();
                 std::cout << "ERRO DE SINTAXE. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token_read << "\'";
                 exit(0);
             }
@@ -1524,6 +1559,7 @@ class Syntactic_analyzer {
             s.push("nao");
         } else {
             if (std::any_of(s.top().begin(), s.top().end(), ::isupper) || s.top() != "nao") {
+                column_number -= token_read.size();
                 std::cout << "ERRO DE SINTAXE. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token_read << "\'";
                 exit(0);
             }
@@ -1558,6 +1594,7 @@ class Syntactic_analyzer {
             s.push("numero_real");
         } else {
             if (std::any_of(s.top().begin(), s.top().end(), ::isupper) || s.top() != "numero_real") {
+                column_number -= token_read.size();
                 std::cout << "ERRO DE SINTAXE. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token_read << "\'";
                 exit(0);
             }
@@ -1592,6 +1629,7 @@ class Syntactic_analyzer {
             s.push("verdadeiro");
         } else {
             if (std::any_of(s.top().begin(), s.top().end(), ::isupper) || s.top() != "verdadeiro") {
+                column_number -= token_read.size();
                 std::cout << "ERRO DE SINTAXE. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token_read << "\'";
                 exit(0);
             }
@@ -1626,6 +1664,7 @@ class Syntactic_analyzer {
             s.push("falso");
         } else {
             if (std::any_of(s.top().begin(), s.top().end(), ::isupper) || s.top() != "falso") {
+                column_number -= token_read.size();
                 std::cout << "ERRO DE SINTAXE. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token_read << "\'";
                 exit(0);
             }
@@ -1660,6 +1699,7 @@ class Syntactic_analyzer {
             s.push("texto");
         } else {
             if (std::any_of(s.top().begin(), s.top().end(), ::isupper) || s.top() != "texto") {
+                column_number -= token_read.size();
                 std::cout << "ERRO DE SINTAXE. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token_read << "\'";
                 exit(0);
             }
@@ -1703,6 +1743,7 @@ class Syntactic_analyzer {
             s.pop();
         } else {
             if (std::any_of(s.top().begin(), s.top().end(), ::isupper) || s.top() != ",") {
+                column_number -= token_read.size();
                 std::cout << "ERRO DE SINTAXE. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token_read << "\'";
                 exit(0);
             }
@@ -1734,6 +1775,7 @@ class Syntactic_analyzer {
             s.pop();
         } else {
             if (std::any_of(s.top().begin(), s.top().end(), ::isupper) || s.top() != "passo") {
+                column_number -= token_read.size();
                 std::cout << "ERRO DE SINTAXE. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token_read << "\'";
                 exit(0);
             }
@@ -1754,6 +1796,7 @@ class Syntactic_analyzer {
             s.push("senao");
         } else {
             if (std::any_of(s.top().begin(), s.top().end(), ::isupper) || s.top() != "senao") {
+                column_number -= token_read.size();
                 std::cout << "ERRO DE SINTAXE. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token_read << "\'";
                 exit(0);
             }
@@ -1790,6 +1833,7 @@ class Syntactic_analyzer {
             s.pop();
         } else {
             if (std::any_of(s.top().begin(), s.top().end(), ::isupper) || s.top() != "<>") {
+                column_number -= token_read.size();
                 std::cout << "ERRO DE SINTAXE. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token_read << "\'";
                 exit(0);
             }
@@ -1826,6 +1870,7 @@ class Syntactic_analyzer {
             s.pop();
         } else {
             if (std::any_of(s.top().begin(), s.top().end(), ::isupper) || s.top() != "<") {
+                column_number -= token_read.size();
                 std::cout << "ERRO DE SINTAXE. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token_read << "\'";
                 exit(0);
             }
@@ -1862,6 +1907,7 @@ class Syntactic_analyzer {
             s.pop();
         } else {
             if (std::any_of(s.top().begin(), s.top().end(), ::isupper) || s.top() != "<=") {
+                column_number -= token_read.size();
                 std::cout << "ERRO DE SINTAXE. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token_read << "\'";
                 exit(0);
             }
@@ -1898,6 +1944,7 @@ class Syntactic_analyzer {
             s.pop();
         } else {
             if (std::any_of(s.top().begin(), s.top().end(), ::isupper) || s.top() != ">") {
+                column_number -= token_read.size();
                 std::cout << "ERRO DE SINTAXE. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token_read << "\'";
                 exit(0);
             }
@@ -1934,6 +1981,7 @@ class Syntactic_analyzer {
             s.pop();
         } else {
             if (std::any_of(s.top().begin(), s.top().end(), ::isupper) || s.top() != ">=") {
+                column_number -= token_read.size();
                 std::cout << "ERRO DE SINTAXE. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token_read << "\'";
                 exit(0);
             }
@@ -1968,6 +2016,7 @@ class Syntactic_analyzer {
             s.pop();
         } else {
             if (std::any_of(s.top().begin(), s.top().end(), ::isupper) || s.top() != "ou") {
+                column_number -= token_read.size();
                 std::cout << "ERRO DE SINTAXE. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token_read << "\'";
                 exit(0);
             }
@@ -2000,6 +2049,7 @@ class Syntactic_analyzer {
             s.push("Termo\'");
         } else {
             if (std::any_of(s.top().begin(), s.top().end(), ::isupper) || s.top() != "*") {
+                column_number -= token_read.size();
                 std::cout << "ERRO DE SINTAXE. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token_read << "\'";
                 exit(0);
             }
@@ -2032,6 +2082,7 @@ class Syntactic_analyzer {
             s.push("Termo\'");
         } else {
             if (std::any_of(s.top().begin(), s.top().end(), ::isupper) || s.top() != "/") {
+                column_number -= token_read.size();
                 std::cout << "ERRO DE SINTAXE. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token_read << "\'";
                 exit(0);
             }
@@ -2064,6 +2115,7 @@ class Syntactic_analyzer {
             s.push("Termo\'");
         } else {
             if (std::any_of(s.top().begin(), s.top().end(), ::isupper) || s.top() != "div") {
+                column_number -= token_read.size();
                 std::cout << "ERRO DE SINTAXE. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token_read << "\'";
                 exit(0);
             }
@@ -2096,6 +2148,7 @@ class Syntactic_analyzer {
             s.push("Termo\'");
         } else {
             if (std::any_of(s.top().begin(), s.top().end(), ::isupper) || s.top() != "e") {
+                column_number -= token_read.size();
                 std::cout << "ERRO DE SINTAXE. Linha: " << line_number << " Coluna: " << column_number << " -> \'" << token_read << "\'";
                 exit(0);
             }
