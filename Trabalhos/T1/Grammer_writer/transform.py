@@ -1,4 +1,4 @@
-see = open('/home/rodrigo/Documents/Compiladores/Trabalhos/T1/Grammer_writer/input.txt', 'r')
+see = open('/home/rodrigo/Documents/Compiladores/Trabalhos/T1/Grammer_writer/old.txt', 'r')
 
 # Read all the file and split it by lines
 lines = see.read().splitlines()
