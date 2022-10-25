@@ -16,6 +16,7 @@ int main () {
 
     int correct_program = 1;
     
+    s.push(".");
     s.push("BlocoComandos");
     s.push("ProcedimentoFuncao");
     s.push("BlocoVariaveis");
@@ -38,7 +39,7 @@ int main () {
 
         }
 
-        std::cout << "Token lido: " << token_read << " " << s.top() << " " << token_read_value << std::endl;
+        // std::cout << "Token lido: " << token_read << " " << s.top() << " " << token_read_value << std::endl;
 
         syntactic.syntax_analyze(token_read_value);
 
