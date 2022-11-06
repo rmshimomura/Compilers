@@ -1,0 +1,3821 @@
+Terminals unused in grammar
+
+    BREAK
+    SWITCH
+    CASE
+    DEFAULT
+    TYPEDEF
+    STRUCT
+    POINTER
+
+
+Grammar
+
+    0 $accept: Programa $end
+
+    1 Programa: DeclaracoesOuFuncao LoopDeclaracoesOuFuncao
+
+    2 DeclaracoesOuFuncao: Declaracoes
+    3                    | Funcao
+
+    4 LoopDeclaracoesOuFuncao: DeclaracoesOuFuncao LoopDeclaracoesOuFuncao
+    5                        | %empty
+
+    6 Declaracoes: NUMBER_SIGN DEFINE IDENTIFIER Expressao
+    7            | DeclaracaoVariaveis
+    8            | DeclaracaoPrototipos
+
+    9 Funcao: Tipo LoopVezes IDENTIFIER Parametros L_CURLY_BRACKET LoopFuncaoDeclaracaoVariaveis Comandos R_CURLY_BRACKET
+
+   10 LoopVezes: MULTIPLY LoopVezes
+   11          | %empty
+
+   12 LoopFuncaoDeclaracaoVariaveis: DeclaracaoVariaveis LoopFuncaoDeclaracaoVariaveis
+   13                              | %empty
+
+   14 DeclaracaoVariaveis: Tipo LoopDeclaracaoVariaveis SEMICOLON
+
+   15 LoopDeclaracaoVariaveis: LoopVezes IDENTIFIER LoopExpressao Switch1 Switch2
+
+   16 Switch1: ASSIGN ExpressaoAtribuicao
+   17        | %empty
+
+   18 Switch2: COMMA LoopDeclaracaoVariaveis
+   19        | %empty
+
+   20 LoopExpressao: L_SQUARE_BRACKET Expressao R_SQUARE_BRACKET LoopExpressao
+   21              | %empty
+
+   22 DeclaracaoPrototipos: Tipo LoopVezes IDENTIFIER Parametros SEMICOLON
+
+   23 Parametros: L_PAREN LoopParametros R_PAREN
+
+   24 LoopParametros: Tipo LoopVezes IDENTIFIER LoopExpressao Switch3
+   25               | %empty
+
+   26 Switch3: COMMA LoopParametros
+   27        | %empty
+
+   28 Tipo: INT
+   29     | CHAR
+   30     | VOID
+
+   31 Bloco: L_CURLY_BRACKET Comandos R_CURLY_BRACKET
+
+   32 Comandos: ListaComandos LoopListaComandos
+
+   33 LoopListaComandos: ListaComandos LoopListaComandos
+   34                  | %empty
+
+   35 ListaComandos: DO Bloco WHILE L_PAREN Expressao R_PAREN SEMICOLON
+   36              | IF L_PAREN Expressao R_PAREN Bloco Switch5
+   37              | WHILE L_PAREN Expressao R_PAREN Bloco
+   38              | FOR L_PAREN Switch6 SEMICOLON Switch6 SEMICOLON Switch6 R_PAREN Bloco
+   39              | PRINTF L_PAREN STRING Switch7 R_PAREN SEMICOLON
+   40              | SCANF L_PAREN STRING COMMA BITWISE_AND R_PAREN SEMICOLON
+   41              | EXIT L_PAREN Expressao R_PAREN SEMICOLON
+   42              | RETURN Switch6 SEMICOLON
+   43              | Expressao SEMICOLON
+   44              | SEMICOLON
+   45              | Bloco
+
+   46 Switch5: ELSE Bloco
+   47        | %empty
+
+   48 Switch6: Expressao
+   49        | %empty
+
+   50 Switch7: COMMA Expressao
+   51        | %empty
+
+   52 Expressao: ExpressaoAtribuicao
+   53          | Expressao COMMA ExpressaoAtribuicao
+
+   54 ExpressaoAtribuicao: ExpressaoCondicional
+   55                    | ExpressaoUnaria Switch8 ExpressaoAtribuicao
+
+   56 Switch8: ASSIGN
+   57        | ADD_ASSIGN
+   58        | MINUS_ASSIGN
+
+   59 ExpressaoCondicional: ExpressaoOrLogico Switch9
+
+   60 Switch9: TERNARY_CONDITIONAL Expressao COLON ExpressaoCondicional
+   61        | %empty
+
+   62 ExpressaoOrLogico: ExpressaoAndLogico
+   63                  | ExpressaoOrLogico LOGICAL_OR ExpressaoAndLogico
+
+   64 ExpressaoAndLogico: ExpressaoOr
+   65                   | ExpressaoAndLogico LOGICAL_AND ExpressaoOr
+
+   66 ExpressaoOr: ExpressaoXor
+   67            | ExpressaoOr BITWISE_OR ExpressaoXor
+
+   68 ExpressaoXor: ExpressaoAnd
+   69             | ExpressaoXor BITWISE_XOR ExpressaoAnd
+
+   70 ExpressaoAnd: ExpressaoIgualdade
+   71             | ExpressaoAnd BITWISE_AND ExpressaoIgualdade
+
+   72 ExpressaoIgualdade: ExpressaoRelacional
+   73                   | ExpressaoIgualdade EQUAL ExpressaoRelacional
+   74                   | ExpressaoIgualdade NOT_EQUAL ExpressaoRelacional
+
+   75 ExpressaoRelacional: ExpressaoShift
+   76                    | ExpressaoRelacional LESS_THAN ExpressaoShift
+   77                    | ExpressaoRelacional GREATER_THAN ExpressaoShift
+   78                    | ExpressaoRelacional LESS_EQUAL ExpressaoShift
+   79                    | ExpressaoRelacional GREATER_EQUAL ExpressaoShift
+
+   80 ExpressaoShift: ExpressaoAditiva
+   81               | ExpressaoShift L_SHIFT ExpressaoAditiva
+   82               | ExpressaoShift R_SHIFT ExpressaoAditiva
+
+   83 ExpressaoAditiva: ExpressaoMultiplicativa
+   84                 | ExpressaoAditiva PLUS ExpressaoMultiplicativa
+   85                 | ExpressaoAditiva MINUS ExpressaoMultiplicativa
+
+   86 ExpressaoMultiplicativa: ExpressaoCast
+   87                        | ExpressaoMultiplicativa MULTIPLY ExpressaoCast
+   88                        | ExpressaoMultiplicativa DIV ExpressaoCast
+   89                        | ExpressaoMultiplicativa REMAINDER ExpressaoCast
+
+   90 ExpressaoCast: ExpressaoUnaria
+   91              | L_PAREN Tipo LoopVezes R_PAREN ExpressaoCast
+
+   92 ExpressaoUnaria: ExpressaoPosfixa
+   93                | INC ExpressaoUnaria
+   94                | DEC ExpressaoUnaria
+   95                | BITWISE_AND ExpressaoCast
+   96                | MULTIPLY ExpressaoCast
+   97                | PLUS ExpressaoCast
+   98                | MINUS ExpressaoCast
+   99                | NOT ExpressaoCast
+  100                | BITWISE_NOT ExpressaoCast
+
+  101 ExpressaoPosfixa: ExpressaoPrimaria
+  102                 | ExpressaoPosfixa L_SQUARE_BRACKET Expressao R_SQUARE_BRACKET
+  103                 | ExpressaoPosfixa INC
+  104                 | ExpressaoPosfixa DEC
+  105                 | ExpressaoPosfixa L_PAREN Switch10 R_PAREN
+
+  106 Switch10: ExpressaoAtribuicao Switch11
+  107         | %empty
+
+  108 Switch11: COMMA ExpressaoAtribuicao Switch11
+  109         | %empty
+
+  110 ExpressaoPrimaria: IDENTIFIER
+  111                  | Numero
+  112                  | CHARACTER
+  113                  | STRING
+  114                  | L_PAREN Expressao R_PAREN
+
+  115 Numero: NUM_INTEGER
+  116       | NUM_HEXA
+  117       | NUM_OCTAL
+
+
+Terminals, with rules where they appear
+
+    $end (0) 0
+    error (256)
+    VOID (258) 30
+    INT (259) 28
+    CHAR (260) 29
+    RETURN (261) 42
+    BREAK (262)
+    SWITCH (263)
+    CASE (264)
+    DEFAULT (265)
+    DO (266) 35
+    WHILE (267) 35 37
+    FOR (268) 38
+    IF (269) 36
+    ELSE (270) 46
+    TYPEDEF (271)
+    STRUCT (272)
+    PLUS (273) 84 97
+    MINUS (274) 85 98
+    MULTIPLY (275) 10 87 96
+    DIV (276) 88
+    REMAINDER (277) 89
+    INC (278) 93 103
+    DEC (279) 94 104
+    BITWISE_AND (280) 40 71 95
+    BITWISE_OR (281) 67
+    BITWISE_NOT (282) 100
+    BITWISE_XOR (283) 69
+    NOT (284) 99
+    LOGICAL_AND (285) 65
+    LOGICAL_OR (286) 63
+    EQUAL (287) 73
+    NOT_EQUAL (288) 74
+    LESS_THAN (289) 76
+    GREATER_THAN (290) 77
+    LESS_EQUAL (291) 78
+    GREATER_EQUAL (292) 79
+    R_SHIFT (293) 82
+    L_SHIFT (294) 81
+    ASSIGN (295) 16 56
+    ADD_ASSIGN (296) 57
+    MINUS_ASSIGN (297) 58
+    SEMICOLON (298) 14 22 35 38 39 40 41 42 43 44
+    COMMA (299) 18 26 40 50 53 108
+    COLON (300) 60
+    L_PAREN (301) 23 35 36 37 38 39 40 41 91 105 114
+    R_PAREN (302) 23 35 36 37 38 39 40 41 91 105 114
+    L_CURLY_BRACKET (303) 9 31
+    R_CURLY_BRACKET (304) 9 31
+    L_SQUARE_BRACKET (305) 20 102
+    R_SQUARE_BRACKET (306) 20 102
+    TERNARY_CONDITIONAL (307) 60
+    NUMBER_SIGN (308) 6
+    POINTER (309)
+    PRINTF (310) 39
+    SCANF (311) 40
+    DEFINE (312) 6
+    EXIT (313) 41
+    IDENTIFIER (314) 6 9 15 22 24 110
+    NUM_OCTAL (315) 117
+    NUM_INTEGER (316) 115
+    NUM_HEXA (317) 116
+    STRING (318) 39 40 113
+    CHARACTER (319) 112
+
+
+Nonterminals, with rules where they appear
+
+    $accept (65)
+        on left: 0
+    Programa (66)
+        on left: 1
+        on right: 0
+    DeclaracoesOuFuncao (67)
+        on left: 2 3
+        on right: 1 4
+    LoopDeclaracoesOuFuncao (68)
+        on left: 4 5
+        on right: 1 4
+    Declaracoes (69)
+        on left: 6 7 8
+        on right: 2
+    Funcao (70)
+        on left: 9
+        on right: 3
+    LoopVezes (71)
+        on left: 10 11
+        on right: 9 10 15 22 24 91
+    LoopFuncaoDeclaracaoVariaveis (72)
+        on left: 12 13
+        on right: 9 12
+    DeclaracaoVariaveis (73)
+        on left: 14
+        on right: 7 12
+    LoopDeclaracaoVariaveis (74)
+        on left: 15
+        on right: 14 18
+    Switch1 (75)
+        on left: 16 17
+        on right: 15
+    Switch2 (76)
+        on left: 18 19
+        on right: 15
+    LoopExpressao (77)
+        on left: 20 21
+        on right: 15 20 24
+    DeclaracaoPrototipos (78)
+        on left: 22
+        on right: 8
+    Parametros (79)
+        on left: 23
+        on right: 9 22
+    LoopParametros (80)
+        on left: 24 25
+        on right: 23 26
+    Switch3 (81)
+        on left: 26 27
+        on right: 24
+    Tipo (82)
+        on left: 28 29 30
+        on right: 9 14 22 24 91
+    Bloco (83)
+        on left: 31
+        on right: 35 36 37 38 45 46
+    Comandos (84)
+        on left: 32
+        on right: 9 31
+    LoopListaComandos (85)
+        on left: 33 34
+        on right: 32 33
+    ListaComandos (86)
+        on left: 35 36 37 38 39 40 41 42 43 44 45
+        on right: 32 33
+    Switch5 (87)
+        on left: 46 47
+        on right: 36
+    Switch6 (88)
+        on left: 48 49
+        on right: 38 42
+    Switch7 (89)
+        on left: 50 51
+        on right: 39
+    Expressao (90)
+        on left: 52 53
+        on right: 6 20 35 36 37 41 43 48 50 53 60 102 114
+    ExpressaoAtribuicao (91)
+        on left: 54 55
+        on right: 16 52 53 55 106 108
+    Switch8 (92)
+        on left: 56 57 58
+        on right: 55
+    ExpressaoCondicional (93)
+        on left: 59
+        on right: 54 60
+    Switch9 (94)
+        on left: 60 61
+        on right: 59
+    ExpressaoOrLogico (95)
+        on left: 62 63
+        on right: 59 63
+    ExpressaoAndLogico (96)
+        on left: 64 65
+        on right: 62 63 65
+    ExpressaoOr (97)
+        on left: 66 67
+        on right: 64 65 67
+    ExpressaoXor (98)
+        on left: 68 69
+        on right: 66 67 69
+    ExpressaoAnd (99)
+        on left: 70 71
+        on right: 68 69 71
+    ExpressaoIgualdade (100)
+        on left: 72 73 74
+        on right: 70 71 73 74
+    ExpressaoRelacional (101)
+        on left: 75 76 77 78 79
+        on right: 72 73 74 76 77 78 79
+    ExpressaoShift (102)
+        on left: 80 81 82
+        on right: 75 76 77 78 79 81 82
+    ExpressaoAditiva (103)
+        on left: 83 84 85
+        on right: 80 81 82 84 85
+    ExpressaoMultiplicativa (104)
+        on left: 86 87 88 89
+        on right: 83 84 85 87 88 89
+    ExpressaoCast (105)
+        on left: 90 91
+        on right: 86 87 88 89 91 95 96 97 98 99 100
+    ExpressaoUnaria (106)
+        on left: 92 93 94 95 96 97 98 99 100
+        on right: 55 90 93 94
+    ExpressaoPosfixa (107)
+        on left: 101 102 103 104 105
+        on right: 92 102 103 104 105
+    Switch10 (108)
+        on left: 106 107
+        on right: 105
+    Switch11 (109)
+        on left: 108 109
+        on right: 106 108
+    ExpressaoPrimaria (110)
+        on left: 110 111 112 113 114
+        on right: 101
+    Numero (111)
+        on left: 115 116 117
+        on right: 111
+
+
+State 0
+
+    0 $accept: . Programa $end
+
+    VOID         shift, and go to state 1
+    INT          shift, and go to state 2
+    CHAR         shift, and go to state 3
+    NUMBER_SIGN  shift, and go to state 4
+
+    Programa              go to state 5
+    DeclaracoesOuFuncao   go to state 6
+    Declaracoes           go to state 7
+    Funcao                go to state 8
+    DeclaracaoVariaveis   go to state 9
+    DeclaracaoPrototipos  go to state 10
+    Tipo                  go to state 11
+
+
+State 1
+
+   30 Tipo: VOID .
+
+    $default  reduce using rule 30 (Tipo)
+
+
+State 2
+
+   28 Tipo: INT .
+
+    $default  reduce using rule 28 (Tipo)
+
+
+State 3
+
+   29 Tipo: CHAR .
+
+    $default  reduce using rule 29 (Tipo)
+
+
+State 4
+
+    6 Declaracoes: NUMBER_SIGN . DEFINE IDENTIFIER Expressao
+
+    DEFINE  shift, and go to state 12
+
+
+State 5
+
+    0 $accept: Programa . $end
+
+    $end  shift, and go to state 13
+
+
+State 6
+
+    1 Programa: DeclaracoesOuFuncao . LoopDeclaracoesOuFuncao
+
+    VOID         shift, and go to state 1
+    INT          shift, and go to state 2
+    CHAR         shift, and go to state 3
+    NUMBER_SIGN  shift, and go to state 4
+
+    $default  reduce using rule 5 (LoopDeclaracoesOuFuncao)
+
+    DeclaracoesOuFuncao      go to state 14
+    LoopDeclaracoesOuFuncao  go to state 15
+    Declaracoes              go to state 7
+    Funcao                   go to state 8
+    DeclaracaoVariaveis      go to state 9
+    DeclaracaoPrototipos     go to state 10
+    Tipo                     go to state 11
+
+
+State 7
+
+    2 DeclaracoesOuFuncao: Declaracoes .
+
+    $default  reduce using rule 2 (DeclaracoesOuFuncao)
+
+
+State 8
+
+    3 DeclaracoesOuFuncao: Funcao .
+
+    $default  reduce using rule 3 (DeclaracoesOuFuncao)
+
+
+State 9
+
+    7 Declaracoes: DeclaracaoVariaveis .
+
+    $default  reduce using rule 7 (Declaracoes)
+
+
+State 10
+
+    8 Declaracoes: DeclaracaoPrototipos .
+
+    $default  reduce using rule 8 (Declaracoes)
+
+
+State 11
+
+    9 Funcao: Tipo . LoopVezes IDENTIFIER Parametros L_CURLY_BRACKET LoopFuncaoDeclaracaoVariaveis Comandos R_CURLY_BRACKET
+   14 DeclaracaoVariaveis: Tipo . LoopDeclaracaoVariaveis SEMICOLON
+   22 DeclaracaoPrototipos: Tipo . LoopVezes IDENTIFIER Parametros SEMICOLON
+
+    MULTIPLY  shift, and go to state 16
+
+    $default  reduce using rule 11 (LoopVezes)
+
+    LoopVezes                go to state 17
+    LoopDeclaracaoVariaveis  go to state 18
+
+
+State 12
+
+    6 Declaracoes: NUMBER_SIGN DEFINE . IDENTIFIER Expressao
+
+    IDENTIFIER  shift, and go to state 19
+
+
+State 13
+
+    0 $accept: Programa $end .
+
+    $default  accept
+
+
+State 14
+
+    4 LoopDeclaracoesOuFuncao: DeclaracoesOuFuncao . LoopDeclaracoesOuFuncao
+
+    VOID         shift, and go to state 1
+    INT          shift, and go to state 2
+    CHAR         shift, and go to state 3
+    NUMBER_SIGN  shift, and go to state 4
+
+    $default  reduce using rule 5 (LoopDeclaracoesOuFuncao)
+
+    DeclaracoesOuFuncao      go to state 14
+    LoopDeclaracoesOuFuncao  go to state 20
+    Declaracoes              go to state 7
+    Funcao                   go to state 8
+    DeclaracaoVariaveis      go to state 9
+    DeclaracaoPrototipos     go to state 10
+    Tipo                     go to state 11
+
+
+State 15
+
+    1 Programa: DeclaracoesOuFuncao LoopDeclaracoesOuFuncao .
+
+    $default  reduce using rule 1 (Programa)
+
+
+State 16
+
+   10 LoopVezes: MULTIPLY . LoopVezes
+
+    MULTIPLY  shift, and go to state 16
+
+    $default  reduce using rule 11 (LoopVezes)
+
+    LoopVezes  go to state 21
+
+
+State 17
+
+    9 Funcao: Tipo LoopVezes . IDENTIFIER Parametros L_CURLY_BRACKET LoopFuncaoDeclaracaoVariaveis Comandos R_CURLY_BRACKET
+   15 LoopDeclaracaoVariaveis: LoopVezes . IDENTIFIER LoopExpressao Switch1 Switch2
+   22 DeclaracaoPrototipos: Tipo LoopVezes . IDENTIFIER Parametros SEMICOLON
+
+    IDENTIFIER  shift, and go to state 22
+
+
+State 18
+
+   14 DeclaracaoVariaveis: Tipo LoopDeclaracaoVariaveis . SEMICOLON
+
+    SEMICOLON  shift, and go to state 23
+
+
+State 19
+
+    6 Declaracoes: NUMBER_SIGN DEFINE IDENTIFIER . Expressao
+
+    PLUS         shift, and go to state 24
+    MINUS        shift, and go to state 25
+    MULTIPLY     shift, and go to state 26
+    INC          shift, and go to state 27
+    DEC          shift, and go to state 28
+    BITWISE_AND  shift, and go to state 29
+    BITWISE_NOT  shift, and go to state 30
+    NOT          shift, and go to state 31
+    L_PAREN      shift, and go to state 32
+    IDENTIFIER   shift, and go to state 33
+    NUM_OCTAL    shift, and go to state 34
+    NUM_INTEGER  shift, and go to state 35
+    NUM_HEXA     shift, and go to state 36
+    STRING       shift, and go to state 37
+    CHARACTER    shift, and go to state 38
+
+    Expressao                go to state 39
+    ExpressaoAtribuicao      go to state 40
+    ExpressaoCondicional     go to state 41
+    ExpressaoOrLogico        go to state 42
+    ExpressaoAndLogico       go to state 43
+    ExpressaoOr              go to state 44
+    ExpressaoXor             go to state 45
+    ExpressaoAnd             go to state 46
+    ExpressaoIgualdade       go to state 47
+    ExpressaoRelacional      go to state 48
+    ExpressaoShift           go to state 49
+    ExpressaoAditiva         go to state 50
+    ExpressaoMultiplicativa  go to state 51
+    ExpressaoCast            go to state 52
+    ExpressaoUnaria          go to state 53
+    ExpressaoPosfixa         go to state 54
+    ExpressaoPrimaria        go to state 55
+    Numero                   go to state 56
+
+
+State 20
+
+    4 LoopDeclaracoesOuFuncao: DeclaracoesOuFuncao LoopDeclaracoesOuFuncao .
+
+    $default  reduce using rule 4 (LoopDeclaracoesOuFuncao)
+
+
+State 21
+
+   10 LoopVezes: MULTIPLY LoopVezes .
+
+    $default  reduce using rule 10 (LoopVezes)
+
+
+State 22
+
+    9 Funcao: Tipo LoopVezes IDENTIFIER . Parametros L_CURLY_BRACKET LoopFuncaoDeclaracaoVariaveis Comandos R_CURLY_BRACKET
+   15 LoopDeclaracaoVariaveis: LoopVezes IDENTIFIER . LoopExpressao Switch1 Switch2
+   22 DeclaracaoPrototipos: Tipo LoopVezes IDENTIFIER . Parametros SEMICOLON
+
+    L_PAREN           shift, and go to state 57
+    L_SQUARE_BRACKET  shift, and go to state 58
+
+    $default  reduce using rule 21 (LoopExpressao)
+
+    LoopExpressao  go to state 59
+    Parametros     go to state 60
+
+
+State 23
+
+   14 DeclaracaoVariaveis: Tipo LoopDeclaracaoVariaveis SEMICOLON .
+
+    $default  reduce using rule 14 (DeclaracaoVariaveis)
+
+
+State 24
+
+   97 ExpressaoUnaria: PLUS . ExpressaoCast
+
+    PLUS         shift, and go to state 24
+    MINUS        shift, and go to state 25
+    MULTIPLY     shift, and go to state 26
+    INC          shift, and go to state 27
+    DEC          shift, and go to state 28
+    BITWISE_AND  shift, and go to state 29
+    BITWISE_NOT  shift, and go to state 30
+    NOT          shift, and go to state 31
+    L_PAREN      shift, and go to state 32
+    IDENTIFIER   shift, and go to state 33
+    NUM_OCTAL    shift, and go to state 34
+    NUM_INTEGER  shift, and go to state 35
+    NUM_HEXA     shift, and go to state 36
+    STRING       shift, and go to state 37
+    CHARACTER    shift, and go to state 38
+
+    ExpressaoCast      go to state 61
+    ExpressaoUnaria    go to state 62
+    ExpressaoPosfixa   go to state 54
+    ExpressaoPrimaria  go to state 55
+    Numero             go to state 56
+
+
+State 25
+
+   98 ExpressaoUnaria: MINUS . ExpressaoCast
+
+    PLUS         shift, and go to state 24
+    MINUS        shift, and go to state 25
+    MULTIPLY     shift, and go to state 26
+    INC          shift, and go to state 27
+    DEC          shift, and go to state 28
+    BITWISE_AND  shift, and go to state 29
+    BITWISE_NOT  shift, and go to state 30
+    NOT          shift, and go to state 31
+    L_PAREN      shift, and go to state 32
+    IDENTIFIER   shift, and go to state 33
+    NUM_OCTAL    shift, and go to state 34
+    NUM_INTEGER  shift, and go to state 35
+    NUM_HEXA     shift, and go to state 36
+    STRING       shift, and go to state 37
+    CHARACTER    shift, and go to state 38
+
+    ExpressaoCast      go to state 63
+    ExpressaoUnaria    go to state 62
+    ExpressaoPosfixa   go to state 54
+    ExpressaoPrimaria  go to state 55
+    Numero             go to state 56
+
+
+State 26
+
+   96 ExpressaoUnaria: MULTIPLY . ExpressaoCast
+
+    PLUS         shift, and go to state 24
+    MINUS        shift, and go to state 25
+    MULTIPLY     shift, and go to state 26
+    INC          shift, and go to state 27
+    DEC          shift, and go to state 28
+    BITWISE_AND  shift, and go to state 29
+    BITWISE_NOT  shift, and go to state 30
+    NOT          shift, and go to state 31
+    L_PAREN      shift, and go to state 32
+    IDENTIFIER   shift, and go to state 33
+    NUM_OCTAL    shift, and go to state 34
+    NUM_INTEGER  shift, and go to state 35
+    NUM_HEXA     shift, and go to state 36
+    STRING       shift, and go to state 37
+    CHARACTER    shift, and go to state 38
+
+    ExpressaoCast      go to state 64
+    ExpressaoUnaria    go to state 62
+    ExpressaoPosfixa   go to state 54
+    ExpressaoPrimaria  go to state 55
+    Numero             go to state 56
+
+
+State 27
+
+   93 ExpressaoUnaria: INC . ExpressaoUnaria
+
+    PLUS         shift, and go to state 24
+    MINUS        shift, and go to state 25
+    MULTIPLY     shift, and go to state 26
+    INC          shift, and go to state 27
+    DEC          shift, and go to state 28
+    BITWISE_AND  shift, and go to state 29
+    BITWISE_NOT  shift, and go to state 30
+    NOT          shift, and go to state 31
+    L_PAREN      shift, and go to state 65
+    IDENTIFIER   shift, and go to state 33
+    NUM_OCTAL    shift, and go to state 34
+    NUM_INTEGER  shift, and go to state 35
+    NUM_HEXA     shift, and go to state 36
+    STRING       shift, and go to state 37
+    CHARACTER    shift, and go to state 38
+
+    ExpressaoUnaria    go to state 66
+    ExpressaoPosfixa   go to state 54
+    ExpressaoPrimaria  go to state 55
+    Numero             go to state 56
+
+
+State 28
+
+   94 ExpressaoUnaria: DEC . ExpressaoUnaria
+
+    PLUS         shift, and go to state 24
+    MINUS        shift, and go to state 25
+    MULTIPLY     shift, and go to state 26
+    INC          shift, and go to state 27
+    DEC          shift, and go to state 28
+    BITWISE_AND  shift, and go to state 29
+    BITWISE_NOT  shift, and go to state 30
+    NOT          shift, and go to state 31
+    L_PAREN      shift, and go to state 65
+    IDENTIFIER   shift, and go to state 33
+    NUM_OCTAL    shift, and go to state 34
+    NUM_INTEGER  shift, and go to state 35
+    NUM_HEXA     shift, and go to state 36
+    STRING       shift, and go to state 37
+    CHARACTER    shift, and go to state 38
+
+    ExpressaoUnaria    go to state 67
+    ExpressaoPosfixa   go to state 54
+    ExpressaoPrimaria  go to state 55
+    Numero             go to state 56
+
+
+State 29
+
+   95 ExpressaoUnaria: BITWISE_AND . ExpressaoCast
+
+    PLUS         shift, and go to state 24
+    MINUS        shift, and go to state 25
+    MULTIPLY     shift, and go to state 26
+    INC          shift, and go to state 27
+    DEC          shift, and go to state 28
+    BITWISE_AND  shift, and go to state 29
+    BITWISE_NOT  shift, and go to state 30
+    NOT          shift, and go to state 31
+    L_PAREN      shift, and go to state 32
+    IDENTIFIER   shift, and go to state 33
+    NUM_OCTAL    shift, and go to state 34
+    NUM_INTEGER  shift, and go to state 35
+    NUM_HEXA     shift, and go to state 36
+    STRING       shift, and go to state 37
+    CHARACTER    shift, and go to state 38
+
+    ExpressaoCast      go to state 68
+    ExpressaoUnaria    go to state 62
+    ExpressaoPosfixa   go to state 54
+    ExpressaoPrimaria  go to state 55
+    Numero             go to state 56
+
+
+State 30
+
+  100 ExpressaoUnaria: BITWISE_NOT . ExpressaoCast
+
+    PLUS         shift, and go to state 24
+    MINUS        shift, and go to state 25
+    MULTIPLY     shift, and go to state 26
+    INC          shift, and go to state 27
+    DEC          shift, and go to state 28
+    BITWISE_AND  shift, and go to state 29
+    BITWISE_NOT  shift, and go to state 30
+    NOT          shift, and go to state 31
+    L_PAREN      shift, and go to state 32
+    IDENTIFIER   shift, and go to state 33
+    NUM_OCTAL    shift, and go to state 34
+    NUM_INTEGER  shift, and go to state 35
+    NUM_HEXA     shift, and go to state 36
+    STRING       shift, and go to state 37
+    CHARACTER    shift, and go to state 38
+
+    ExpressaoCast      go to state 69
+    ExpressaoUnaria    go to state 62
+    ExpressaoPosfixa   go to state 54
+    ExpressaoPrimaria  go to state 55
+    Numero             go to state 56
+
+
+State 31
+
+   99 ExpressaoUnaria: NOT . ExpressaoCast
+
+    PLUS         shift, and go to state 24
+    MINUS        shift, and go to state 25
+    MULTIPLY     shift, and go to state 26
+    INC          shift, and go to state 27
+    DEC          shift, and go to state 28
+    BITWISE_AND  shift, and go to state 29
+    BITWISE_NOT  shift, and go to state 30
+    NOT          shift, and go to state 31
+    L_PAREN      shift, and go to state 32
+    IDENTIFIER   shift, and go to state 33
+    NUM_OCTAL    shift, and go to state 34
+    NUM_INTEGER  shift, and go to state 35
+    NUM_HEXA     shift, and go to state 36
+    STRING       shift, and go to state 37
+    CHARACTER    shift, and go to state 38
+
+    ExpressaoCast      go to state 70
+    ExpressaoUnaria    go to state 62
+    ExpressaoPosfixa   go to state 54
+    ExpressaoPrimaria  go to state 55
+    Numero             go to state 56
+
+
+State 32
+
+   91 ExpressaoCast: L_PAREN . Tipo LoopVezes R_PAREN ExpressaoCast
+  114 ExpressaoPrimaria: L_PAREN . Expressao R_PAREN
+
+    VOID         shift, and go to state 1
+    INT          shift, and go to state 2
+    CHAR         shift, and go to state 3
+    PLUS         shift, and go to state 24
+    MINUS        shift, and go to state 25
+    MULTIPLY     shift, and go to state 26
+    INC          shift, and go to state 27
+    DEC          shift, and go to state 28
+    BITWISE_AND  shift, and go to state 29
+    BITWISE_NOT  shift, and go to state 30
+    NOT          shift, and go to state 31
+    L_PAREN      shift, and go to state 32
+    IDENTIFIER   shift, and go to state 33
+    NUM_OCTAL    shift, and go to state 34
+    NUM_INTEGER  shift, and go to state 35
+    NUM_HEXA     shift, and go to state 36
+    STRING       shift, and go to state 37
+    CHARACTER    shift, and go to state 38
+
+    Tipo                     go to state 71
+    Expressao                go to state 72
+    ExpressaoAtribuicao      go to state 40
+    ExpressaoCondicional     go to state 41
+    ExpressaoOrLogico        go to state 42
+    ExpressaoAndLogico       go to state 43
+    ExpressaoOr              go to state 44
+    ExpressaoXor             go to state 45
+    ExpressaoAnd             go to state 46
+    ExpressaoIgualdade       go to state 47
+    ExpressaoRelacional      go to state 48
+    ExpressaoShift           go to state 49
+    ExpressaoAditiva         go to state 50
+    ExpressaoMultiplicativa  go to state 51
+    ExpressaoCast            go to state 52
+    ExpressaoUnaria          go to state 53
+    ExpressaoPosfixa         go to state 54
+    ExpressaoPrimaria        go to state 55
+    Numero                   go to state 56
+
+
+State 33
+
+  110 ExpressaoPrimaria: IDENTIFIER .
+
+    $default  reduce using rule 110 (ExpressaoPrimaria)
+
+
+State 34
+
+  117 Numero: NUM_OCTAL .
+
+    $default  reduce using rule 117 (Numero)
+
+
+State 35
+
+  115 Numero: NUM_INTEGER .
+
+    $default  reduce using rule 115 (Numero)
+
+
+State 36
+
+  116 Numero: NUM_HEXA .
+
+    $default  reduce using rule 116 (Numero)
+
+
+State 37
+
+  113 ExpressaoPrimaria: STRING .
+
+    $default  reduce using rule 113 (ExpressaoPrimaria)
+
+
+State 38
+
+  112 ExpressaoPrimaria: CHARACTER .
+
+    $default  reduce using rule 112 (ExpressaoPrimaria)
+
+
+State 39
+
+    6 Declaracoes: NUMBER_SIGN DEFINE IDENTIFIER Expressao .
+   53 Expressao: Expressao . COMMA ExpressaoAtribuicao
+
+    COMMA  shift, and go to state 73
+
+    $default  reduce using rule 6 (Declaracoes)
+
+
+State 40
+
+   52 Expressao: ExpressaoAtribuicao .
+
+    $default  reduce using rule 52 (Expressao)
+
+
+State 41
+
+   54 ExpressaoAtribuicao: ExpressaoCondicional .
+
+    $default  reduce using rule 54 (ExpressaoAtribuicao)
+
+
+State 42
+
+   59 ExpressaoCondicional: ExpressaoOrLogico . Switch9
+   63 ExpressaoOrLogico: ExpressaoOrLogico . LOGICAL_OR ExpressaoAndLogico
+
+    LOGICAL_OR           shift, and go to state 74
+    TERNARY_CONDITIONAL  shift, and go to state 75
+
+    $default  reduce using rule 61 (Switch9)
+
+    Switch9  go to state 76
+
+
+State 43
+
+   62 ExpressaoOrLogico: ExpressaoAndLogico .
+   65 ExpressaoAndLogico: ExpressaoAndLogico . LOGICAL_AND ExpressaoOr
+
+    LOGICAL_AND  shift, and go to state 77
+
+    $default  reduce using rule 62 (ExpressaoOrLogico)
+
+
+State 44
+
+   64 ExpressaoAndLogico: ExpressaoOr .
+   67 ExpressaoOr: ExpressaoOr . BITWISE_OR ExpressaoXor
+
+    BITWISE_OR  shift, and go to state 78
+
+    $default  reduce using rule 64 (ExpressaoAndLogico)
+
+
+State 45
+
+   66 ExpressaoOr: ExpressaoXor .
+   69 ExpressaoXor: ExpressaoXor . BITWISE_XOR ExpressaoAnd
+
+    BITWISE_XOR  shift, and go to state 79
+
+    $default  reduce using rule 66 (ExpressaoOr)
+
+
+State 46
+
+   68 ExpressaoXor: ExpressaoAnd .
+   71 ExpressaoAnd: ExpressaoAnd . BITWISE_AND ExpressaoIgualdade
+
+    BITWISE_AND  shift, and go to state 80
+
+    $default  reduce using rule 68 (ExpressaoXor)
+
+
+State 47
+
+   70 ExpressaoAnd: ExpressaoIgualdade .
+   73 ExpressaoIgualdade: ExpressaoIgualdade . EQUAL ExpressaoRelacional
+   74                   | ExpressaoIgualdade . NOT_EQUAL ExpressaoRelacional
+
+    EQUAL      shift, and go to state 81
+    NOT_EQUAL  shift, and go to state 82
+
+    $default  reduce using rule 70 (ExpressaoAnd)
+
+
+State 48
+
+   72 ExpressaoIgualdade: ExpressaoRelacional .
+   76 ExpressaoRelacional: ExpressaoRelacional . LESS_THAN ExpressaoShift
+   77                    | ExpressaoRelacional . GREATER_THAN ExpressaoShift
+   78                    | ExpressaoRelacional . LESS_EQUAL ExpressaoShift
+   79                    | ExpressaoRelacional . GREATER_EQUAL ExpressaoShift
+
+    LESS_THAN      shift, and go to state 83
+    GREATER_THAN   shift, and go to state 84
+    LESS_EQUAL     shift, and go to state 85
+    GREATER_EQUAL  shift, and go to state 86
+
+    $default  reduce using rule 72 (ExpressaoIgualdade)
+
+
+State 49
+
+   75 ExpressaoRelacional: ExpressaoShift .
+   81 ExpressaoShift: ExpressaoShift . L_SHIFT ExpressaoAditiva
+   82               | ExpressaoShift . R_SHIFT ExpressaoAditiva
+
+    R_SHIFT  shift, and go to state 87
+    L_SHIFT  shift, and go to state 88
+
+    $default  reduce using rule 75 (ExpressaoRelacional)
+
+
+State 50
+
+   80 ExpressaoShift: ExpressaoAditiva .
+   84 ExpressaoAditiva: ExpressaoAditiva . PLUS ExpressaoMultiplicativa
+   85                 | ExpressaoAditiva . MINUS ExpressaoMultiplicativa
+
+    PLUS   shift, and go to state 89
+    MINUS  shift, and go to state 90
+
+    $default  reduce using rule 80 (ExpressaoShift)
+
+
+State 51
+
+   83 ExpressaoAditiva: ExpressaoMultiplicativa .
+   87 ExpressaoMultiplicativa: ExpressaoMultiplicativa . MULTIPLY ExpressaoCast
+   88                        | ExpressaoMultiplicativa . DIV ExpressaoCast
+   89                        | ExpressaoMultiplicativa . REMAINDER ExpressaoCast
+
+    MULTIPLY   shift, and go to state 91
+    DIV        shift, and go to state 92
+    REMAINDER  shift, and go to state 93
+
+    $default  reduce using rule 83 (ExpressaoAditiva)
+
+
+State 52
+
+   86 ExpressaoMultiplicativa: ExpressaoCast .
+
+    $default  reduce using rule 86 (ExpressaoMultiplicativa)
+
+
+State 53
+
+   55 ExpressaoAtribuicao: ExpressaoUnaria . Switch8 ExpressaoAtribuicao
+   90 ExpressaoCast: ExpressaoUnaria .
+
+    ASSIGN        shift, and go to state 94
+    ADD_ASSIGN    shift, and go to state 95
+    MINUS_ASSIGN  shift, and go to state 96
+
+    $default  reduce using rule 90 (ExpressaoCast)
+
+    Switch8  go to state 97
+
+
+State 54
+
+   92 ExpressaoUnaria: ExpressaoPosfixa .
+  102 ExpressaoPosfixa: ExpressaoPosfixa . L_SQUARE_BRACKET Expressao R_SQUARE_BRACKET
+  103                 | ExpressaoPosfixa . INC
+  104                 | ExpressaoPosfixa . DEC
+  105                 | ExpressaoPosfixa . L_PAREN Switch10 R_PAREN
+
+    INC               shift, and go to state 98
+    DEC               shift, and go to state 99
+    L_PAREN           shift, and go to state 100
+    L_SQUARE_BRACKET  shift, and go to state 101
+
+    $default  reduce using rule 92 (ExpressaoUnaria)
+
+
+State 55
+
+  101 ExpressaoPosfixa: ExpressaoPrimaria .
+
+    $default  reduce using rule 101 (ExpressaoPosfixa)
+
+
+State 56
+
+  111 ExpressaoPrimaria: Numero .
+
+    $default  reduce using rule 111 (ExpressaoPrimaria)
+
+
+State 57
+
+   23 Parametros: L_PAREN . LoopParametros R_PAREN
+
+    VOID  shift, and go to state 1
+    INT   shift, and go to state 2
+    CHAR  shift, and go to state 3
+
+    $default  reduce using rule 25 (LoopParametros)
+
+    LoopParametros  go to state 102
+    Tipo            go to state 103
+
+
+State 58
+
+   20 LoopExpressao: L_SQUARE_BRACKET . Expressao R_SQUARE_BRACKET LoopExpressao
+
+    PLUS         shift, and go to state 24
+    MINUS        shift, and go to state 25
+    MULTIPLY     shift, and go to state 26
+    INC          shift, and go to state 27
+    DEC          shift, and go to state 28
+    BITWISE_AND  shift, and go to state 29
+    BITWISE_NOT  shift, and go to state 30
+    NOT          shift, and go to state 31
+    L_PAREN      shift, and go to state 32
+    IDENTIFIER   shift, and go to state 33
+    NUM_OCTAL    shift, and go to state 34
+    NUM_INTEGER  shift, and go to state 35
+    NUM_HEXA     shift, and go to state 36
+    STRING       shift, and go to state 37
+    CHARACTER    shift, and go to state 38
+
+    Expressao                go to state 104
+    ExpressaoAtribuicao      go to state 40
+    ExpressaoCondicional     go to state 41
+    ExpressaoOrLogico        go to state 42
+    ExpressaoAndLogico       go to state 43
+    ExpressaoOr              go to state 44
+    ExpressaoXor             go to state 45
+    ExpressaoAnd             go to state 46
+    ExpressaoIgualdade       go to state 47
+    ExpressaoRelacional      go to state 48
+    ExpressaoShift           go to state 49
+    ExpressaoAditiva         go to state 50
+    ExpressaoMultiplicativa  go to state 51
+    ExpressaoCast            go to state 52
+    ExpressaoUnaria          go to state 53
+    ExpressaoPosfixa         go to state 54
+    ExpressaoPrimaria        go to state 55
+    Numero                   go to state 56
+
+
+State 59
+
+   15 LoopDeclaracaoVariaveis: LoopVezes IDENTIFIER LoopExpressao . Switch1 Switch2
+
+    ASSIGN  shift, and go to state 105
+
+    $default  reduce using rule 17 (Switch1)
+
+    Switch1  go to state 106
+
+
+State 60
+
+    9 Funcao: Tipo LoopVezes IDENTIFIER Parametros . L_CURLY_BRACKET LoopFuncaoDeclaracaoVariaveis Comandos R_CURLY_BRACKET
+   22 DeclaracaoPrototipos: Tipo LoopVezes IDENTIFIER Parametros . SEMICOLON
+
+    SEMICOLON        shift, and go to state 107
+    L_CURLY_BRACKET  shift, and go to state 108
+
+
+State 61
+
+   97 ExpressaoUnaria: PLUS ExpressaoCast .
+
+    $default  reduce using rule 97 (ExpressaoUnaria)
+
+
+State 62
+
+   90 ExpressaoCast: ExpressaoUnaria .
+
+    $default  reduce using rule 90 (ExpressaoCast)
+
+
+State 63
+
+   98 ExpressaoUnaria: MINUS ExpressaoCast .
+
+    $default  reduce using rule 98 (ExpressaoUnaria)
+
+
+State 64
+
+   96 ExpressaoUnaria: MULTIPLY ExpressaoCast .
+
+    $default  reduce using rule 96 (ExpressaoUnaria)
+
+
+State 65
+
+  114 ExpressaoPrimaria: L_PAREN . Expressao R_PAREN
+
+    PLUS         shift, and go to state 24
+    MINUS        shift, and go to state 25
+    MULTIPLY     shift, and go to state 26
+    INC          shift, and go to state 27
+    DEC          shift, and go to state 28
+    BITWISE_AND  shift, and go to state 29
+    BITWISE_NOT  shift, and go to state 30
+    NOT          shift, and go to state 31
+    L_PAREN      shift, and go to state 32
+    IDENTIFIER   shift, and go to state 33
+    NUM_OCTAL    shift, and go to state 34
+    NUM_INTEGER  shift, and go to state 35
+    NUM_HEXA     shift, and go to state 36
+    STRING       shift, and go to state 37
+    CHARACTER    shift, and go to state 38
+
+    Expressao                go to state 72
+    ExpressaoAtribuicao      go to state 40
+    ExpressaoCondicional     go to state 41
+    ExpressaoOrLogico        go to state 42
+    ExpressaoAndLogico       go to state 43
+    ExpressaoOr              go to state 44
+    ExpressaoXor             go to state 45
+    ExpressaoAnd             go to state 46
+    ExpressaoIgualdade       go to state 47
+    ExpressaoRelacional      go to state 48
+    ExpressaoShift           go to state 49
+    ExpressaoAditiva         go to state 50
+    ExpressaoMultiplicativa  go to state 51
+    ExpressaoCast            go to state 52
+    ExpressaoUnaria          go to state 53
+    ExpressaoPosfixa         go to state 54
+    ExpressaoPrimaria        go to state 55
+    Numero                   go to state 56
+
+
+State 66
+
+   93 ExpressaoUnaria: INC ExpressaoUnaria .
+
+    $default  reduce using rule 93 (ExpressaoUnaria)
+
+
+State 67
+
+   94 ExpressaoUnaria: DEC ExpressaoUnaria .
+
+    $default  reduce using rule 94 (ExpressaoUnaria)
+
+
+State 68
+
+   95 ExpressaoUnaria: BITWISE_AND ExpressaoCast .
+
+    $default  reduce using rule 95 (ExpressaoUnaria)
+
+
+State 69
+
+  100 ExpressaoUnaria: BITWISE_NOT ExpressaoCast .
+
+    $default  reduce using rule 100 (ExpressaoUnaria)
+
+
+State 70
+
+   99 ExpressaoUnaria: NOT ExpressaoCast .
+
+    $default  reduce using rule 99 (ExpressaoUnaria)
+
+
+State 71
+
+   91 ExpressaoCast: L_PAREN Tipo . LoopVezes R_PAREN ExpressaoCast
+
+    MULTIPLY  shift, and go to state 16
+
+    $default  reduce using rule 11 (LoopVezes)
+
+    LoopVezes  go to state 109
+
+
+State 72
+
+   53 Expressao: Expressao . COMMA ExpressaoAtribuicao
+  114 ExpressaoPrimaria: L_PAREN Expressao . R_PAREN
+
+    COMMA    shift, and go to state 73
+    R_PAREN  shift, and go to state 110
+
+
+State 73
+
+   53 Expressao: Expressao COMMA . ExpressaoAtribuicao
+
+    PLUS         shift, and go to state 24
+    MINUS        shift, and go to state 25
+    MULTIPLY     shift, and go to state 26
+    INC          shift, and go to state 27
+    DEC          shift, and go to state 28
+    BITWISE_AND  shift, and go to state 29
+    BITWISE_NOT  shift, and go to state 30
+    NOT          shift, and go to state 31
+    L_PAREN      shift, and go to state 32
+    IDENTIFIER   shift, and go to state 33
+    NUM_OCTAL    shift, and go to state 34
+    NUM_INTEGER  shift, and go to state 35
+    NUM_HEXA     shift, and go to state 36
+    STRING       shift, and go to state 37
+    CHARACTER    shift, and go to state 38
+
+    ExpressaoAtribuicao      go to state 111
+    ExpressaoCondicional     go to state 41
+    ExpressaoOrLogico        go to state 42
+    ExpressaoAndLogico       go to state 43
+    ExpressaoOr              go to state 44
+    ExpressaoXor             go to state 45
+    ExpressaoAnd             go to state 46
+    ExpressaoIgualdade       go to state 47
+    ExpressaoRelacional      go to state 48
+    ExpressaoShift           go to state 49
+    ExpressaoAditiva         go to state 50
+    ExpressaoMultiplicativa  go to state 51
+    ExpressaoCast            go to state 52
+    ExpressaoUnaria          go to state 53
+    ExpressaoPosfixa         go to state 54
+    ExpressaoPrimaria        go to state 55
+    Numero                   go to state 56
+
+
+State 74
+
+   63 ExpressaoOrLogico: ExpressaoOrLogico LOGICAL_OR . ExpressaoAndLogico
+
+    PLUS         shift, and go to state 24
+    MINUS        shift, and go to state 25
+    MULTIPLY     shift, and go to state 26
+    INC          shift, and go to state 27
+    DEC          shift, and go to state 28
+    BITWISE_AND  shift, and go to state 29
+    BITWISE_NOT  shift, and go to state 30
+    NOT          shift, and go to state 31
+    L_PAREN      shift, and go to state 32
+    IDENTIFIER   shift, and go to state 33
+    NUM_OCTAL    shift, and go to state 34
+    NUM_INTEGER  shift, and go to state 35
+    NUM_HEXA     shift, and go to state 36
+    STRING       shift, and go to state 37
+    CHARACTER    shift, and go to state 38
+
+    ExpressaoAndLogico       go to state 112
+    ExpressaoOr              go to state 44
+    ExpressaoXor             go to state 45
+    ExpressaoAnd             go to state 46
+    ExpressaoIgualdade       go to state 47
+    ExpressaoRelacional      go to state 48
+    ExpressaoShift           go to state 49
+    ExpressaoAditiva         go to state 50
+    ExpressaoMultiplicativa  go to state 51
+    ExpressaoCast            go to state 52
+    ExpressaoUnaria          go to state 62
+    ExpressaoPosfixa         go to state 54
+    ExpressaoPrimaria        go to state 55
+    Numero                   go to state 56
+
+
+State 75
+
+   60 Switch9: TERNARY_CONDITIONAL . Expressao COLON ExpressaoCondicional
+
+    PLUS         shift, and go to state 24
+    MINUS        shift, and go to state 25
+    MULTIPLY     shift, and go to state 26
+    INC          shift, and go to state 27
+    DEC          shift, and go to state 28
+    BITWISE_AND  shift, and go to state 29
+    BITWISE_NOT  shift, and go to state 30
+    NOT          shift, and go to state 31
+    L_PAREN      shift, and go to state 32
+    IDENTIFIER   shift, and go to state 33
+    NUM_OCTAL    shift, and go to state 34
+    NUM_INTEGER  shift, and go to state 35
+    NUM_HEXA     shift, and go to state 36
+    STRING       shift, and go to state 37
+    CHARACTER    shift, and go to state 38
+
+    Expressao                go to state 113
+    ExpressaoAtribuicao      go to state 40
+    ExpressaoCondicional     go to state 41
+    ExpressaoOrLogico        go to state 42
+    ExpressaoAndLogico       go to state 43
+    ExpressaoOr              go to state 44
+    ExpressaoXor             go to state 45
+    ExpressaoAnd             go to state 46
+    ExpressaoIgualdade       go to state 47
+    ExpressaoRelacional      go to state 48
+    ExpressaoShift           go to state 49
+    ExpressaoAditiva         go to state 50
+    ExpressaoMultiplicativa  go to state 51
+    ExpressaoCast            go to state 52
+    ExpressaoUnaria          go to state 53
+    ExpressaoPosfixa         go to state 54
+    ExpressaoPrimaria        go to state 55
+    Numero                   go to state 56
+
+
+State 76
+
+   59 ExpressaoCondicional: ExpressaoOrLogico Switch9 .
+
+    $default  reduce using rule 59 (ExpressaoCondicional)
+
+
+State 77
+
+   65 ExpressaoAndLogico: ExpressaoAndLogico LOGICAL_AND . ExpressaoOr
+
+    PLUS         shift, and go to state 24
+    MINUS        shift, and go to state 25
+    MULTIPLY     shift, and go to state 26
+    INC          shift, and go to state 27
+    DEC          shift, and go to state 28
+    BITWISE_AND  shift, and go to state 29
+    BITWISE_NOT  shift, and go to state 30
+    NOT          shift, and go to state 31
+    L_PAREN      shift, and go to state 32
+    IDENTIFIER   shift, and go to state 33
+    NUM_OCTAL    shift, and go to state 34
+    NUM_INTEGER  shift, and go to state 35
+    NUM_HEXA     shift, and go to state 36
+    STRING       shift, and go to state 37
+    CHARACTER    shift, and go to state 38
+
+    ExpressaoOr              go to state 114
+    ExpressaoXor             go to state 45
+    ExpressaoAnd             go to state 46
+    ExpressaoIgualdade       go to state 47
+    ExpressaoRelacional      go to state 48
+    ExpressaoShift           go to state 49
+    ExpressaoAditiva         go to state 50
+    ExpressaoMultiplicativa  go to state 51
+    ExpressaoCast            go to state 52
+    ExpressaoUnaria          go to state 62
+    ExpressaoPosfixa         go to state 54
+    ExpressaoPrimaria        go to state 55
+    Numero                   go to state 56
+
+
+State 78
+
+   67 ExpressaoOr: ExpressaoOr BITWISE_OR . ExpressaoXor
+
+    PLUS         shift, and go to state 24
+    MINUS        shift, and go to state 25
+    MULTIPLY     shift, and go to state 26
+    INC          shift, and go to state 27
+    DEC          shift, and go to state 28
+    BITWISE_AND  shift, and go to state 29
+    BITWISE_NOT  shift, and go to state 30
+    NOT          shift, and go to state 31
+    L_PAREN      shift, and go to state 32
+    IDENTIFIER   shift, and go to state 33
+    NUM_OCTAL    shift, and go to state 34
+    NUM_INTEGER  shift, and go to state 35
+    NUM_HEXA     shift, and go to state 36
+    STRING       shift, and go to state 37
+    CHARACTER    shift, and go to state 38
+
+    ExpressaoXor             go to state 115
+    ExpressaoAnd             go to state 46
+    ExpressaoIgualdade       go to state 47
+    ExpressaoRelacional      go to state 48
+    ExpressaoShift           go to state 49
+    ExpressaoAditiva         go to state 50
+    ExpressaoMultiplicativa  go to state 51
+    ExpressaoCast            go to state 52
+    ExpressaoUnaria          go to state 62
+    ExpressaoPosfixa         go to state 54
+    ExpressaoPrimaria        go to state 55
+    Numero                   go to state 56
+
+
+State 79
+
+   69 ExpressaoXor: ExpressaoXor BITWISE_XOR . ExpressaoAnd
+
+    PLUS         shift, and go to state 24
+    MINUS        shift, and go to state 25
+    MULTIPLY     shift, and go to state 26
+    INC          shift, and go to state 27
+    DEC          shift, and go to state 28
+    BITWISE_AND  shift, and go to state 29
+    BITWISE_NOT  shift, and go to state 30
+    NOT          shift, and go to state 31
+    L_PAREN      shift, and go to state 32
+    IDENTIFIER   shift, and go to state 33
+    NUM_OCTAL    shift, and go to state 34
+    NUM_INTEGER  shift, and go to state 35
+    NUM_HEXA     shift, and go to state 36
+    STRING       shift, and go to state 37
+    CHARACTER    shift, and go to state 38
+
+    ExpressaoAnd             go to state 116
+    ExpressaoIgualdade       go to state 47
+    ExpressaoRelacional      go to state 48
+    ExpressaoShift           go to state 49
+    ExpressaoAditiva         go to state 50
+    ExpressaoMultiplicativa  go to state 51
+    ExpressaoCast            go to state 52
+    ExpressaoUnaria          go to state 62
+    ExpressaoPosfixa         go to state 54
+    ExpressaoPrimaria        go to state 55
+    Numero                   go to state 56
+
+
+State 80
+
+   71 ExpressaoAnd: ExpressaoAnd BITWISE_AND . ExpressaoIgualdade
+
+    PLUS         shift, and go to state 24
+    MINUS        shift, and go to state 25
+    MULTIPLY     shift, and go to state 26
+    INC          shift, and go to state 27
+    DEC          shift, and go to state 28
+    BITWISE_AND  shift, and go to state 29
+    BITWISE_NOT  shift, and go to state 30
+    NOT          shift, and go to state 31
+    L_PAREN      shift, and go to state 32
+    IDENTIFIER   shift, and go to state 33
+    NUM_OCTAL    shift, and go to state 34
+    NUM_INTEGER  shift, and go to state 35
+    NUM_HEXA     shift, and go to state 36
+    STRING       shift, and go to state 37
+    CHARACTER    shift, and go to state 38
+
+    ExpressaoIgualdade       go to state 117
+    ExpressaoRelacional      go to state 48
+    ExpressaoShift           go to state 49
+    ExpressaoAditiva         go to state 50
+    ExpressaoMultiplicativa  go to state 51
+    ExpressaoCast            go to state 52
+    ExpressaoUnaria          go to state 62
+    ExpressaoPosfixa         go to state 54
+    ExpressaoPrimaria        go to state 55
+    Numero                   go to state 56
+
+
+State 81
+
+   73 ExpressaoIgualdade: ExpressaoIgualdade EQUAL . ExpressaoRelacional
+
+    PLUS         shift, and go to state 24
+    MINUS        shift, and go to state 25
+    MULTIPLY     shift, and go to state 26
+    INC          shift, and go to state 27
+    DEC          shift, and go to state 28
+    BITWISE_AND  shift, and go to state 29
+    BITWISE_NOT  shift, and go to state 30
+    NOT          shift, and go to state 31
+    L_PAREN      shift, and go to state 32
+    IDENTIFIER   shift, and go to state 33
+    NUM_OCTAL    shift, and go to state 34
+    NUM_INTEGER  shift, and go to state 35
+    NUM_HEXA     shift, and go to state 36
+    STRING       shift, and go to state 37
+    CHARACTER    shift, and go to state 38
+
+    ExpressaoRelacional      go to state 118
+    ExpressaoShift           go to state 49
+    ExpressaoAditiva         go to state 50
+    ExpressaoMultiplicativa  go to state 51
+    ExpressaoCast            go to state 52
+    ExpressaoUnaria          go to state 62
+    ExpressaoPosfixa         go to state 54
+    ExpressaoPrimaria        go to state 55
+    Numero                   go to state 56
+
+
+State 82
+
+   74 ExpressaoIgualdade: ExpressaoIgualdade NOT_EQUAL . ExpressaoRelacional
+
+    PLUS         shift, and go to state 24
+    MINUS        shift, and go to state 25
+    MULTIPLY     shift, and go to state 26
+    INC          shift, and go to state 27
+    DEC          shift, and go to state 28
+    BITWISE_AND  shift, and go to state 29
+    BITWISE_NOT  shift, and go to state 30
+    NOT          shift, and go to state 31
+    L_PAREN      shift, and go to state 32
+    IDENTIFIER   shift, and go to state 33
+    NUM_OCTAL    shift, and go to state 34
+    NUM_INTEGER  shift, and go to state 35
+    NUM_HEXA     shift, and go to state 36
+    STRING       shift, and go to state 37
+    CHARACTER    shift, and go to state 38
+
+    ExpressaoRelacional      go to state 119
+    ExpressaoShift           go to state 49
+    ExpressaoAditiva         go to state 50
+    ExpressaoMultiplicativa  go to state 51
+    ExpressaoCast            go to state 52
+    ExpressaoUnaria          go to state 62
+    ExpressaoPosfixa         go to state 54
+    ExpressaoPrimaria        go to state 55
+    Numero                   go to state 56
+
+
+State 83
+
+   76 ExpressaoRelacional: ExpressaoRelacional LESS_THAN . ExpressaoShift
+
+    PLUS         shift, and go to state 24
+    MINUS        shift, and go to state 25
+    MULTIPLY     shift, and go to state 26
+    INC          shift, and go to state 27
+    DEC          shift, and go to state 28
+    BITWISE_AND  shift, and go to state 29
+    BITWISE_NOT  shift, and go to state 30
+    NOT          shift, and go to state 31
+    L_PAREN      shift, and go to state 32
+    IDENTIFIER   shift, and go to state 33
+    NUM_OCTAL    shift, and go to state 34
+    NUM_INTEGER  shift, and go to state 35
+    NUM_HEXA     shift, and go to state 36
+    STRING       shift, and go to state 37
+    CHARACTER    shift, and go to state 38
+
+    ExpressaoShift           go to state 120
+    ExpressaoAditiva         go to state 50
+    ExpressaoMultiplicativa  go to state 51
+    ExpressaoCast            go to state 52
+    ExpressaoUnaria          go to state 62
+    ExpressaoPosfixa         go to state 54
+    ExpressaoPrimaria        go to state 55
+    Numero                   go to state 56
+
+
+State 84
+
+   77 ExpressaoRelacional: ExpressaoRelacional GREATER_THAN . ExpressaoShift
+
+    PLUS         shift, and go to state 24
+    MINUS        shift, and go to state 25
+    MULTIPLY     shift, and go to state 26
+    INC          shift, and go to state 27
+    DEC          shift, and go to state 28
+    BITWISE_AND  shift, and go to state 29
+    BITWISE_NOT  shift, and go to state 30
+    NOT          shift, and go to state 31
+    L_PAREN      shift, and go to state 32
+    IDENTIFIER   shift, and go to state 33
+    NUM_OCTAL    shift, and go to state 34
+    NUM_INTEGER  shift, and go to state 35
+    NUM_HEXA     shift, and go to state 36
+    STRING       shift, and go to state 37
+    CHARACTER    shift, and go to state 38
+
+    ExpressaoShift           go to state 121
+    ExpressaoAditiva         go to state 50
+    ExpressaoMultiplicativa  go to state 51
+    ExpressaoCast            go to state 52
+    ExpressaoUnaria          go to state 62
+    ExpressaoPosfixa         go to state 54
+    ExpressaoPrimaria        go to state 55
+    Numero                   go to state 56
+
+
+State 85
+
+   78 ExpressaoRelacional: ExpressaoRelacional LESS_EQUAL . ExpressaoShift
+
+    PLUS         shift, and go to state 24
+    MINUS        shift, and go to state 25
+    MULTIPLY     shift, and go to state 26
+    INC          shift, and go to state 27
+    DEC          shift, and go to state 28
+    BITWISE_AND  shift, and go to state 29
+    BITWISE_NOT  shift, and go to state 30
+    NOT          shift, and go to state 31
+    L_PAREN      shift, and go to state 32
+    IDENTIFIER   shift, and go to state 33
+    NUM_OCTAL    shift, and go to state 34
+    NUM_INTEGER  shift, and go to state 35
+    NUM_HEXA     shift, and go to state 36
+    STRING       shift, and go to state 37
+    CHARACTER    shift, and go to state 38
+
+    ExpressaoShift           go to state 122
+    ExpressaoAditiva         go to state 50
+    ExpressaoMultiplicativa  go to state 51
+    ExpressaoCast            go to state 52
+    ExpressaoUnaria          go to state 62
+    ExpressaoPosfixa         go to state 54
+    ExpressaoPrimaria        go to state 55
+    Numero                   go to state 56
+
+
+State 86
+
+   79 ExpressaoRelacional: ExpressaoRelacional GREATER_EQUAL . ExpressaoShift
+
+    PLUS         shift, and go to state 24
+    MINUS        shift, and go to state 25
+    MULTIPLY     shift, and go to state 26
+    INC          shift, and go to state 27
+    DEC          shift, and go to state 28
+    BITWISE_AND  shift, and go to state 29
+    BITWISE_NOT  shift, and go to state 30
+    NOT          shift, and go to state 31
+    L_PAREN      shift, and go to state 32
+    IDENTIFIER   shift, and go to state 33
+    NUM_OCTAL    shift, and go to state 34
+    NUM_INTEGER  shift, and go to state 35
+    NUM_HEXA     shift, and go to state 36
+    STRING       shift, and go to state 37
+    CHARACTER    shift, and go to state 38
+
+    ExpressaoShift           go to state 123
+    ExpressaoAditiva         go to state 50
+    ExpressaoMultiplicativa  go to state 51
+    ExpressaoCast            go to state 52
+    ExpressaoUnaria          go to state 62
+    ExpressaoPosfixa         go to state 54
+    ExpressaoPrimaria        go to state 55
+    Numero                   go to state 56
+
+
+State 87
+
+   82 ExpressaoShift: ExpressaoShift R_SHIFT . ExpressaoAditiva
+
+    PLUS         shift, and go to state 24
+    MINUS        shift, and go to state 25
+    MULTIPLY     shift, and go to state 26
+    INC          shift, and go to state 27
+    DEC          shift, and go to state 28
+    BITWISE_AND  shift, and go to state 29
+    BITWISE_NOT  shift, and go to state 30
+    NOT          shift, and go to state 31
+    L_PAREN      shift, and go to state 32
+    IDENTIFIER   shift, and go to state 33
+    NUM_OCTAL    shift, and go to state 34
+    NUM_INTEGER  shift, and go to state 35
+    NUM_HEXA     shift, and go to state 36
+    STRING       shift, and go to state 37
+    CHARACTER    shift, and go to state 38
+
+    ExpressaoAditiva         go to state 124
+    ExpressaoMultiplicativa  go to state 51
+    ExpressaoCast            go to state 52
+    ExpressaoUnaria          go to state 62
+    ExpressaoPosfixa         go to state 54
+    ExpressaoPrimaria        go to state 55
+    Numero                   go to state 56
+
+
+State 88
+
+   81 ExpressaoShift: ExpressaoShift L_SHIFT . ExpressaoAditiva
+
+    PLUS         shift, and go to state 24
+    MINUS        shift, and go to state 25
+    MULTIPLY     shift, and go to state 26
+    INC          shift, and go to state 27
+    DEC          shift, and go to state 28
+    BITWISE_AND  shift, and go to state 29
+    BITWISE_NOT  shift, and go to state 30
+    NOT          shift, and go to state 31
+    L_PAREN      shift, and go to state 32
+    IDENTIFIER   shift, and go to state 33
+    NUM_OCTAL    shift, and go to state 34
+    NUM_INTEGER  shift, and go to state 35
+    NUM_HEXA     shift, and go to state 36
+    STRING       shift, and go to state 37
+    CHARACTER    shift, and go to state 38
+
+    ExpressaoAditiva         go to state 125
+    ExpressaoMultiplicativa  go to state 51
+    ExpressaoCast            go to state 52
+    ExpressaoUnaria          go to state 62
+    ExpressaoPosfixa         go to state 54
+    ExpressaoPrimaria        go to state 55
+    Numero                   go to state 56
+
+
+State 89
+
+   84 ExpressaoAditiva: ExpressaoAditiva PLUS . ExpressaoMultiplicativa
+
+    PLUS         shift, and go to state 24
+    MINUS        shift, and go to state 25
+    MULTIPLY     shift, and go to state 26
+    INC          shift, and go to state 27
+    DEC          shift, and go to state 28
+    BITWISE_AND  shift, and go to state 29
+    BITWISE_NOT  shift, and go to state 30
+    NOT          shift, and go to state 31
+    L_PAREN      shift, and go to state 32
+    IDENTIFIER   shift, and go to state 33
+    NUM_OCTAL    shift, and go to state 34
+    NUM_INTEGER  shift, and go to state 35
+    NUM_HEXA     shift, and go to state 36
+    STRING       shift, and go to state 37
+    CHARACTER    shift, and go to state 38
+
+    ExpressaoMultiplicativa  go to state 126
+    ExpressaoCast            go to state 52
+    ExpressaoUnaria          go to state 62
+    ExpressaoPosfixa         go to state 54
+    ExpressaoPrimaria        go to state 55
+    Numero                   go to state 56
+
+
+State 90
+
+   85 ExpressaoAditiva: ExpressaoAditiva MINUS . ExpressaoMultiplicativa
+
+    PLUS         shift, and go to state 24
+    MINUS        shift, and go to state 25
+    MULTIPLY     shift, and go to state 26
+    INC          shift, and go to state 27
+    DEC          shift, and go to state 28
+    BITWISE_AND  shift, and go to state 29
+    BITWISE_NOT  shift, and go to state 30
+    NOT          shift, and go to state 31
+    L_PAREN      shift, and go to state 32
+    IDENTIFIER   shift, and go to state 33
+    NUM_OCTAL    shift, and go to state 34
+    NUM_INTEGER  shift, and go to state 35
+    NUM_HEXA     shift, and go to state 36
+    STRING       shift, and go to state 37
+    CHARACTER    shift, and go to state 38
+
+    ExpressaoMultiplicativa  go to state 127
+    ExpressaoCast            go to state 52
+    ExpressaoUnaria          go to state 62
+    ExpressaoPosfixa         go to state 54
+    ExpressaoPrimaria        go to state 55
+    Numero                   go to state 56
+
+
+State 91
+
+   87 ExpressaoMultiplicativa: ExpressaoMultiplicativa MULTIPLY . ExpressaoCast
+
+    PLUS         shift, and go to state 24
+    MINUS        shift, and go to state 25
+    MULTIPLY     shift, and go to state 26
+    INC          shift, and go to state 27
+    DEC          shift, and go to state 28
+    BITWISE_AND  shift, and go to state 29
+    BITWISE_NOT  shift, and go to state 30
+    NOT          shift, and go to state 31
+    L_PAREN      shift, and go to state 32
+    IDENTIFIER   shift, and go to state 33
+    NUM_OCTAL    shift, and go to state 34
+    NUM_INTEGER  shift, and go to state 35
+    NUM_HEXA     shift, and go to state 36
+    STRING       shift, and go to state 37
+    CHARACTER    shift, and go to state 38
+
+    ExpressaoCast      go to state 128
+    ExpressaoUnaria    go to state 62
+    ExpressaoPosfixa   go to state 54
+    ExpressaoPrimaria  go to state 55
+    Numero             go to state 56
+
+
+State 92
+
+   88 ExpressaoMultiplicativa: ExpressaoMultiplicativa DIV . ExpressaoCast
+
+    PLUS         shift, and go to state 24
+    MINUS        shift, and go to state 25
+    MULTIPLY     shift, and go to state 26
+    INC          shift, and go to state 27
+    DEC          shift, and go to state 28
+    BITWISE_AND  shift, and go to state 29
+    BITWISE_NOT  shift, and go to state 30
+    NOT          shift, and go to state 31
+    L_PAREN      shift, and go to state 32
+    IDENTIFIER   shift, and go to state 33
+    NUM_OCTAL    shift, and go to state 34
+    NUM_INTEGER  shift, and go to state 35
+    NUM_HEXA     shift, and go to state 36
+    STRING       shift, and go to state 37
+    CHARACTER    shift, and go to state 38
+
+    ExpressaoCast      go to state 129
+    ExpressaoUnaria    go to state 62
+    ExpressaoPosfixa   go to state 54
+    ExpressaoPrimaria  go to state 55
+    Numero             go to state 56
+
+
+State 93
+
+   89 ExpressaoMultiplicativa: ExpressaoMultiplicativa REMAINDER . ExpressaoCast
+
+    PLUS         shift, and go to state 24
+    MINUS        shift, and go to state 25
+    MULTIPLY     shift, and go to state 26
+    INC          shift, and go to state 27
+    DEC          shift, and go to state 28
+    BITWISE_AND  shift, and go to state 29
+    BITWISE_NOT  shift, and go to state 30
+    NOT          shift, and go to state 31
+    L_PAREN      shift, and go to state 32
+    IDENTIFIER   shift, and go to state 33
+    NUM_OCTAL    shift, and go to state 34
+    NUM_INTEGER  shift, and go to state 35
+    NUM_HEXA     shift, and go to state 36
+    STRING       shift, and go to state 37
+    CHARACTER    shift, and go to state 38
+
+    ExpressaoCast      go to state 130
+    ExpressaoUnaria    go to state 62
+    ExpressaoPosfixa   go to state 54
+    ExpressaoPrimaria  go to state 55
+    Numero             go to state 56
+
+
+State 94
+
+   56 Switch8: ASSIGN .
+
+    $default  reduce using rule 56 (Switch8)
+
+
+State 95
+
+   57 Switch8: ADD_ASSIGN .
+
+    $default  reduce using rule 57 (Switch8)
+
+
+State 96
+
+   58 Switch8: MINUS_ASSIGN .
+
+    $default  reduce using rule 58 (Switch8)
+
+
+State 97
+
+   55 ExpressaoAtribuicao: ExpressaoUnaria Switch8 . ExpressaoAtribuicao
+
+    PLUS         shift, and go to state 24
+    MINUS        shift, and go to state 25
+    MULTIPLY     shift, and go to state 26
+    INC          shift, and go to state 27
+    DEC          shift, and go to state 28
+    BITWISE_AND  shift, and go to state 29
+    BITWISE_NOT  shift, and go to state 30
+    NOT          shift, and go to state 31
+    L_PAREN      shift, and go to state 32
+    IDENTIFIER   shift, and go to state 33
+    NUM_OCTAL    shift, and go to state 34
+    NUM_INTEGER  shift, and go to state 35
+    NUM_HEXA     shift, and go to state 36
+    STRING       shift, and go to state 37
+    CHARACTER    shift, and go to state 38
+
+    ExpressaoAtribuicao      go to state 131
+    ExpressaoCondicional     go to state 41
+    ExpressaoOrLogico        go to state 42
+    ExpressaoAndLogico       go to state 43
+    ExpressaoOr              go to state 44
+    ExpressaoXor             go to state 45
+    ExpressaoAnd             go to state 46
+    ExpressaoIgualdade       go to state 47
+    ExpressaoRelacional      go to state 48
+    ExpressaoShift           go to state 49
+    ExpressaoAditiva         go to state 50
+    ExpressaoMultiplicativa  go to state 51
+    ExpressaoCast            go to state 52
+    ExpressaoUnaria          go to state 53
+    ExpressaoPosfixa         go to state 54
+    ExpressaoPrimaria        go to state 55
+    Numero                   go to state 56
+
+
+State 98
+
+  103 ExpressaoPosfixa: ExpressaoPosfixa INC .
+
+    $default  reduce using rule 103 (ExpressaoPosfixa)
+
+
+State 99
+
+  104 ExpressaoPosfixa: ExpressaoPosfixa DEC .
+
+    $default  reduce using rule 104 (ExpressaoPosfixa)
+
+
+State 100
+
+  105 ExpressaoPosfixa: ExpressaoPosfixa L_PAREN . Switch10 R_PAREN
+
+    PLUS         shift, and go to state 24
+    MINUS        shift, and go to state 25
+    MULTIPLY     shift, and go to state 26
+    INC          shift, and go to state 27
+    DEC          shift, and go to state 28
+    BITWISE_AND  shift, and go to state 29
+    BITWISE_NOT  shift, and go to state 30
+    NOT          shift, and go to state 31
+    L_PAREN      shift, and go to state 32
+    IDENTIFIER   shift, and go to state 33
+    NUM_OCTAL    shift, and go to state 34
+    NUM_INTEGER  shift, and go to state 35
+    NUM_HEXA     shift, and go to state 36
+    STRING       shift, and go to state 37
+    CHARACTER    shift, and go to state 38
+
+    $default  reduce using rule 107 (Switch10)
+
+    ExpressaoAtribuicao      go to state 132
+    ExpressaoCondicional     go to state 41
+    ExpressaoOrLogico        go to state 42
+    ExpressaoAndLogico       go to state 43
+    ExpressaoOr              go to state 44
+    ExpressaoXor             go to state 45
+    ExpressaoAnd             go to state 46
+    ExpressaoIgualdade       go to state 47
+    ExpressaoRelacional      go to state 48
+    ExpressaoShift           go to state 49
+    ExpressaoAditiva         go to state 50
+    ExpressaoMultiplicativa  go to state 51
+    ExpressaoCast            go to state 52
+    ExpressaoUnaria          go to state 53
+    ExpressaoPosfixa         go to state 54
+    Switch10                 go to state 133
+    ExpressaoPrimaria        go to state 55
+    Numero                   go to state 56
+
+
+State 101
+
+  102 ExpressaoPosfixa: ExpressaoPosfixa L_SQUARE_BRACKET . Expressao R_SQUARE_BRACKET
+
+    PLUS         shift, and go to state 24
+    MINUS        shift, and go to state 25
+    MULTIPLY     shift, and go to state 26
+    INC          shift, and go to state 27
+    DEC          shift, and go to state 28
+    BITWISE_AND  shift, and go to state 29
+    BITWISE_NOT  shift, and go to state 30
+    NOT          shift, and go to state 31
+    L_PAREN      shift, and go to state 32
+    IDENTIFIER   shift, and go to state 33
+    NUM_OCTAL    shift, and go to state 34
+    NUM_INTEGER  shift, and go to state 35
+    NUM_HEXA     shift, and go to state 36
+    STRING       shift, and go to state 37
+    CHARACTER    shift, and go to state 38
+
+    Expressao                go to state 134
+    ExpressaoAtribuicao      go to state 40
+    ExpressaoCondicional     go to state 41
+    ExpressaoOrLogico        go to state 42
+    ExpressaoAndLogico       go to state 43
+    ExpressaoOr              go to state 44
+    ExpressaoXor             go to state 45
+    ExpressaoAnd             go to state 46
+    ExpressaoIgualdade       go to state 47
+    ExpressaoRelacional      go to state 48
+    ExpressaoShift           go to state 49
+    ExpressaoAditiva         go to state 50
+    ExpressaoMultiplicativa  go to state 51
+    ExpressaoCast            go to state 52
+    ExpressaoUnaria          go to state 53
+    ExpressaoPosfixa         go to state 54
+    ExpressaoPrimaria        go to state 55
+    Numero                   go to state 56
+
+
+State 102
+
+   23 Parametros: L_PAREN LoopParametros . R_PAREN
+
+    R_PAREN  shift, and go to state 135
+
+
+State 103
+
+   24 LoopParametros: Tipo . LoopVezes IDENTIFIER LoopExpressao Switch3
+
+    MULTIPLY  shift, and go to state 16
+
+    $default  reduce using rule 11 (LoopVezes)
+
+    LoopVezes  go to state 136
+
+
+State 104
+
+   20 LoopExpressao: L_SQUARE_BRACKET Expressao . R_SQUARE_BRACKET LoopExpressao
+   53 Expressao: Expressao . COMMA ExpressaoAtribuicao
+
+    COMMA             shift, and go to state 73
+    R_SQUARE_BRACKET  shift, and go to state 137
+
+
+State 105
+
+   16 Switch1: ASSIGN . ExpressaoAtribuicao
+
+    PLUS         shift, and go to state 24
+    MINUS        shift, and go to state 25
+    MULTIPLY     shift, and go to state 26
+    INC          shift, and go to state 27
+    DEC          shift, and go to state 28
+    BITWISE_AND  shift, and go to state 29
+    BITWISE_NOT  shift, and go to state 30
+    NOT          shift, and go to state 31
+    L_PAREN      shift, and go to state 32
+    IDENTIFIER   shift, and go to state 33
+    NUM_OCTAL    shift, and go to state 34
+    NUM_INTEGER  shift, and go to state 35
+    NUM_HEXA     shift, and go to state 36
+    STRING       shift, and go to state 37
+    CHARACTER    shift, and go to state 38
+
+    ExpressaoAtribuicao      go to state 138
+    ExpressaoCondicional     go to state 41
+    ExpressaoOrLogico        go to state 42
+    ExpressaoAndLogico       go to state 43
+    ExpressaoOr              go to state 44
+    ExpressaoXor             go to state 45
+    ExpressaoAnd             go to state 46
+    ExpressaoIgualdade       go to state 47
+    ExpressaoRelacional      go to state 48
+    ExpressaoShift           go to state 49
+    ExpressaoAditiva         go to state 50
+    ExpressaoMultiplicativa  go to state 51
+    ExpressaoCast            go to state 52
+    ExpressaoUnaria          go to state 53
+    ExpressaoPosfixa         go to state 54
+    ExpressaoPrimaria        go to state 55
+    Numero                   go to state 56
+
+
+State 106
+
+   15 LoopDeclaracaoVariaveis: LoopVezes IDENTIFIER LoopExpressao Switch1 . Switch2
+
+    COMMA  shift, and go to state 139
+
+    $default  reduce using rule 19 (Switch2)
+
+    Switch2  go to state 140
+
+
+State 107
+
+   22 DeclaracaoPrototipos: Tipo LoopVezes IDENTIFIER Parametros SEMICOLON .
+
+    $default  reduce using rule 22 (DeclaracaoPrototipos)
+
+
+State 108
+
+    9 Funcao: Tipo LoopVezes IDENTIFIER Parametros L_CURLY_BRACKET . LoopFuncaoDeclaracaoVariaveis Comandos R_CURLY_BRACKET
+
+    VOID  shift, and go to state 1
+    INT   shift, and go to state 2
+    CHAR  shift, and go to state 3
+
+    $default  reduce using rule 13 (LoopFuncaoDeclaracaoVariaveis)
+
+    LoopFuncaoDeclaracaoVariaveis  go to state 141
+    DeclaracaoVariaveis            go to state 142
+    Tipo                           go to state 143
+
+
+State 109
+
+   91 ExpressaoCast: L_PAREN Tipo LoopVezes . R_PAREN ExpressaoCast
+
+    R_PAREN  shift, and go to state 144
+
+
+State 110
+
+  114 ExpressaoPrimaria: L_PAREN Expressao R_PAREN .
+
+    $default  reduce using rule 114 (ExpressaoPrimaria)
+
+
+State 111
+
+   53 Expressao: Expressao COMMA ExpressaoAtribuicao .
+
+    $default  reduce using rule 53 (Expressao)
+
+
+State 112
+
+   63 ExpressaoOrLogico: ExpressaoOrLogico LOGICAL_OR ExpressaoAndLogico .
+   65 ExpressaoAndLogico: ExpressaoAndLogico . LOGICAL_AND ExpressaoOr
+
+    LOGICAL_AND  shift, and go to state 77
+
+    $default  reduce using rule 63 (ExpressaoOrLogico)
+
+
+State 113
+
+   53 Expressao: Expressao . COMMA ExpressaoAtribuicao
+   60 Switch9: TERNARY_CONDITIONAL Expressao . COLON ExpressaoCondicional
+
+    COMMA  shift, and go to state 73
+    COLON  shift, and go to state 145
+
+
+State 114
+
+   65 ExpressaoAndLogico: ExpressaoAndLogico LOGICAL_AND ExpressaoOr .
+   67 ExpressaoOr: ExpressaoOr . BITWISE_OR ExpressaoXor
+
+    BITWISE_OR  shift, and go to state 78
+
+    $default  reduce using rule 65 (ExpressaoAndLogico)
+
+
+State 115
+
+   67 ExpressaoOr: ExpressaoOr BITWISE_OR ExpressaoXor .
+   69 ExpressaoXor: ExpressaoXor . BITWISE_XOR ExpressaoAnd
+
+    BITWISE_XOR  shift, and go to state 79
+
+    $default  reduce using rule 67 (ExpressaoOr)
+
+
+State 116
+
+   69 ExpressaoXor: ExpressaoXor BITWISE_XOR ExpressaoAnd .
+   71 ExpressaoAnd: ExpressaoAnd . BITWISE_AND ExpressaoIgualdade
+
+    BITWISE_AND  shift, and go to state 80
+
+    $default  reduce using rule 69 (ExpressaoXor)
+
+
+State 117
+
+   71 ExpressaoAnd: ExpressaoAnd BITWISE_AND ExpressaoIgualdade .
+   73 ExpressaoIgualdade: ExpressaoIgualdade . EQUAL ExpressaoRelacional
+   74                   | ExpressaoIgualdade . NOT_EQUAL ExpressaoRelacional
+
+    EQUAL      shift, and go to state 81
+    NOT_EQUAL  shift, and go to state 82
+
+    $default  reduce using rule 71 (ExpressaoAnd)
+
+
+State 118
+
+   73 ExpressaoIgualdade: ExpressaoIgualdade EQUAL ExpressaoRelacional .
+   76 ExpressaoRelacional: ExpressaoRelacional . LESS_THAN ExpressaoShift
+   77                    | ExpressaoRelacional . GREATER_THAN ExpressaoShift
+   78                    | ExpressaoRelacional . LESS_EQUAL ExpressaoShift
+   79                    | ExpressaoRelacional . GREATER_EQUAL ExpressaoShift
+
+    LESS_THAN      shift, and go to state 83
+    GREATER_THAN   shift, and go to state 84
+    LESS_EQUAL     shift, and go to state 85
+    GREATER_EQUAL  shift, and go to state 86
+
+    $default  reduce using rule 73 (ExpressaoIgualdade)
+
+
+State 119
+
+   74 ExpressaoIgualdade: ExpressaoIgualdade NOT_EQUAL ExpressaoRelacional .
+   76 ExpressaoRelacional: ExpressaoRelacional . LESS_THAN ExpressaoShift
+   77                    | ExpressaoRelacional . GREATER_THAN ExpressaoShift
+   78                    | ExpressaoRelacional . LESS_EQUAL ExpressaoShift
+   79                    | ExpressaoRelacional . GREATER_EQUAL ExpressaoShift
+
+    LESS_THAN      shift, and go to state 83
+    GREATER_THAN   shift, and go to state 84
+    LESS_EQUAL     shift, and go to state 85
+    GREATER_EQUAL  shift, and go to state 86
+
+    $default  reduce using rule 74 (ExpressaoIgualdade)
+
+
+State 120
+
+   76 ExpressaoRelacional: ExpressaoRelacional LESS_THAN ExpressaoShift .
+   81 ExpressaoShift: ExpressaoShift . L_SHIFT ExpressaoAditiva
+   82               | ExpressaoShift . R_SHIFT ExpressaoAditiva
+
+    R_SHIFT  shift, and go to state 87
+    L_SHIFT  shift, and go to state 88
+
+    $default  reduce using rule 76 (ExpressaoRelacional)
+
+
+State 121
+
+   77 ExpressaoRelacional: ExpressaoRelacional GREATER_THAN ExpressaoShift .
+   81 ExpressaoShift: ExpressaoShift . L_SHIFT ExpressaoAditiva
+   82               | ExpressaoShift . R_SHIFT ExpressaoAditiva
+
+    R_SHIFT  shift, and go to state 87
+    L_SHIFT  shift, and go to state 88
+
+    $default  reduce using rule 77 (ExpressaoRelacional)
+
+
+State 122
+
+   78 ExpressaoRelacional: ExpressaoRelacional LESS_EQUAL ExpressaoShift .
+   81 ExpressaoShift: ExpressaoShift . L_SHIFT ExpressaoAditiva
+   82               | ExpressaoShift . R_SHIFT ExpressaoAditiva
+
+    R_SHIFT  shift, and go to state 87
+    L_SHIFT  shift, and go to state 88
+
+    $default  reduce using rule 78 (ExpressaoRelacional)
+
+
+State 123
+
+   79 ExpressaoRelacional: ExpressaoRelacional GREATER_EQUAL ExpressaoShift .
+   81 ExpressaoShift: ExpressaoShift . L_SHIFT ExpressaoAditiva
+   82               | ExpressaoShift . R_SHIFT ExpressaoAditiva
+
+    R_SHIFT  shift, and go to state 87
+    L_SHIFT  shift, and go to state 88
+
+    $default  reduce using rule 79 (ExpressaoRelacional)
+
+
+State 124
+
+   82 ExpressaoShift: ExpressaoShift R_SHIFT ExpressaoAditiva .
+   84 ExpressaoAditiva: ExpressaoAditiva . PLUS ExpressaoMultiplicativa
+   85                 | ExpressaoAditiva . MINUS ExpressaoMultiplicativa
+
+    PLUS   shift, and go to state 89
+    MINUS  shift, and go to state 90
+
+    $default  reduce using rule 82 (ExpressaoShift)
+
+
+State 125
+
+   81 ExpressaoShift: ExpressaoShift L_SHIFT ExpressaoAditiva .
+   84 ExpressaoAditiva: ExpressaoAditiva . PLUS ExpressaoMultiplicativa
+   85                 | ExpressaoAditiva . MINUS ExpressaoMultiplicativa
+
+    PLUS   shift, and go to state 89
+    MINUS  shift, and go to state 90
+
+    $default  reduce using rule 81 (ExpressaoShift)
+
+
+State 126
+
+   84 ExpressaoAditiva: ExpressaoAditiva PLUS ExpressaoMultiplicativa .
+   87 ExpressaoMultiplicativa: ExpressaoMultiplicativa . MULTIPLY ExpressaoCast
+   88                        | ExpressaoMultiplicativa . DIV ExpressaoCast
+   89                        | ExpressaoMultiplicativa . REMAINDER ExpressaoCast
+
+    MULTIPLY   shift, and go to state 91
+    DIV        shift, and go to state 92
+    REMAINDER  shift, and go to state 93
+
+    $default  reduce using rule 84 (ExpressaoAditiva)
+
+
+State 127
+
+   85 ExpressaoAditiva: ExpressaoAditiva MINUS ExpressaoMultiplicativa .
+   87 ExpressaoMultiplicativa: ExpressaoMultiplicativa . MULTIPLY ExpressaoCast
+   88                        | ExpressaoMultiplicativa . DIV ExpressaoCast
+   89                        | ExpressaoMultiplicativa . REMAINDER ExpressaoCast
+
+    MULTIPLY   shift, and go to state 91
+    DIV        shift, and go to state 92
+    REMAINDER  shift, and go to state 93
+
+    $default  reduce using rule 85 (ExpressaoAditiva)
+
+
+State 128
+
+   87 ExpressaoMultiplicativa: ExpressaoMultiplicativa MULTIPLY ExpressaoCast .
+
+    $default  reduce using rule 87 (ExpressaoMultiplicativa)
+
+
+State 129
+
+   88 ExpressaoMultiplicativa: ExpressaoMultiplicativa DIV ExpressaoCast .
+
+    $default  reduce using rule 88 (ExpressaoMultiplicativa)
+
+
+State 130
+
+   89 ExpressaoMultiplicativa: ExpressaoMultiplicativa REMAINDER ExpressaoCast .
+
+    $default  reduce using rule 89 (ExpressaoMultiplicativa)
+
+
+State 131
+
+   55 ExpressaoAtribuicao: ExpressaoUnaria Switch8 ExpressaoAtribuicao .
+
+    $default  reduce using rule 55 (ExpressaoAtribuicao)
+
+
+State 132
+
+  106 Switch10: ExpressaoAtribuicao . Switch11
+
+    COMMA  shift, and go to state 146
+
+    $default  reduce using rule 109 (Switch11)
+
+    Switch11  go to state 147
+
+
+State 133
+
+  105 ExpressaoPosfixa: ExpressaoPosfixa L_PAREN Switch10 . R_PAREN
+
+    R_PAREN  shift, and go to state 148
+
+
+State 134
+
+   53 Expressao: Expressao . COMMA ExpressaoAtribuicao
+  102 ExpressaoPosfixa: ExpressaoPosfixa L_SQUARE_BRACKET Expressao . R_SQUARE_BRACKET
+
+    COMMA             shift, and go to state 73
+    R_SQUARE_BRACKET  shift, and go to state 149
+
+
+State 135
+
+   23 Parametros: L_PAREN LoopParametros R_PAREN .
+
+    $default  reduce using rule 23 (Parametros)
+
+
+State 136
+
+   24 LoopParametros: Tipo LoopVezes . IDENTIFIER LoopExpressao Switch3
+
+    IDENTIFIER  shift, and go to state 150
+
+
+State 137
+
+   20 LoopExpressao: L_SQUARE_BRACKET Expressao R_SQUARE_BRACKET . LoopExpressao
+
+    L_SQUARE_BRACKET  shift, and go to state 58
+
+    $default  reduce using rule 21 (LoopExpressao)
+
+    LoopExpressao  go to state 151
+
+
+State 138
+
+   16 Switch1: ASSIGN ExpressaoAtribuicao .
+
+    $default  reduce using rule 16 (Switch1)
+
+
+State 139
+
+   18 Switch2: COMMA . LoopDeclaracaoVariaveis
+
+    MULTIPLY  shift, and go to state 16
+
+    $default  reduce using rule 11 (LoopVezes)
+
+    LoopVezes                go to state 152
+    LoopDeclaracaoVariaveis  go to state 153
+
+
+State 140
+
+   15 LoopDeclaracaoVariaveis: LoopVezes IDENTIFIER LoopExpressao Switch1 Switch2 .
+
+    $default  reduce using rule 15 (LoopDeclaracaoVariaveis)
+
+
+State 141
+
+    9 Funcao: Tipo LoopVezes IDENTIFIER Parametros L_CURLY_BRACKET LoopFuncaoDeclaracaoVariaveis . Comandos R_CURLY_BRACKET
+
+    RETURN           shift, and go to state 154
+    DO               shift, and go to state 155
+    WHILE            shift, and go to state 156
+    FOR              shift, and go to state 157
+    IF               shift, and go to state 158
+    PLUS             shift, and go to state 24
+    MINUS            shift, and go to state 25
+    MULTIPLY         shift, and go to state 26
+    INC              shift, and go to state 27
+    DEC              shift, and go to state 28
+    BITWISE_AND      shift, and go to state 29
+    BITWISE_NOT      shift, and go to state 30
+    NOT              shift, and go to state 31
+    SEMICOLON        shift, and go to state 159
+    L_PAREN          shift, and go to state 32
+    L_CURLY_BRACKET  shift, and go to state 160
+    PRINTF           shift, and go to state 161
+    SCANF            shift, and go to state 162
+    EXIT             shift, and go to state 163
+    IDENTIFIER       shift, and go to state 33
+    NUM_OCTAL        shift, and go to state 34
+    NUM_INTEGER      shift, and go to state 35
+    NUM_HEXA         shift, and go to state 36
+    STRING           shift, and go to state 37
+    CHARACTER        shift, and go to state 38
+
+    Bloco                    go to state 164
+    Comandos                 go to state 165
+    ListaComandos            go to state 166
+    Expressao                go to state 167
+    ExpressaoAtribuicao      go to state 40
+    ExpressaoCondicional     go to state 41
+    ExpressaoOrLogico        go to state 42
+    ExpressaoAndLogico       go to state 43
+    ExpressaoOr              go to state 44
+    ExpressaoXor             go to state 45
+    ExpressaoAnd             go to state 46
+    ExpressaoIgualdade       go to state 47
+    ExpressaoRelacional      go to state 48
+    ExpressaoShift           go to state 49
+    ExpressaoAditiva         go to state 50
+    ExpressaoMultiplicativa  go to state 51
+    ExpressaoCast            go to state 52
+    ExpressaoUnaria          go to state 53
+    ExpressaoPosfixa         go to state 54
+    ExpressaoPrimaria        go to state 55
+    Numero                   go to state 56
+
+
+State 142
+
+   12 LoopFuncaoDeclaracaoVariaveis: DeclaracaoVariaveis . LoopFuncaoDeclaracaoVariaveis
+
+    VOID  shift, and go to state 1
+    INT   shift, and go to state 2
+    CHAR  shift, and go to state 3
+
+    $default  reduce using rule 13 (LoopFuncaoDeclaracaoVariaveis)
+
+    LoopFuncaoDeclaracaoVariaveis  go to state 168
+    DeclaracaoVariaveis            go to state 142
+    Tipo                           go to state 143
+
+
+State 143
+
+   14 DeclaracaoVariaveis: Tipo . LoopDeclaracaoVariaveis SEMICOLON
+
+    MULTIPLY  shift, and go to state 16
+
+    $default  reduce using rule 11 (LoopVezes)
+
+    LoopVezes                go to state 152
+    LoopDeclaracaoVariaveis  go to state 18
+
+
+State 144
+
+   91 ExpressaoCast: L_PAREN Tipo LoopVezes R_PAREN . ExpressaoCast
+
+    PLUS         shift, and go to state 24
+    MINUS        shift, and go to state 25
+    MULTIPLY     shift, and go to state 26
+    INC          shift, and go to state 27
+    DEC          shift, and go to state 28
+    BITWISE_AND  shift, and go to state 29
+    BITWISE_NOT  shift, and go to state 30
+    NOT          shift, and go to state 31
+    L_PAREN      shift, and go to state 32
+    IDENTIFIER   shift, and go to state 33
+    NUM_OCTAL    shift, and go to state 34
+    NUM_INTEGER  shift, and go to state 35
+    NUM_HEXA     shift, and go to state 36
+    STRING       shift, and go to state 37
+    CHARACTER    shift, and go to state 38
+
+    ExpressaoCast      go to state 169
+    ExpressaoUnaria    go to state 62
+    ExpressaoPosfixa   go to state 54
+    ExpressaoPrimaria  go to state 55
+    Numero             go to state 56
+
+
+State 145
+
+   60 Switch9: TERNARY_CONDITIONAL Expressao COLON . ExpressaoCondicional
+
+    PLUS         shift, and go to state 24
+    MINUS        shift, and go to state 25
+    MULTIPLY     shift, and go to state 26
+    INC          shift, and go to state 27
+    DEC          shift, and go to state 28
+    BITWISE_AND  shift, and go to state 29
+    BITWISE_NOT  shift, and go to state 30
+    NOT          shift, and go to state 31
+    L_PAREN      shift, and go to state 32
+    IDENTIFIER   shift, and go to state 33
+    NUM_OCTAL    shift, and go to state 34
+    NUM_INTEGER  shift, and go to state 35
+    NUM_HEXA     shift, and go to state 36
+    STRING       shift, and go to state 37
+    CHARACTER    shift, and go to state 38
+
+    ExpressaoCondicional     go to state 170
+    ExpressaoOrLogico        go to state 42
+    ExpressaoAndLogico       go to state 43
+    ExpressaoOr              go to state 44
+    ExpressaoXor             go to state 45
+    ExpressaoAnd             go to state 46
+    ExpressaoIgualdade       go to state 47
+    ExpressaoRelacional      go to state 48
+    ExpressaoShift           go to state 49
+    ExpressaoAditiva         go to state 50
+    ExpressaoMultiplicativa  go to state 51
+    ExpressaoCast            go to state 52
+    ExpressaoUnaria          go to state 62
+    ExpressaoPosfixa         go to state 54
+    ExpressaoPrimaria        go to state 55
+    Numero                   go to state 56
+
+
+State 146
+
+  108 Switch11: COMMA . ExpressaoAtribuicao Switch11
+
+    PLUS         shift, and go to state 24
+    MINUS        shift, and go to state 25
+    MULTIPLY     shift, and go to state 26
+    INC          shift, and go to state 27
+    DEC          shift, and go to state 28
+    BITWISE_AND  shift, and go to state 29
+    BITWISE_NOT  shift, and go to state 30
+    NOT          shift, and go to state 31
+    L_PAREN      shift, and go to state 32
+    IDENTIFIER   shift, and go to state 33
+    NUM_OCTAL    shift, and go to state 34
+    NUM_INTEGER  shift, and go to state 35
+    NUM_HEXA     shift, and go to state 36
+    STRING       shift, and go to state 37
+    CHARACTER    shift, and go to state 38
+
+    ExpressaoAtribuicao      go to state 171
+    ExpressaoCondicional     go to state 41
+    ExpressaoOrLogico        go to state 42
+    ExpressaoAndLogico       go to state 43
+    ExpressaoOr              go to state 44
+    ExpressaoXor             go to state 45
+    ExpressaoAnd             go to state 46
+    ExpressaoIgualdade       go to state 47
+    ExpressaoRelacional      go to state 48
+    ExpressaoShift           go to state 49
+    ExpressaoAditiva         go to state 50
+    ExpressaoMultiplicativa  go to state 51
+    ExpressaoCast            go to state 52
+    ExpressaoUnaria          go to state 53
+    ExpressaoPosfixa         go to state 54
+    ExpressaoPrimaria        go to state 55
+    Numero                   go to state 56
+
+
+State 147
+
+  106 Switch10: ExpressaoAtribuicao Switch11 .
+
+    $default  reduce using rule 106 (Switch10)
+
+
+State 148
+
+  105 ExpressaoPosfixa: ExpressaoPosfixa L_PAREN Switch10 R_PAREN .
+
+    $default  reduce using rule 105 (ExpressaoPosfixa)
+
+
+State 149
+
+  102 ExpressaoPosfixa: ExpressaoPosfixa L_SQUARE_BRACKET Expressao R_SQUARE_BRACKET .
+
+    $default  reduce using rule 102 (ExpressaoPosfixa)
+
+
+State 150
+
+   24 LoopParametros: Tipo LoopVezes IDENTIFIER . LoopExpressao Switch3
+
+    L_SQUARE_BRACKET  shift, and go to state 58
+
+    $default  reduce using rule 21 (LoopExpressao)
+
+    LoopExpressao  go to state 172
+
+
+State 151
+
+   20 LoopExpressao: L_SQUARE_BRACKET Expressao R_SQUARE_BRACKET LoopExpressao .
+
+    $default  reduce using rule 20 (LoopExpressao)
+
+
+State 152
+
+   15 LoopDeclaracaoVariaveis: LoopVezes . IDENTIFIER LoopExpressao Switch1 Switch2
+
+    IDENTIFIER  shift, and go to state 173
+
+
+State 153
+
+   18 Switch2: COMMA LoopDeclaracaoVariaveis .
+
+    $default  reduce using rule 18 (Switch2)
+
+
+State 154
+
+   42 ListaComandos: RETURN . Switch6 SEMICOLON
+
+    PLUS         shift, and go to state 24
+    MINUS        shift, and go to state 25
+    MULTIPLY     shift, and go to state 26
+    INC          shift, and go to state 27
+    DEC          shift, and go to state 28
+    BITWISE_AND  shift, and go to state 29
+    BITWISE_NOT  shift, and go to state 30
+    NOT          shift, and go to state 31
+    L_PAREN      shift, and go to state 32
+    IDENTIFIER   shift, and go to state 33
+    NUM_OCTAL    shift, and go to state 34
+    NUM_INTEGER  shift, and go to state 35
+    NUM_HEXA     shift, and go to state 36
+    STRING       shift, and go to state 37
+    CHARACTER    shift, and go to state 38
+
+    $default  reduce using rule 49 (Switch6)
+
+    Switch6                  go to state 174
+    Expressao                go to state 175
+    ExpressaoAtribuicao      go to state 40
+    ExpressaoCondicional     go to state 41
+    ExpressaoOrLogico        go to state 42
+    ExpressaoAndLogico       go to state 43
+    ExpressaoOr              go to state 44
+    ExpressaoXor             go to state 45
+    ExpressaoAnd             go to state 46
+    ExpressaoIgualdade       go to state 47
+    ExpressaoRelacional      go to state 48
+    ExpressaoShift           go to state 49
+    ExpressaoAditiva         go to state 50
+    ExpressaoMultiplicativa  go to state 51
+    ExpressaoCast            go to state 52
+    ExpressaoUnaria          go to state 53
+    ExpressaoPosfixa         go to state 54
+    ExpressaoPrimaria        go to state 55
+    Numero                   go to state 56
+
+
+State 155
+
+   35 ListaComandos: DO . Bloco WHILE L_PAREN Expressao R_PAREN SEMICOLON
+
+    L_CURLY_BRACKET  shift, and go to state 160
+
+    Bloco  go to state 176
+
+
+State 156
+
+   37 ListaComandos: WHILE . L_PAREN Expressao R_PAREN Bloco
+
+    L_PAREN  shift, and go to state 177
+
+
+State 157
+
+   38 ListaComandos: FOR . L_PAREN Switch6 SEMICOLON Switch6 SEMICOLON Switch6 R_PAREN Bloco
+
+    L_PAREN  shift, and go to state 178
+
+
+State 158
+
+   36 ListaComandos: IF . L_PAREN Expressao R_PAREN Bloco Switch5
+
+    L_PAREN  shift, and go to state 179
+
+
+State 159
+
+   44 ListaComandos: SEMICOLON .
+
+    $default  reduce using rule 44 (ListaComandos)
+
+
+State 160
+
+   31 Bloco: L_CURLY_BRACKET . Comandos R_CURLY_BRACKET
+
+    RETURN           shift, and go to state 154
+    DO               shift, and go to state 155
+    WHILE            shift, and go to state 156
+    FOR              shift, and go to state 157
+    IF               shift, and go to state 158
+    PLUS             shift, and go to state 24
+    MINUS            shift, and go to state 25
+    MULTIPLY         shift, and go to state 26
+    INC              shift, and go to state 27
+    DEC              shift, and go to state 28
+    BITWISE_AND      shift, and go to state 29
+    BITWISE_NOT      shift, and go to state 30
+    NOT              shift, and go to state 31
+    SEMICOLON        shift, and go to state 159
+    L_PAREN          shift, and go to state 32
+    L_CURLY_BRACKET  shift, and go to state 160
+    PRINTF           shift, and go to state 161
+    SCANF            shift, and go to state 162
+    EXIT             shift, and go to state 163
+    IDENTIFIER       shift, and go to state 33
+    NUM_OCTAL        shift, and go to state 34
+    NUM_INTEGER      shift, and go to state 35
+    NUM_HEXA         shift, and go to state 36
+    STRING           shift, and go to state 37
+    CHARACTER        shift, and go to state 38
+
+    Bloco                    go to state 164
+    Comandos                 go to state 180
+    ListaComandos            go to state 166
+    Expressao                go to state 167
+    ExpressaoAtribuicao      go to state 40
+    ExpressaoCondicional     go to state 41
+    ExpressaoOrLogico        go to state 42
+    ExpressaoAndLogico       go to state 43
+    ExpressaoOr              go to state 44
+    ExpressaoXor             go to state 45
+    ExpressaoAnd             go to state 46
+    ExpressaoIgualdade       go to state 47
+    ExpressaoRelacional      go to state 48
+    ExpressaoShift           go to state 49
+    ExpressaoAditiva         go to state 50
+    ExpressaoMultiplicativa  go to state 51
+    ExpressaoCast            go to state 52
+    ExpressaoUnaria          go to state 53
+    ExpressaoPosfixa         go to state 54
+    ExpressaoPrimaria        go to state 55
+    Numero                   go to state 56
+
+
+State 161
+
+   39 ListaComandos: PRINTF . L_PAREN STRING Switch7 R_PAREN SEMICOLON
+
+    L_PAREN  shift, and go to state 181
+
+
+State 162
+
+   40 ListaComandos: SCANF . L_PAREN STRING COMMA BITWISE_AND R_PAREN SEMICOLON
+
+    L_PAREN  shift, and go to state 182
+
+
+State 163
+
+   41 ListaComandos: EXIT . L_PAREN Expressao R_PAREN SEMICOLON
+
+    L_PAREN  shift, and go to state 183
+
+
+State 164
+
+   45 ListaComandos: Bloco .
+
+    $default  reduce using rule 45 (ListaComandos)
+
+
+State 165
+
+    9 Funcao: Tipo LoopVezes IDENTIFIER Parametros L_CURLY_BRACKET LoopFuncaoDeclaracaoVariaveis Comandos . R_CURLY_BRACKET
+
+    R_CURLY_BRACKET  shift, and go to state 184
+
+
+State 166
+
+   32 Comandos: ListaComandos . LoopListaComandos
+
+    RETURN           shift, and go to state 154
+    DO               shift, and go to state 155
+    WHILE            shift, and go to state 156
+    FOR              shift, and go to state 157
+    IF               shift, and go to state 158
+    PLUS             shift, and go to state 24
+    MINUS            shift, and go to state 25
+    MULTIPLY         shift, and go to state 26
+    INC              shift, and go to state 27
+    DEC              shift, and go to state 28
+    BITWISE_AND      shift, and go to state 29
+    BITWISE_NOT      shift, and go to state 30
+    NOT              shift, and go to state 31
+    SEMICOLON        shift, and go to state 159
+    L_PAREN          shift, and go to state 32
+    L_CURLY_BRACKET  shift, and go to state 160
+    PRINTF           shift, and go to state 161
+    SCANF            shift, and go to state 162
+    EXIT             shift, and go to state 163
+    IDENTIFIER       shift, and go to state 33
+    NUM_OCTAL        shift, and go to state 34
+    NUM_INTEGER      shift, and go to state 35
+    NUM_HEXA         shift, and go to state 36
+    STRING           shift, and go to state 37
+    CHARACTER        shift, and go to state 38
+
+    $default  reduce using rule 34 (LoopListaComandos)
+
+    Bloco                    go to state 164
+    LoopListaComandos        go to state 185
+    ListaComandos            go to state 186
+    Expressao                go to state 167
+    ExpressaoAtribuicao      go to state 40
+    ExpressaoCondicional     go to state 41
+    ExpressaoOrLogico        go to state 42
+    ExpressaoAndLogico       go to state 43
+    ExpressaoOr              go to state 44
+    ExpressaoXor             go to state 45
+    ExpressaoAnd             go to state 46
+    ExpressaoIgualdade       go to state 47
+    ExpressaoRelacional      go to state 48
+    ExpressaoShift           go to state 49
+    ExpressaoAditiva         go to state 50
+    ExpressaoMultiplicativa  go to state 51
+    ExpressaoCast            go to state 52
+    ExpressaoUnaria          go to state 53
+    ExpressaoPosfixa         go to state 54
+    ExpressaoPrimaria        go to state 55
+    Numero                   go to state 56
+
+
+State 167
+
+   43 ListaComandos: Expressao . SEMICOLON
+   53 Expressao: Expressao . COMMA ExpressaoAtribuicao
+
+    SEMICOLON  shift, and go to state 187
+    COMMA      shift, and go to state 73
+
+
+State 168
+
+   12 LoopFuncaoDeclaracaoVariaveis: DeclaracaoVariaveis LoopFuncaoDeclaracaoVariaveis .
+
+    $default  reduce using rule 12 (LoopFuncaoDeclaracaoVariaveis)
+
+
+State 169
+
+   91 ExpressaoCast: L_PAREN Tipo LoopVezes R_PAREN ExpressaoCast .
+
+    $default  reduce using rule 91 (ExpressaoCast)
+
+
+State 170
+
+   60 Switch9: TERNARY_CONDITIONAL Expressao COLON ExpressaoCondicional .
+
+    $default  reduce using rule 60 (Switch9)
+
+
+State 171
+
+  108 Switch11: COMMA ExpressaoAtribuicao . Switch11
+
+    COMMA  shift, and go to state 146
+
+    $default  reduce using rule 109 (Switch11)
+
+    Switch11  go to state 188
+
+
+State 172
+
+   24 LoopParametros: Tipo LoopVezes IDENTIFIER LoopExpressao . Switch3
+
+    COMMA  shift, and go to state 189
+
+    $default  reduce using rule 27 (Switch3)
+
+    Switch3  go to state 190
+
+
+State 173
+
+   15 LoopDeclaracaoVariaveis: LoopVezes IDENTIFIER . LoopExpressao Switch1 Switch2
+
+    L_SQUARE_BRACKET  shift, and go to state 58
+
+    $default  reduce using rule 21 (LoopExpressao)
+
+    LoopExpressao  go to state 59
+
+
+State 174
+
+   42 ListaComandos: RETURN Switch6 . SEMICOLON
+
+    SEMICOLON  shift, and go to state 191
+
+
+State 175
+
+   48 Switch6: Expressao .
+   53 Expressao: Expressao . COMMA ExpressaoAtribuicao
+
+    COMMA  shift, and go to state 73
+
+    $default  reduce using rule 48 (Switch6)
+
+
+State 176
+
+   35 ListaComandos: DO Bloco . WHILE L_PAREN Expressao R_PAREN SEMICOLON
+
+    WHILE  shift, and go to state 192
+
+
+State 177
+
+   37 ListaComandos: WHILE L_PAREN . Expressao R_PAREN Bloco
+
+    PLUS         shift, and go to state 24
+    MINUS        shift, and go to state 25
+    MULTIPLY     shift, and go to state 26
+    INC          shift, and go to state 27
+    DEC          shift, and go to state 28
+    BITWISE_AND  shift, and go to state 29
+    BITWISE_NOT  shift, and go to state 30
+    NOT          shift, and go to state 31
+    L_PAREN      shift, and go to state 32
+    IDENTIFIER   shift, and go to state 33
+    NUM_OCTAL    shift, and go to state 34
+    NUM_INTEGER  shift, and go to state 35
+    NUM_HEXA     shift, and go to state 36
+    STRING       shift, and go to state 37
+    CHARACTER    shift, and go to state 38
+
+    Expressao                go to state 193
+    ExpressaoAtribuicao      go to state 40
+    ExpressaoCondicional     go to state 41
+    ExpressaoOrLogico        go to state 42
+    ExpressaoAndLogico       go to state 43
+    ExpressaoOr              go to state 44
+    ExpressaoXor             go to state 45
+    ExpressaoAnd             go to state 46
+    ExpressaoIgualdade       go to state 47
+    ExpressaoRelacional      go to state 48
+    ExpressaoShift           go to state 49
+    ExpressaoAditiva         go to state 50
+    ExpressaoMultiplicativa  go to state 51
+    ExpressaoCast            go to state 52
+    ExpressaoUnaria          go to state 53
+    ExpressaoPosfixa         go to state 54
+    ExpressaoPrimaria        go to state 55
+    Numero                   go to state 56
+
+
+State 178
+
+   38 ListaComandos: FOR L_PAREN . Switch6 SEMICOLON Switch6 SEMICOLON Switch6 R_PAREN Bloco
+
+    PLUS         shift, and go to state 24
+    MINUS        shift, and go to state 25
+    MULTIPLY     shift, and go to state 26
+    INC          shift, and go to state 27
+    DEC          shift, and go to state 28
+    BITWISE_AND  shift, and go to state 29
+    BITWISE_NOT  shift, and go to state 30
+    NOT          shift, and go to state 31
+    L_PAREN      shift, and go to state 32
+    IDENTIFIER   shift, and go to state 33
+    NUM_OCTAL    shift, and go to state 34
+    NUM_INTEGER  shift, and go to state 35
+    NUM_HEXA     shift, and go to state 36
+    STRING       shift, and go to state 37
+    CHARACTER    shift, and go to state 38
+
+    $default  reduce using rule 49 (Switch6)
+
+    Switch6                  go to state 194
+    Expressao                go to state 175
+    ExpressaoAtribuicao      go to state 40
+    ExpressaoCondicional     go to state 41
+    ExpressaoOrLogico        go to state 42
+    ExpressaoAndLogico       go to state 43
+    ExpressaoOr              go to state 44
+    ExpressaoXor             go to state 45
+    ExpressaoAnd             go to state 46
+    ExpressaoIgualdade       go to state 47
+    ExpressaoRelacional      go to state 48
+    ExpressaoShift           go to state 49
+    ExpressaoAditiva         go to state 50
+    ExpressaoMultiplicativa  go to state 51
+    ExpressaoCast            go to state 52
+    ExpressaoUnaria          go to state 53
+    ExpressaoPosfixa         go to state 54
+    ExpressaoPrimaria        go to state 55
+    Numero                   go to state 56
+
+
+State 179
+
+   36 ListaComandos: IF L_PAREN . Expressao R_PAREN Bloco Switch5
+
+    PLUS         shift, and go to state 24
+    MINUS        shift, and go to state 25
+    MULTIPLY     shift, and go to state 26
+    INC          shift, and go to state 27
+    DEC          shift, and go to state 28
+    BITWISE_AND  shift, and go to state 29
+    BITWISE_NOT  shift, and go to state 30
+    NOT          shift, and go to state 31
+    L_PAREN      shift, and go to state 32
+    IDENTIFIER   shift, and go to state 33
+    NUM_OCTAL    shift, and go to state 34
+    NUM_INTEGER  shift, and go to state 35
+    NUM_HEXA     shift, and go to state 36
+    STRING       shift, and go to state 37
+    CHARACTER    shift, and go to state 38
+
+    Expressao                go to state 195
+    ExpressaoAtribuicao      go to state 40
+    ExpressaoCondicional     go to state 41
+    ExpressaoOrLogico        go to state 42
+    ExpressaoAndLogico       go to state 43
+    ExpressaoOr              go to state 44
+    ExpressaoXor             go to state 45
+    ExpressaoAnd             go to state 46
+    ExpressaoIgualdade       go to state 47
+    ExpressaoRelacional      go to state 48
+    ExpressaoShift           go to state 49
+    ExpressaoAditiva         go to state 50
+    ExpressaoMultiplicativa  go to state 51
+    ExpressaoCast            go to state 52
+    ExpressaoUnaria          go to state 53
+    ExpressaoPosfixa         go to state 54
+    ExpressaoPrimaria        go to state 55
+    Numero                   go to state 56
+
+
+State 180
+
+   31 Bloco: L_CURLY_BRACKET Comandos . R_CURLY_BRACKET
+
+    R_CURLY_BRACKET  shift, and go to state 196
+
+
+State 181
+
+   39 ListaComandos: PRINTF L_PAREN . STRING Switch7 R_PAREN SEMICOLON
+
+    STRING  shift, and go to state 197
+
+
+State 182
+
+   40 ListaComandos: SCANF L_PAREN . STRING COMMA BITWISE_AND R_PAREN SEMICOLON
+
+    STRING  shift, and go to state 198
+
+
+State 183
+
+   41 ListaComandos: EXIT L_PAREN . Expressao R_PAREN SEMICOLON
+
+    PLUS         shift, and go to state 24
+    MINUS        shift, and go to state 25
+    MULTIPLY     shift, and go to state 26
+    INC          shift, and go to state 27
+    DEC          shift, and go to state 28
+    BITWISE_AND  shift, and go to state 29
+    BITWISE_NOT  shift, and go to state 30
+    NOT          shift, and go to state 31
+    L_PAREN      shift, and go to state 32
+    IDENTIFIER   shift, and go to state 33
+    NUM_OCTAL    shift, and go to state 34
+    NUM_INTEGER  shift, and go to state 35
+    NUM_HEXA     shift, and go to state 36
+    STRING       shift, and go to state 37
+    CHARACTER    shift, and go to state 38
+
+    Expressao                go to state 199
+    ExpressaoAtribuicao      go to state 40
+    ExpressaoCondicional     go to state 41
+    ExpressaoOrLogico        go to state 42
+    ExpressaoAndLogico       go to state 43
+    ExpressaoOr              go to state 44
+    ExpressaoXor             go to state 45
+    ExpressaoAnd             go to state 46
+    ExpressaoIgualdade       go to state 47
+    ExpressaoRelacional      go to state 48
+    ExpressaoShift           go to state 49
+    ExpressaoAditiva         go to state 50
+    ExpressaoMultiplicativa  go to state 51
+    ExpressaoCast            go to state 52
+    ExpressaoUnaria          go to state 53
+    ExpressaoPosfixa         go to state 54
+    ExpressaoPrimaria        go to state 55
+    Numero                   go to state 56
+
+
+State 184
+
+    9 Funcao: Tipo LoopVezes IDENTIFIER Parametros L_CURLY_BRACKET LoopFuncaoDeclaracaoVariaveis Comandos R_CURLY_BRACKET .
+
+    $default  reduce using rule 9 (Funcao)
+
+
+State 185
+
+   32 Comandos: ListaComandos LoopListaComandos .
+
+    $default  reduce using rule 32 (Comandos)
+
+
+State 186
+
+   33 LoopListaComandos: ListaComandos . LoopListaComandos
+
+    RETURN           shift, and go to state 154
+    DO               shift, and go to state 155
+    WHILE            shift, and go to state 156
+    FOR              shift, and go to state 157
+    IF               shift, and go to state 158
+    PLUS             shift, and go to state 24
+    MINUS            shift, and go to state 25
+    MULTIPLY         shift, and go to state 26
+    INC              shift, and go to state 27
+    DEC              shift, and go to state 28
+    BITWISE_AND      shift, and go to state 29
+    BITWISE_NOT      shift, and go to state 30
+    NOT              shift, and go to state 31
+    SEMICOLON        shift, and go to state 159
+    L_PAREN          shift, and go to state 32
+    L_CURLY_BRACKET  shift, and go to state 160
+    PRINTF           shift, and go to state 161
+    SCANF            shift, and go to state 162
+    EXIT             shift, and go to state 163
+    IDENTIFIER       shift, and go to state 33
+    NUM_OCTAL        shift, and go to state 34
+    NUM_INTEGER      shift, and go to state 35
+    NUM_HEXA         shift, and go to state 36
+    STRING           shift, and go to state 37
+    CHARACTER        shift, and go to state 38
+
+    $default  reduce using rule 34 (LoopListaComandos)
+
+    Bloco                    go to state 164
+    LoopListaComandos        go to state 200
+    ListaComandos            go to state 186
+    Expressao                go to state 167
+    ExpressaoAtribuicao      go to state 40
+    ExpressaoCondicional     go to state 41
+    ExpressaoOrLogico        go to state 42
+    ExpressaoAndLogico       go to state 43
+    ExpressaoOr              go to state 44
+    ExpressaoXor             go to state 45
+    ExpressaoAnd             go to state 46
+    ExpressaoIgualdade       go to state 47
+    ExpressaoRelacional      go to state 48
+    ExpressaoShift           go to state 49
+    ExpressaoAditiva         go to state 50
+    ExpressaoMultiplicativa  go to state 51
+    ExpressaoCast            go to state 52
+    ExpressaoUnaria          go to state 53
+    ExpressaoPosfixa         go to state 54
+    ExpressaoPrimaria        go to state 55
+    Numero                   go to state 56
+
+
+State 187
+
+   43 ListaComandos: Expressao SEMICOLON .
+
+    $default  reduce using rule 43 (ListaComandos)
+
+
+State 188
+
+  108 Switch11: COMMA ExpressaoAtribuicao Switch11 .
+
+    $default  reduce using rule 108 (Switch11)
+
+
+State 189
+
+   26 Switch3: COMMA . LoopParametros
+
+    VOID  shift, and go to state 1
+    INT   shift, and go to state 2
+    CHAR  shift, and go to state 3
+
+    $default  reduce using rule 25 (LoopParametros)
+
+    LoopParametros  go to state 201
+    Tipo            go to state 103
+
+
+State 190
+
+   24 LoopParametros: Tipo LoopVezes IDENTIFIER LoopExpressao Switch3 .
+
+    $default  reduce using rule 24 (LoopParametros)
+
+
+State 191
+
+   42 ListaComandos: RETURN Switch6 SEMICOLON .
+
+    $default  reduce using rule 42 (ListaComandos)
+
+
+State 192
+
+   35 ListaComandos: DO Bloco WHILE . L_PAREN Expressao R_PAREN SEMICOLON
+
+    L_PAREN  shift, and go to state 202
+
+
+State 193
+
+   37 ListaComandos: WHILE L_PAREN Expressao . R_PAREN Bloco
+   53 Expressao: Expressao . COMMA ExpressaoAtribuicao
+
+    COMMA    shift, and go to state 73
+    R_PAREN  shift, and go to state 203
+
+
+State 194
+
+   38 ListaComandos: FOR L_PAREN Switch6 . SEMICOLON Switch6 SEMICOLON Switch6 R_PAREN Bloco
+
+    SEMICOLON  shift, and go to state 204
+
+
+State 195
+
+   36 ListaComandos: IF L_PAREN Expressao . R_PAREN Bloco Switch5
+   53 Expressao: Expressao . COMMA ExpressaoAtribuicao
+
+    COMMA    shift, and go to state 73
+    R_PAREN  shift, and go to state 205
+
+
+State 196
+
+   31 Bloco: L_CURLY_BRACKET Comandos R_CURLY_BRACKET .
+
+    $default  reduce using rule 31 (Bloco)
+
+
+State 197
+
+   39 ListaComandos: PRINTF L_PAREN STRING . Switch7 R_PAREN SEMICOLON
+
+    COMMA  shift, and go to state 206
+
+    $default  reduce using rule 51 (Switch7)
+
+    Switch7  go to state 207
+
+
+State 198
+
+   40 ListaComandos: SCANF L_PAREN STRING . COMMA BITWISE_AND R_PAREN SEMICOLON
+
+    COMMA  shift, and go to state 208
+
+
+State 199
+
+   41 ListaComandos: EXIT L_PAREN Expressao . R_PAREN SEMICOLON
+   53 Expressao: Expressao . COMMA ExpressaoAtribuicao
+
+    COMMA    shift, and go to state 73
+    R_PAREN  shift, and go to state 209
+
+
+State 200
+
+   33 LoopListaComandos: ListaComandos LoopListaComandos .
+
+    $default  reduce using rule 33 (LoopListaComandos)
+
+
+State 201
+
+   26 Switch3: COMMA LoopParametros .
+
+    $default  reduce using rule 26 (Switch3)
+
+
+State 202
+
+   35 ListaComandos: DO Bloco WHILE L_PAREN . Expressao R_PAREN SEMICOLON
+
+    PLUS         shift, and go to state 24
+    MINUS        shift, and go to state 25
+    MULTIPLY     shift, and go to state 26
+    INC          shift, and go to state 27
+    DEC          shift, and go to state 28
+    BITWISE_AND  shift, and go to state 29
+    BITWISE_NOT  shift, and go to state 30
+    NOT          shift, and go to state 31
+    L_PAREN      shift, and go to state 32
+    IDENTIFIER   shift, and go to state 33
+    NUM_OCTAL    shift, and go to state 34
+    NUM_INTEGER  shift, and go to state 35
+    NUM_HEXA     shift, and go to state 36
+    STRING       shift, and go to state 37
+    CHARACTER    shift, and go to state 38
+
+    Expressao                go to state 210
+    ExpressaoAtribuicao      go to state 40
+    ExpressaoCondicional     go to state 41
+    ExpressaoOrLogico        go to state 42
+    ExpressaoAndLogico       go to state 43
+    ExpressaoOr              go to state 44
+    ExpressaoXor             go to state 45
+    ExpressaoAnd             go to state 46
+    ExpressaoIgualdade       go to state 47
+    ExpressaoRelacional      go to state 48
+    ExpressaoShift           go to state 49
+    ExpressaoAditiva         go to state 50
+    ExpressaoMultiplicativa  go to state 51
+    ExpressaoCast            go to state 52
+    ExpressaoUnaria          go to state 53
+    ExpressaoPosfixa         go to state 54
+    ExpressaoPrimaria        go to state 55
+    Numero                   go to state 56
+
+
+State 203
+
+   37 ListaComandos: WHILE L_PAREN Expressao R_PAREN . Bloco
+
+    L_CURLY_BRACKET  shift, and go to state 160
+
+    Bloco  go to state 211
+
+
+State 204
+
+   38 ListaComandos: FOR L_PAREN Switch6 SEMICOLON . Switch6 SEMICOLON Switch6 R_PAREN Bloco
+
+    PLUS         shift, and go to state 24
+    MINUS        shift, and go to state 25
+    MULTIPLY     shift, and go to state 26
+    INC          shift, and go to state 27
+    DEC          shift, and go to state 28
+    BITWISE_AND  shift, and go to state 29
+    BITWISE_NOT  shift, and go to state 30
+    NOT          shift, and go to state 31
+    L_PAREN      shift, and go to state 32
+    IDENTIFIER   shift, and go to state 33
+    NUM_OCTAL    shift, and go to state 34
+    NUM_INTEGER  shift, and go to state 35
+    NUM_HEXA     shift, and go to state 36
+    STRING       shift, and go to state 37
+    CHARACTER    shift, and go to state 38
+
+    $default  reduce using rule 49 (Switch6)
+
+    Switch6                  go to state 212
+    Expressao                go to state 175
+    ExpressaoAtribuicao      go to state 40
+    ExpressaoCondicional     go to state 41
+    ExpressaoOrLogico        go to state 42
+    ExpressaoAndLogico       go to state 43
+    ExpressaoOr              go to state 44
+    ExpressaoXor             go to state 45
+    ExpressaoAnd             go to state 46
+    ExpressaoIgualdade       go to state 47
+    ExpressaoRelacional      go to state 48
+    ExpressaoShift           go to state 49
+    ExpressaoAditiva         go to state 50
+    ExpressaoMultiplicativa  go to state 51
+    ExpressaoCast            go to state 52
+    ExpressaoUnaria          go to state 53
+    ExpressaoPosfixa         go to state 54
+    ExpressaoPrimaria        go to state 55
+    Numero                   go to state 56
+
+
+State 205
+
+   36 ListaComandos: IF L_PAREN Expressao R_PAREN . Bloco Switch5
+
+    L_CURLY_BRACKET  shift, and go to state 160
+
+    Bloco  go to state 213
+
+
+State 206
+
+   50 Switch7: COMMA . Expressao
+
+    PLUS         shift, and go to state 24
+    MINUS        shift, and go to state 25
+    MULTIPLY     shift, and go to state 26
+    INC          shift, and go to state 27
+    DEC          shift, and go to state 28
+    BITWISE_AND  shift, and go to state 29
+    BITWISE_NOT  shift, and go to state 30
+    NOT          shift, and go to state 31
+    L_PAREN      shift, and go to state 32
+    IDENTIFIER   shift, and go to state 33
+    NUM_OCTAL    shift, and go to state 34
+    NUM_INTEGER  shift, and go to state 35
+    NUM_HEXA     shift, and go to state 36
+    STRING       shift, and go to state 37
+    CHARACTER    shift, and go to state 38
+
+    Expressao                go to state 214
+    ExpressaoAtribuicao      go to state 40
+    ExpressaoCondicional     go to state 41
+    ExpressaoOrLogico        go to state 42
+    ExpressaoAndLogico       go to state 43
+    ExpressaoOr              go to state 44
+    ExpressaoXor             go to state 45
+    ExpressaoAnd             go to state 46
+    ExpressaoIgualdade       go to state 47
+    ExpressaoRelacional      go to state 48
+    ExpressaoShift           go to state 49
+    ExpressaoAditiva         go to state 50
+    ExpressaoMultiplicativa  go to state 51
+    ExpressaoCast            go to state 52
+    ExpressaoUnaria          go to state 53
+    ExpressaoPosfixa         go to state 54
+    ExpressaoPrimaria        go to state 55
+    Numero                   go to state 56
+
+
+State 207
+
+   39 ListaComandos: PRINTF L_PAREN STRING Switch7 . R_PAREN SEMICOLON
+
+    R_PAREN  shift, and go to state 215
+
+
+State 208
+
+   40 ListaComandos: SCANF L_PAREN STRING COMMA . BITWISE_AND R_PAREN SEMICOLON
+
+    BITWISE_AND  shift, and go to state 216
+
+
+State 209
+
+   41 ListaComandos: EXIT L_PAREN Expressao R_PAREN . SEMICOLON
+
+    SEMICOLON  shift, and go to state 217
+
+
+State 210
+
+   35 ListaComandos: DO Bloco WHILE L_PAREN Expressao . R_PAREN SEMICOLON
+   53 Expressao: Expressao . COMMA ExpressaoAtribuicao
+
+    COMMA    shift, and go to state 73
+    R_PAREN  shift, and go to state 218
+
+
+State 211
+
+   37 ListaComandos: WHILE L_PAREN Expressao R_PAREN Bloco .
+
+    $default  reduce using rule 37 (ListaComandos)
+
+
+State 212
+
+   38 ListaComandos: FOR L_PAREN Switch6 SEMICOLON Switch6 . SEMICOLON Switch6 R_PAREN Bloco
+
+    SEMICOLON  shift, and go to state 219
+
+
+State 213
+
+   36 ListaComandos: IF L_PAREN Expressao R_PAREN Bloco . Switch5
+
+    ELSE  shift, and go to state 220
+
+    $default  reduce using rule 47 (Switch5)
+
+    Switch5  go to state 221
+
+
+State 214
+
+   50 Switch7: COMMA Expressao .
+   53 Expressao: Expressao . COMMA ExpressaoAtribuicao
+
+    COMMA  shift, and go to state 73
+
+    $default  reduce using rule 50 (Switch7)
+
+
+State 215
+
+   39 ListaComandos: PRINTF L_PAREN STRING Switch7 R_PAREN . SEMICOLON
+
+    SEMICOLON  shift, and go to state 222
+
+
+State 216
+
+   40 ListaComandos: SCANF L_PAREN STRING COMMA BITWISE_AND . R_PAREN SEMICOLON
+
+    R_PAREN  shift, and go to state 223
+
+
+State 217
+
+   41 ListaComandos: EXIT L_PAREN Expressao R_PAREN SEMICOLON .
+
+    $default  reduce using rule 41 (ListaComandos)
+
+
+State 218
+
+   35 ListaComandos: DO Bloco WHILE L_PAREN Expressao R_PAREN . SEMICOLON
+
+    SEMICOLON  shift, and go to state 224
+
+
+State 219
+
+   38 ListaComandos: FOR L_PAREN Switch6 SEMICOLON Switch6 SEMICOLON . Switch6 R_PAREN Bloco
+
+    PLUS         shift, and go to state 24
+    MINUS        shift, and go to state 25
+    MULTIPLY     shift, and go to state 26
+    INC          shift, and go to state 27
+    DEC          shift, and go to state 28
+    BITWISE_AND  shift, and go to state 29
+    BITWISE_NOT  shift, and go to state 30
+    NOT          shift, and go to state 31
+    L_PAREN      shift, and go to state 32
+    IDENTIFIER   shift, and go to state 33
+    NUM_OCTAL    shift, and go to state 34
+    NUM_INTEGER  shift, and go to state 35
+    NUM_HEXA     shift, and go to state 36
+    STRING       shift, and go to state 37
+    CHARACTER    shift, and go to state 38
+
+    $default  reduce using rule 49 (Switch6)
+
+    Switch6                  go to state 225
+    Expressao                go to state 175
+    ExpressaoAtribuicao      go to state 40
+    ExpressaoCondicional     go to state 41
+    ExpressaoOrLogico        go to state 42
+    ExpressaoAndLogico       go to state 43
+    ExpressaoOr              go to state 44
+    ExpressaoXor             go to state 45
+    ExpressaoAnd             go to state 46
+    ExpressaoIgualdade       go to state 47
+    ExpressaoRelacional      go to state 48
+    ExpressaoShift           go to state 49
+    ExpressaoAditiva         go to state 50
+    ExpressaoMultiplicativa  go to state 51
+    ExpressaoCast            go to state 52
+    ExpressaoUnaria          go to state 53
+    ExpressaoPosfixa         go to state 54
+    ExpressaoPrimaria        go to state 55
+    Numero                   go to state 56
+
+
+State 220
+
+   46 Switch5: ELSE . Bloco
+
+    L_CURLY_BRACKET  shift, and go to state 160
+
+    Bloco  go to state 226
+
+
+State 221
+
+   36 ListaComandos: IF L_PAREN Expressao R_PAREN Bloco Switch5 .
+
+    $default  reduce using rule 36 (ListaComandos)
+
+
+State 222
+
+   39 ListaComandos: PRINTF L_PAREN STRING Switch7 R_PAREN SEMICOLON .
+
+    $default  reduce using rule 39 (ListaComandos)
+
+
+State 223
+
+   40 ListaComandos: SCANF L_PAREN STRING COMMA BITWISE_AND R_PAREN . SEMICOLON
+
+    SEMICOLON  shift, and go to state 227
+
+
+State 224
+
+   35 ListaComandos: DO Bloco WHILE L_PAREN Expressao R_PAREN SEMICOLON .
+
+    $default  reduce using rule 35 (ListaComandos)
+
+
+State 225
+
+   38 ListaComandos: FOR L_PAREN Switch6 SEMICOLON Switch6 SEMICOLON Switch6 . R_PAREN Bloco
+
+    R_PAREN  shift, and go to state 228
+
+
+State 226
+
+   46 Switch5: ELSE Bloco .
+
+    $default  reduce using rule 46 (Switch5)
+
+
+State 227
+
+   40 ListaComandos: SCANF L_PAREN STRING COMMA BITWISE_AND R_PAREN SEMICOLON .
+
+    $default  reduce using rule 40 (ListaComandos)
+
+
+State 228
+
+   38 ListaComandos: FOR L_PAREN Switch6 SEMICOLON Switch6 SEMICOLON Switch6 R_PAREN . Bloco
+
+    L_CURLY_BRACKET  shift, and go to state 160
+
+    Bloco  go to state 229
+
+
+State 229
+
+   38 ListaComandos: FOR L_PAREN Switch6 SEMICOLON Switch6 SEMICOLON Switch6 R_PAREN Bloco .
+
+    $default  reduce using rule 38 (ListaComandos)

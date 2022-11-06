@@ -1,0 +1,6 @@
+lexico
+input.c
+*.tab.*
+sintatico
+/testes
+/Calculator_Example
