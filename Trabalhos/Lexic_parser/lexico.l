@@ -105,7 +105,7 @@
 "//"
 "/*"                    { last_line = total_lines; check_new_line(print_number); warning_message(last_line, columns, "'/*' within block comment"); print_number++; columns += 2; unput('*'); }
 "*/"                    { BEGIN(INITIAL); print_number++; columns += 2; }
-"*"
+"*"                     { columns++; }
 [^\n]                   { columns += strlen(yytext); }
 \n                      { columns = 1; total_lines++; }
 <<EOF>>                 { check_new_line(print_number); error_message(last_line, column_start_comment, "unterminated comment"); print_number++; return -1; }
