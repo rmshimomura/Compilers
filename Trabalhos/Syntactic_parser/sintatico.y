@@ -3,6 +3,7 @@
     #include <stdio.h>
     extern int yylex();
     extern char* yytext;
+    extern int yychar;
 	extern int last_line;
 	extern char buffer[1024];
 	extern int total_lines;
@@ -243,9 +244,15 @@ Numero : NUM_INTEGER {}
 
 void yyerror(void *s) {
 
-	columns -= strlen(yytext);
+        update_buffer(total_lines);
 
-    printf("error:syntax:%d:%d: %s\n%s", total_lines, columns, yytext, buffer);
+        if (yychar == 0) {
+                printf("error:syntax:%d:%d: expected declaration or statement at end of input\n%s\n", total_lines, columns, buffer);
+        } else {
+	        columns -= strlen(yytext);
+                printf("error:syntax:%d:%d: %s\n%s", total_lines, columns, yytext, buffer);
+        }
+
 	for(int i = 0; i < columns -1; i++) {
 		printf(" ");
 	}

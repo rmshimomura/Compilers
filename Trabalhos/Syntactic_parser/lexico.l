@@ -95,7 +95,7 @@
 \\
 \'
 \"		
-\n                      { columns = 1; column_start_comment = 1; total_lines++; update_buffer(total_lines);}
+\n                      { columns = 1; column_start_comment = 1; total_lines++; }
 "}"                     { columns += strlen(yytext); return R_CURLY_BRACKET;}
 .                       { error_message_lexical(total_lines, columns, yytext); }
 }
