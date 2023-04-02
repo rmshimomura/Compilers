@@ -1,10 +1,12 @@
-CC = gcc -g
+LEX=flex
+YY=bison
+CC=gcc
+BIN = sintatico
+L_SOURCE = lexico.l
+Y_SOURCE = sintatico.y
+CFLAGS = -std=c99 -I. -w
 
-lexico: lex.yy.o
-	$(CC) -o $@ $^
-
-lex.yy.o: lex.yy.c
-	$(CC) -c -o $@ $<
-
-lex.yy.c: lexico.l
-	flex lexico.l
+$(BIN): $(L_SOURCE) $(Y_SOURCE)
+	$(LEX) $(L_SOURCE)
+	$(YY) -d $(Y_SOURCE)
+	$(CC) *.c $(CFLAGS) -o $(BIN)
