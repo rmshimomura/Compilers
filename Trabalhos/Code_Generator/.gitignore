@@ -1,2 +1,6 @@
 /examples
 lexico
+sintatico
+sintatico.output
+sintatico.tab.c
+sintatico.tab.h
