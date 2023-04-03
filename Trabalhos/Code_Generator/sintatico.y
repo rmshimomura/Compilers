@@ -24,7 +24,6 @@
 %token RETURN_TYPE
 %token CONSTANT
 %token IF
-%token ELSE
 %token VALUE
 %token WHILE
 %token FOR
@@ -62,12 +61,9 @@
 %token COLON
 %token L_PAREN
 %token R_PAREN
-%token L_CURLY_BRACKET
-%token R_CURLY_BRACKET
 %token L_SQUARE_BRACKET
 %token R_SQUARE_BRACKET
 %token TERNARY_CONDITIONAL
-%token NUMBER_SIGN
 %token START_ARROW
 %token IDENTIFIER
 %token NUM_INTEGER
