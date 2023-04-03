@@ -2,7 +2,8 @@
 
 %{
     #include <string.h>
-    char* fix_char(char *string);
+    #include <sintatico.tab.h>
+    extern YYSTYPE yylval;
 %}
 
 %%
@@ -72,19 +73,14 @@
 "//".*                  { }
 [_a-zA-Z][_a-zA-Z0-9]*  { return IDENTIFIER; }
 [0-9][0-9]*             { return NUM_INTEGER; }
-\"([^"\\\n]|\\.|\\\n)*\"{ return STRING; }
+\"([^"\\\n]|\\.|\\\n)*\" { return STRING; }
 \'[^'\n]*\'             { return CHARACTER; }	
 \n                      { return NEWLINE; }
 .                       { printf("Caracter Misterioso: %s\n", yytext); exit(0); }
-
 }
 
 %%
 
-
-
-
-int main () {
-    yylex();
-    return 0;
+void yyerror(char *s) {
+    printf("Erro: %s\n", s);
 }
