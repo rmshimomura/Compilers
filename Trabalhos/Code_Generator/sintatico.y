@@ -79,16 +79,16 @@
 
 %%
 
-Programa : AST START_ARROW Declaracoes Comando {};
+Programa : AST START_ARROW Declaracoes { };
 
 Declaracoes : DeclaraConstante Declaracoes {};
             | DeclaraVariavelGlobal Declaracoes {};
             | DeclaraFuncao Declaracoes {};
             | {};
 
-DeclaraConstante : CONSTANT COLON IDENTIFIER VALUE NUM_INTEGER {};
+DeclaraConstante : CONSTANT COLON IDENTIFIER VALUE COLON NUM_INTEGER {};
 
-DeclaraVariavelGlobal : GLOBAL COLON IDENTIFIER TYPE COLON TipoDeVariavel {};
+DeclaraVariavelGlobal : GLOBAL VARIABLE COLON IDENTIFIER TYPE COLON TipoDeVariavel {};
 
 TipoDeVariavel: INT Size {};
     | CHAR Size {};
@@ -127,22 +127,31 @@ Comando: OperadorAtribuicao {};
         | ComandoScanf {};
         | ComandoExit {};
         | ComandoReturn {};
+        | IDENTIFIER L_PAREN LoopExpressoes R_PAREN {};
+
+LoopExpressoes: Expressao LoopExpressoesTemporario {};
+            | {};
+
+LoopExpressoesTemporario: COMMA Expressao LoopExpressoesTemporario {};
+                    | {};
 
 ComandoDoWhile: DO_WHILE L_PAREN ListaComandos COMMA CondicaoParada R_PAREN {};
 
 ComandoIf: IF L_PAREN CondicaoParada COMMA ListaComandos COMMA ListaComandos R_PAREN {};
+        | IF L_PAREN CondicaoParada COMMA ListaComandos R_PAREN {};
 
 ComandoWhile: WHILE L_PAREN CondicaoParada COMMA ListaComandos R_PAREN {};
 
 ComandoFor: FOR L_PAREN InicializacaoFor COMMA CondicaoParada COMMA AjusteValores COMMA ListaComandos R_PAREN {};
 
 ComandoPrintf: PRINTF L_PAREN STRING COMMA ExpressoesPrintf R_PAREN {};
+            | PRINTF L_PAREN STRING R_PAREN {};
 
 ComandoScanf: SCANF L_PAREN STRING COMMA EnderecoVar R_PAREN {};
 
 ComandoExit: EXIT L_PAREN Expressao R_PAREN {};
 
-ComandoReturn: RETURN L_PAREN Expressao R_PAREN {};
+ComandoReturn: RETURN L_PAREN CondicaoParada R_PAREN {};
 
 /* Scanf */
 
@@ -150,10 +159,11 @@ EnderecoVar: BITWISE_AND L_PAREN IDENTIFIER R_PAREN {};
 
 /* Printf */
 
-ExpressoesPrintf: IDENTIFIER ExpressoesPrintf {};
-                | COMMA ExpressoesPrintf {};
-                | IDENTIFIER L_PAREN IDENTIFIER R_PAREN ExpressoesPrintf {}; // fatorial(n);
+ExpressoesPrintf: Expressao ExpressoesPrintfTemporario {};
                 | {};
+
+ExpressoesPrintfTemporario: COMMA Expressao ExpressoesPrintfTemporario {};
+                        | {};
 
 /* For */
 
@@ -169,14 +179,13 @@ AjusteValores: OperadorAtribuicao {};
 
 /* Operadores */
 
-OperadorAtribuicao: ASSIGN L_PAREN IDENTIFIER COMMA Expressao R_PAREN {};
-                |   ASSIGN L_PAREN IDENTIFIER L_SQUARE_BRACKET Expressao R_SQUARE_BRACKET COMMA Expressao R_PAREN {};
+OperadorAtribuicao: ASSIGN L_PAREN Expressao COMMA Expressao R_PAREN {};
 
 OperadorIncremento: INC L_PAREN IDENTIFIER R_PAREN {};
-                |   INC L_PAREN IDENTIFIER L_SQUARE_BRACKET Expressao R_SQUARE_BRACKET R_PAREN {};
+                | L_PAREN Expressao R_PAREN INC {};
 
 OperadorDecremento: DEC L_PAREN IDENTIFIER R_PAREN {};
-                |   DEC L_PAREN IDENTIFIER L_SQUARE_BRACKET Expressao R_SQUARE_BRACKET R_PAREN {};
+                | L_PAREN Expressao R_PAREN DEC {};
 
 /* EXPRESSOES */
 
@@ -184,6 +193,8 @@ Expressao: BOP {};
         | UOP {};
         | TOP {};
         | IDENTIFIER {};
+        | IDENTIFIER L_PAREN IDENTIFIER R_PAREN {}; // fatorial(n);
+        | IDENTIFIER L_SQUARE_BRACKET Expressao R_SQUARE_BRACKET {};
         | NUM_INTEGER {};
         | CHARACTER {};
         | STRING {};

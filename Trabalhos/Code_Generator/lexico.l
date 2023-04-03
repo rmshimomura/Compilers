@@ -75,7 +75,7 @@
 [0-9][0-9]*             { return NUM_INTEGER; }
 \"([^"\\\n]|\\.|\\\n)*\" { return STRING; }
 \'[^'\n]*\'             { return CHARACTER; }	
-\n                      { return NEWLINE; }
+\n                      {  }
 .                       { printf("Caracter Misterioso: %s\n", yytext); exit(0); }
 }
 
