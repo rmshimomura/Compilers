@@ -8,5 +8,5 @@ CFLAGS = -std=c99 -I. -w
 
 $(BIN): $(L_SOURCE) $(Y_SOURCE)
 	$(LEX) $(L_SOURCE)
-	$(YY) -d -v --debug $(Y_SOURCE)
+	$(YY) -d -v $(Y_SOURCE)
 	$(CC) *.c $(CFLAGS) -o $(BIN)

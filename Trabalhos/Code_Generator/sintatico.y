@@ -77,33 +77,30 @@
 
 Programa : AST START_ARROW ConsumirNovasLinhas Declaracoes { };
 
-ConsumirNovasLinhas: NEWLINE ConsumirNovasLinhas {};
-                | {};
+ConsumirNovasLinhas: ConsumirNovasLinhas NEWLINE {};
+                    | {};
 
 Declaracoes : DeclaraConstante ConsumirNovasLinhas Declaracoes  {};
             | DeclaraVariavelGlobal ConsumirNovasLinhas Declaracoes {};
             | DeclaraFuncao ConsumirNovasLinhas Declaracoes {};
             | {};
 
-DeclaraConstante : CONSTANT COLON IDENTIFIER VALUE COLON NUM_INTEGER ConsumirNovasLinhas {};
+DeclaraConstante : CONSTANT COLON IDENTIFIER VALUE COLON NUM_INTEGER {};
 
-DeclaraVariavelGlobal : GLOBAL VARIABLE COLON IDENTIFIER TYPE COLON TipoDeVariavel ConsumirNovasLinhas {};
+DeclaraVariavelGlobal : GLOBAL VARIABLE COLON IDENTIFIER TYPE COLON TipoDeVariavel {};
 
-TipoDeVariavel: INT Size {};
-    | CHAR Size {};
-    | VOID Size {};
-    | INT LoopPonteiros {};
-    | CHAR LoopPonteiros {};
-    | VOID LoopPonteiros {};
+TipoDeVariavel: INT TamanhoVariavel NEWLINE {};
+    | CHAR TamanhoVariavel NEWLINE {};
+    | VOID TamanhoVariavel NEWLINE {};
 
-LoopPonteiros: MULTIPLY LoopPonteiros {};
-            | {};
+TamanhoVariavel: L_SQUARE_BRACKET NUM_INTEGER R_SQUARE_BRACKET {};
+                | MULTIPLY LoopPonteirosTemporario {};
+                | {};
 
-// Size serve se quiser declarar algo do tipo: int[10]
+LoopPonteirosTemporario: MULTIPLY LoopPonteirosTemporario {};
+                    | {};
 
-Size: L_SQUARE_BRACKET NUM_INTEGER R_SQUARE_BRACKET {};
-
-DeclaraFuncao : FUNCTION COLON IDENTIFIER ConsumirNovasLinhas RETURN_TYPE COLON TipoDeVariavel ConsumirNovasLinhas ParametrosDeFuncao DeclararVariaveisLocais ConsumirNovasLinhas CorpoFuncao ConsumirNovasLinhas END_FUNCTION {};
+DeclaraFuncao : FUNCTION COLON IDENTIFIER ConsumirNovasLinhas RETURN_TYPE COLON TipoDeVariavel ConsumirNovasLinhas ParametrosDeFuncao DeclararVariaveisLocais CorpoFuncao ConsumirNovasLinhas END_FUNCTION {};
 
 ParametrosDeFuncao: PARAMETER COLON IDENTIFIER TYPE COLON TipoDeVariavel ConsumirNovasLinhas ParametrosDeFuncao {};
           | {};
@@ -129,7 +126,6 @@ Comando: Expressao {};
         | ComandoScanf {};
         | ComandoExit {};
         | ComandoReturn {};
-        | {};
 
 LoopExpressoes: Expressao LoopExpressoesTemporario {};
             | {};
