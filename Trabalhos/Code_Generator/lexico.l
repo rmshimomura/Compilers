@@ -25,7 +25,6 @@
 "RETURN_TYPE"           { return RETURN_TYPE; }
 "CONSTANT"              { return CONSTANT; }
 "IF"                    { return IF; }
-"ELSE"                  { return ELSE; }
 "VALUE"                 { return VALUE; }
 "WHILE"                 { return WHILE; }
 "FOR"                   { return FOR; }
@@ -63,19 +62,16 @@
 ":"                     { return COLON; }
 "("                     { return L_PAREN; }
 ")"                     { return R_PAREN; }
-"{"                     { return L_CURLY_BRACKET; }
-"}"                     { return R_CURLY_BRACKET; }
 "["                     { return L_SQUARE_BRACKET; }
 "]"                     { return R_SQUARE_BRACKET; }
 "?"                     { return TERNARY_CONDITIONAL; }
-"#"                     { return NUMBER_SIGN; }
 "-->"                   { return START_ARROW; }
 "//".*                  { }
 [_a-zA-Z][_a-zA-Z0-9]*  { return IDENTIFIER; }
 [0-9][0-9]*             { return NUM_INTEGER; }
 \"([^"\\\n]|\\.|\\\n)*\" { return STRING; }
 \'[^'\n]*\'             { return CHARACTER; }	
-\n                      {  }
+\n                      { return NEWLINE; }
 .                       { printf("Caracter Misterioso: %s\n", yytext); exit(0); }
 }
 

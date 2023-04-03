@@ -75,32 +75,40 @@
 
 %%
 
-Programa : AST START_ARROW Declaracoes { };
+Programa : AST START_ARROW ConsumirNovasLinhas Declaracoes { };
 
-Declaracoes : DeclaraConstante Declaracoes {};
-            | DeclaraVariavelGlobal Declaracoes {};
-            | DeclaraFuncao Declaracoes {};
+ConsumirNovasLinhas: NEWLINE ConsumirNovasLinhas {};
+                | {};
+
+Declaracoes : DeclaraConstante ConsumirNovasLinhas Declaracoes  {};
+            | DeclaraVariavelGlobal ConsumirNovasLinhas Declaracoes {};
+            | DeclaraFuncao ConsumirNovasLinhas Declaracoes {};
             | {};
 
-DeclaraConstante : CONSTANT COLON IDENTIFIER VALUE COLON NUM_INTEGER {};
+DeclaraConstante : CONSTANT COLON IDENTIFIER VALUE COLON NUM_INTEGER ConsumirNovasLinhas {};
 
-DeclaraVariavelGlobal : GLOBAL VARIABLE COLON IDENTIFIER TYPE COLON TipoDeVariavel {};
+DeclaraVariavelGlobal : GLOBAL VARIABLE COLON IDENTIFIER TYPE COLON TipoDeVariavel ConsumirNovasLinhas {};
 
 TipoDeVariavel: INT Size {};
     | CHAR Size {};
     | VOID Size {};
+    | INT LoopPonteiros {};
+    | CHAR LoopPonteiros {};
+    | VOID LoopPonteiros {};
+
+LoopPonteiros: MULTIPLY LoopPonteiros {};
+            | {};
 
 // Size serve se quiser declarar algo do tipo: int[10]
 
 Size: L_SQUARE_BRACKET NUM_INTEGER R_SQUARE_BRACKET {};
-    | {};
 
-DeclaraFuncao : FUNCTION COLON IDENTIFIER RETURN_TYPE COLON TipoDeVariavel ParametrosDeFuncao DeclararVariaveisLocais CorpoFuncao END_FUNCTION {};
+DeclaraFuncao : FUNCTION COLON IDENTIFIER ConsumirNovasLinhas RETURN_TYPE COLON TipoDeVariavel ConsumirNovasLinhas ParametrosDeFuncao DeclararVariaveisLocais ConsumirNovasLinhas CorpoFuncao ConsumirNovasLinhas END_FUNCTION {};
 
-ParametrosDeFuncao: PARAMETER COLON IDENTIFIER TYPE COLON TipoDeVariavel ParametrosDeFuncao {};
+ParametrosDeFuncao: PARAMETER COLON IDENTIFIER TYPE COLON TipoDeVariavel ConsumirNovasLinhas ParametrosDeFuncao {};
           | {};
 
-DeclararVariaveisLocais: VARIABLE COLON IDENTIFIER TYPE COLON TipoDeVariavel DeclararVariaveisLocais {};
+DeclararVariaveisLocais: VARIABLE COLON IDENTIFIER TYPE COLON TipoDeVariavel ConsumirNovasLinhas DeclararVariaveisLocais {};
             | {};
 
 /* COMANDOS */
@@ -109,7 +117,7 @@ CorpoFuncao: ListaComandos {};
 
 ListaComandos: Comando ListaComandosTemporario {};
 
-ListaComandosTemporario: SEMICOLON Comando ListaComandosTemporario {};
+ListaComandosTemporario: SEMICOLON ConsumirNovasLinhas Comando ListaComandosTemporario {};
             | {};
 
 Comando: Expressao {};
