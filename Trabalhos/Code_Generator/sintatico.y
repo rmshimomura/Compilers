@@ -116,9 +116,7 @@ ListaComandos: Comando ListaComandosTemporario {};
 ListaComandosTemporario: SEMICOLON Comando ListaComandosTemporario {};
             | {};
 
-Comando: OperadorAtribuicao {};
-        | OperadorIncremento {};
-        | OperadorDecremento {};
+Comando: Expressao {};
         | ComandoDoWhile {};
         | ComandoIf {};
         | ComandoWhile {};
@@ -127,7 +125,7 @@ Comando: OperadorAtribuicao {};
         | ComandoScanf {};
         | ComandoExit {};
         | ComandoReturn {};
-        | IDENTIFIER L_PAREN LoopExpressoes R_PAREN {};
+        | {};
 
 LoopExpressoes: Expressao LoopExpressoesTemporario {};
             | {};
@@ -142,7 +140,7 @@ ComandoIf: IF L_PAREN CondicaoParada COMMA ListaComandos COMMA ListaComandos R_P
 
 ComandoWhile: WHILE L_PAREN CondicaoParada COMMA ListaComandos R_PAREN {};
 
-ComandoFor: FOR L_PAREN InicializacaoFor COMMA CondicaoParada COMMA AjusteValores COMMA CoisasFor R_PAREN {};
+ComandoFor: FOR L_PAREN InicializacaoFor COMMA CondicaoParada COMMA AjusteValores COMMA ListaComandos R_PAREN {};
 
 ComandoPrintf: PRINTF L_PAREN STRING COMMA ExpressoesPrintf R_PAREN {};
             | PRINTF L_PAREN STRING R_PAREN {};
@@ -164,7 +162,6 @@ ExpressoesPrintf: Expressao ExpressoesPrintfTemporario {};
 
 ExpressoesPrintfTemporario: COMMA Expressao ExpressoesPrintfTemporario {};
                         | {};
-
 /* For */
 
 InicializacaoFor: ASSIGN L_PAREN IDENTIFIER COMMA Expressao R_PAREN {};
@@ -173,43 +170,21 @@ InicializacaoFor: ASSIGN L_PAREN IDENTIFIER COMMA Expressao R_PAREN {};
 CondicaoParada: Expressao {};
                 | {};
 
-AjusteValores: OperadorAtribuicao {};
-                | OperadorIncremento {};
-                | OperadorDecremento {};
-                | OpeardorAddAssign {};
-                | OperadorMinusAssign {};
-
-CoisasFor: ListaComandos {};
-        | Expressao {};
-
-/* Operadores */
-
-OperadorAtribuicao: ASSIGN L_PAREN Expressao COMMA Expressao R_PAREN {};
-
-OperadorIncremento: INC L_PAREN IDENTIFIER R_PAREN {};
-                | L_PAREN Expressao R_PAREN INC {};
-
-OperadorDecremento: DEC L_PAREN IDENTIFIER R_PAREN {};
-                | L_PAREN Expressao R_PAREN DEC {};
-
-OpeardorAddAssign: ADD_ASSIGN L_PAREN IDENTIFIER COMMA Expressao R_PAREN {};
-
-OperadorMinusAssign: MINUS_ASSIGN L_PAREN IDENTIFIER COMMA Expressao R_PAREN {};
+AjusteValores: CondicaoParada {};
 
 /* EXPRESSOES */
 
 Expressao: BOP {};
         | UOP {};
         | TOP {};
-        | IDENTIFIER {};
-        | IDENTIFIER L_PAREN Expressao ExpressaoStackada R_PAREN {}; // fatorial(n);
-        | IDENTIFIER L_SQUARE_BRACKET Expressao R_SQUARE_BRACKET {};
+        | IDENTIFIER OpcoesExpressao {};
         | NUM_INTEGER {};
         | CHARACTER {};
         | STRING {};
 
-ExpressaoStackada: COMMA Expressao ExpressaoStackada {};
-                | {};
+OpcoesExpressao: L_PAREN LoopExpressoes R_PAREN {};
+            | L_SQUARE_BRACKET Expressao R_SQUARE_BRACKET {};
+            | {};
 
 BOP: PLUS L_PAREN Expressao COMMA Expressao R_PAREN {};
     | MINUS L_PAREN Expressao COMMA Expressao R_PAREN {};
