@@ -93,9 +93,14 @@ TipoDeVariavel: INT TamanhoVariavel NEWLINE {};
     | CHAR TamanhoVariavel NEWLINE {};
     | VOID TamanhoVariavel NEWLINE {};
 
-TamanhoVariavel: L_SQUARE_BRACKET NUM_INTEGER R_SQUARE_BRACKET {};
+TamanhoVariavel: L_SQUARE_BRACKET NUM_INTEGER R_SQUARE_BRACKET LoopColchetes {};
                 | MULTIPLY LoopPonteirosTemporario {};
                 | {};
+
+LoopColchetes : L_SQUARE_BRACKET NUM_INTEGER R_SQUARE_BRACKET LoopColchetes {};
+            | {};
+
+
 
 LoopPonteirosTemporario: MULTIPLY LoopPonteirosTemporario {};
                     | {};
