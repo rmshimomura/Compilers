@@ -72,7 +72,8 @@
 \"([^"\\\n]|\\.|\\\n)*\" { return STRING; }
 \'[^'\n]*\'             { return CHARACTER; }	
 \n                      { return NEWLINE; }
-.                       { printf("Caracter Misterioso: %s\n", yytext); exit(0); }
+\r
+.                       { printf("Caracter Misterioso: %d\n", *yytext); exit(0); }
 }
 
 %%
