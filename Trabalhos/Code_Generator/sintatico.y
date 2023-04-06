@@ -187,8 +187,11 @@ Expressao: BOP {};
         | CHARACTER {};
         | STRING {};
 
-OpcoesExpressao: L_PAREN LoopExpressoes R_PAREN {};
-            | L_SQUARE_BRACKET Expressao R_SQUARE_BRACKET {};
+OpcoesExpressao: L_PAREN LoopExpressoes R_PAREN {}; // Funcao
+            | L_SQUARE_BRACKET Expressao R_SQUARE_BRACKET LoopMatriz {}; // Vetor e/ou matriz
+            | {};
+
+LoopMatriz : L_SQUARE_BRACKET Expressao R_SQUARE_BRACKET LoopMatriz {};
             | {};
 
 BOP: PLUS L_PAREN Expressao COMMA Expressao R_PAREN {};
