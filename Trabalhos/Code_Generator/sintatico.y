@@ -1,14 +1,56 @@
 %{
 
-    #include <stdio.h>
-    extern int yylex();
+    #include "ast_node.hh"
+    extern int yylex(void);
     extern char* yytext;
     extern int yychar;
     extern int yydebug;
     int yydebug = 1;
     extern void yyerror(char *s);
+    std::vector<ast::AST_Constant*> constantes;
+    std::vector<ast::AST_Variable*> variaveis_globais;
+    std::vector<ast::AST_Function*> funcoes;
 
 %}
+
+
+%union {
+    ast::AST_Node_BOP* Type_AST_Node_BOP;
+    ast::AST_Node_UOP* Type_AST_Node_UOP;
+    ast::AST_Node_TOP* Type_AST_Node_TOP;
+    ast::AST_Node_Expressao* Type_AST_Node_Expression;
+    ast::AST_Node_Chamada_Funcao* Type_AST_Node_Chamada_Funcao;
+    ast::AST_Node_Opcoes_Expressao* Type_AST_Node_Opcoes_Expressao;
+    ast::AST_Node_Loop_Expressoes* Type_AST_Node_Loop_Expressoes;
+    ast::AST_Node_Loop_Expressoes_Temporario* Type_AST_Node_Loop_Expressoes_Temporario;
+    ast::AST_Node_Loop_Matriz* Type_AST_Node_Loop_Matriz;
+    ast::AST_Node_Condicao_Parada* Type_AST_Node_Condicao_Parada;
+    ast::AST_Node_Ajuste_Valores* Type_AST_Node_Ajuste_Valores;
+    ast::AST_Node_Inicializacao_For* Type_AST_Node_Inicializacao_For;
+    ast::AST_Node_Expressoes_Printf_Temporario* Type_AST_Node_Expressoes_Printf_Temporario;
+    ast::AST_Node_Expressoes_Printf* Type_AST_Node_Expressoes_Printf;
+    ast::AST_Node_Endereco_Var* Type_AST_Node_Endereco_Var;
+    ast::AST_Node_Comando_Return* Type_AST_Node_Comando_Return;
+    ast::AST_Node_Comando_Exit* Type_AST_Node_Comando_Exit;
+    ast::AST_Node_Comando_Scanf* Type_AST_Node_Comando_Scanf;
+    ast::AST_Node_Comando_Printf* Type_AST_Node_Comando_Printf;
+    ast::AST_Node_Comando_For* Type_AST_Node_Comando_For;
+    ast::AST_Node_Comando_While* Type_AST_Node_Comando_While;
+    ast::AST_Node_Comando_If* Type_AST_Node_Comando_If;
+    ast::AST_Node_Comando_Do_While* Type_AST_Node_Comando_Do_While;
+    ast::AST_Node_Comando* Type_AST_Node_Comando;
+    ast::AST_Node_Lista_Comandos_Temporario* Type_AST_Node_Lista_Comandos_Temporario;
+    ast::AST_Node_Lista_comandos* Type_AST_Node_Lista_comandos;
+    ast::AST_Node_Corpo_Funcao* Type_AST_Node_Corpo_Funcao;
+    ast::AST_Variable* Type_AST_Variable;
+    ast::AST_Constant* Type_AST_Constant;
+    ast::AST_Parameter* Type_AST_Parameter;
+    ast::AST_Function* Type_AST_Function;
+
+    std::string* string_token;
+    int integer_token;
+    char character_token;
+}
 
 %token AST
 %token VOID
@@ -65,11 +107,16 @@
 %token R_SQUARE_BRACKET
 %token TERNARY_CONDITIONAL
 %token START_ARROW
-%token IDENTIFIER
-%token NUM_INTEGER
-%token STRING
-%token CHARACTER
+%token<string_token> IDENTIFIER
+%token<integer_token> NUM_INTEGER
+%token<string_token> STRING
+%token<character_token> CHARACTER
 %token NEWLINE
+
+%type <Type_AST_Node_BOP> BOP
+%type <Type_AST_Node_UOP> UOP
+%type <Type_AST_Node_TOP> TOP
+%type <Type_AST_Node_Expression> Expressao
 
 %start Programa
 
@@ -100,8 +147,6 @@ TamanhoVariavel: L_SQUARE_BRACKET NUM_INTEGER R_SQUARE_BRACKET LoopColchetes {};
 LoopColchetes : L_SQUARE_BRACKET NUM_INTEGER R_SQUARE_BRACKET LoopColchetes {};
             | {};
 
-
-
 LoopPonteirosTemporario: MULTIPLY LoopPonteirosTemporario {};
                     | {};
 
@@ -131,12 +176,6 @@ Comando: Expressao {};
         | ComandoScanf {};
         | ComandoExit {};
         | ComandoReturn {};
-
-LoopExpressoes: Expressao LoopExpressoesTemporario {};
-            | {};
-
-LoopExpressoesTemporario: COMMA Expressao LoopExpressoesTemporario {};
-                    | {};
 
 ComandoDoWhile: DO_WHILE L_PAREN ListaComandos COMMA CondicaoParada R_PAREN {};
 
@@ -175,63 +214,129 @@ InicializacaoFor: ASSIGN L_PAREN IDENTIFIER COMMA Expressao R_PAREN {};
 CondicaoParada: Expressao {};
                 | {};
 
-AjusteValores: CondicaoParada {};
+AjusteValores: Expressao {};
+                | {};
 
 /* EXPRESSOES */
 
 Expressao: BOP {};
         | UOP {};
         | TOP {};
-        | IDENTIFIER OpcoesExpressao {};
+        | ChamadaDeFuncao {};
         | NUM_INTEGER {};
         | CHARACTER {};
         | STRING {};
+
+ChamadaDeFuncao: IDENTIFIER OpcoesExpressao {};
 
 OpcoesExpressao: L_PAREN LoopExpressoes R_PAREN {}; // Funcao
             | L_SQUARE_BRACKET Expressao R_SQUARE_BRACKET LoopMatriz {}; // Vetor e/ou matriz
             | {};
 
+LoopExpressoes: Expressao LoopExpressoesTemporario {};
+            | {};
+
+LoopExpressoesTemporario: COMMA Expressao LoopExpressoesTemporario {};
+                    | {};
+
 LoopMatriz : L_SQUARE_BRACKET Expressao R_SQUARE_BRACKET LoopMatriz {};
             | {};
 
-BOP: PLUS L_PAREN Expressao COMMA Expressao R_PAREN {};
-    | MINUS L_PAREN Expressao COMMA Expressao R_PAREN {};
-    | MULTIPLY L_PAREN Expressao COMMA Expressao R_PAREN {};
-    | DIV L_PAREN Expressao COMMA Expressao R_PAREN {};
-    | REMAINDER L_PAREN Expressao COMMA Expressao R_PAREN {};
-    | BITWISE_AND L_PAREN Expressao COMMA Expressao R_PAREN {};
-    | BITWISE_OR L_PAREN Expressao COMMA Expressao R_PAREN {};
-    | BITWISE_XOR L_PAREN Expressao COMMA Expressao R_PAREN {};
-    | LOGICAL_AND L_PAREN Expressao COMMA Expressao R_PAREN {};
-    | LOGICAL_OR L_PAREN Expressao COMMA Expressao R_PAREN {};
-    | EQUAL L_PAREN Expressao COMMA Expressao R_PAREN {};
-    | NOT_EQUAL L_PAREN Expressao COMMA Expressao R_PAREN {};
-    | LESS_THAN L_PAREN Expressao COMMA Expressao R_PAREN {};
-    | GREATER_THAN L_PAREN Expressao COMMA Expressao R_PAREN {};
-    | LESS_EQUAL L_PAREN Expressao COMMA Expressao R_PAREN {};
-    | GREATER_EQUAL L_PAREN Expressao COMMA Expressao R_PAREN {};
-    | R_SHIFT L_PAREN Expressao COMMA Expressao R_PAREN {};
-    | L_SHIFT L_PAREN Expressao COMMA Expressao R_PAREN {};
-    | ASSIGN L_PAREN Expressao COMMA Expressao R_PAREN {};
-    | ADD_ASSIGN L_PAREN Expressao COMMA Expressao R_PAREN {};
-    | MINUS_ASSIGN L_PAREN Expressao COMMA Expressao R_PAREN {};
+BOP: PLUS L_PAREN Expressao COMMA Expressao R_PAREN {
+        $$ = new ast::AST_Node_BOP("PLUS", $3, $5);
+    };
+    | MINUS L_PAREN Expressao COMMA Expressao R_PAREN {
+        $$ = new ast::AST_Node_BOP("MINUS", $3, $5);
+    };
+    | MULTIPLY L_PAREN Expressao COMMA Expressao R_PAREN {
+        $$ = new ast::AST_Node_BOP("MULTIPLY", $3, $5);
+    };
+    | DIV L_PAREN Expressao COMMA Expressao R_PAREN {
+        $$ = new ast::AST_Node_BOP("DIV", $3, $5);
+    };
+    | REMAINDER L_PAREN Expressao COMMA Expressao R_PAREN {
+        $$ = new ast::AST_Node_BOP("REMAINDER", $3, $5);
+    };
+    | BITWISE_AND L_PAREN Expressao COMMA Expressao R_PAREN {
+        $$ = new ast::AST_Node_BOP("BITWISE_AND", $3, $5);
+    };
+    | BITWISE_OR L_PAREN Expressao COMMA Expressao R_PAREN {
+        $$ = new ast::AST_Node_BOP("BITWISE_OR", $3, $5);
+    };
+    | BITWISE_XOR L_PAREN Expressao COMMA Expressao R_PAREN {
+        $$ = new ast::AST_Node_BOP("BITWISE_XOR", $3, $5);
+    };
+    | LOGICAL_AND L_PAREN Expressao COMMA Expressao R_PAREN {
+        $$ = new ast::AST_Node_BOP("LOGICAL_AND", $3, $5);
+    };
+    | LOGICAL_OR L_PAREN Expressao COMMA Expressao R_PAREN {
+        $$ = new ast::AST_Node_BOP("LOGICAL_OR", $3, $5);
+    };
+    | EQUAL L_PAREN Expressao COMMA Expressao R_PAREN {
+        $$ = new ast::AST_Node_BOP("EQUAL", $3, $5);
+    };
+    | NOT_EQUAL L_PAREN Expressao COMMA Expressao R_PAREN {
+        $$ = new ast::AST_Node_BOP("NOT_EQUAL", $3, $5);
+    };
+    | LESS_THAN L_PAREN Expressao COMMA Expressao R_PAREN {
+        $$ = new ast::AST_Node_BOP("LESS_THAN", $3, $5);
+    };
+    | GREATER_THAN L_PAREN Expressao COMMA Expressao R_PAREN {
+        $$ = new ast::AST_Node_BOP("GREATER_THAN", $3, $5);
+    };
+    | LESS_EQUAL L_PAREN Expressao COMMA Expressao R_PAREN {
+        $$ = new ast::AST_Node_BOP("LESS_EQUAL", $3, $5);
+    };
+    | GREATER_EQUAL L_PAREN Expressao COMMA Expressao R_PAREN {
+        $$ = new ast::AST_Node_BOP("GREATER_EQUAL", $3, $5);
+    };
+    | R_SHIFT L_PAREN Expressao COMMA Expressao R_PAREN {
+        $$ = new ast::AST_Node_BOP("R_SHIFT", $3, $5);
+    };
+    | L_SHIFT L_PAREN Expressao COMMA Expressao R_PAREN {
+        $$ = new ast::AST_Node_BOP("L_SHIFT", $3, $5);
+    };
+    | ASSIGN L_PAREN Expressao COMMA Expressao R_PAREN {
+        $$ = new ast::AST_Node_BOP("ASSIGN", $3, $5);
+    };
+    | ADD_ASSIGN L_PAREN Expressao COMMA Expressao R_PAREN {
+        $$ = new ast::AST_Node_BOP("ADD_ASSIGN", $3, $5);
+    };
+    | MINUS_ASSIGN L_PAREN Expressao COMMA Expressao R_PAREN {
+        $$ = new ast::AST_Node_BOP("MINUS_ASSIGN", $3, $5);
+    };
 
-UOP: PLUS  L_PAREN Expressao R_PAREN {};
-    | MINUS L_PAREN Expressao R_PAREN {};
-    | MULTIPLY L_PAREN Expressao R_PAREN {};
-    | INC L_PAREN Expressao R_PAREN {};
-    | DEC L_PAREN Expressao R_PAREN {};
-    | BITWISE_NOT L_PAREN Expressao R_PAREN {};
-    | NOT L_PAREN Expressao R_PAREN {};
-    | L_PAREN Expressao R_PAREN PLUS {};
-    | L_PAREN Expressao R_PAREN MINUS {};
-    | L_PAREN Expressao R_PAREN MULTIPLY {};
-    | L_PAREN Expressao R_PAREN INC {};
-    | L_PAREN Expressao R_PAREN DEC {};
-    | L_PAREN Expressao R_PAREN BITWISE_NOT {};
-    | L_PAREN Expressao R_PAREN NOT {};
+UOP: PLUS  L_PAREN Expressao R_PAREN {
+        $$ = new ast::AST_Node_UOP("PLUS", $3, false);
+    };
+    | MINUS L_PAREN Expressao R_PAREN {
+        $$ = new ast::AST_Node_UOP("MINUS", $3, false);
+    };
+    | MULTIPLY L_PAREN Expressao R_PAREN {
+        $$ = new ast::AST_Node_UOP("MULTIPLY", $3, false);
+    };
+    | INC L_PAREN Expressao R_PAREN {
+        $$ = new ast::AST_Node_UOP("INC", $3, false);
+    };
+    | DEC L_PAREN Expressao R_PAREN {
+        $$ = new ast::AST_Node_UOP("DEC", $3, false);
+    };
+    | BITWISE_NOT L_PAREN Expressao R_PAREN {
+        $$ = new ast::AST_Node_UOP("BITWISE_NOT", $3, false);
+    };
+    | NOT L_PAREN Expressao R_PAREN {
+        $$ = new ast::AST_Node_UOP("NOT", $3, false);
+    };
+    | L_PAREN Expressao R_PAREN INC {
+        $$ = new ast::AST_Node_UOP("INC", $2, true);
+    };
+    | L_PAREN Expressao R_PAREN DEC {
+        $$ = new ast::AST_Node_UOP("DEC", $2, true);
+    };
 
-TOP: TERNARY_CONDITIONAL L_PAREN Expressao COMMA Expressao COMMA Expressao R_PAREN {}; 
+TOP: TERNARY_CONDITIONAL L_PAREN Expressao COMMA Expressao COMMA Expressao R_PAREN {
+        $$ = new ast::AST_Node_TOP($3, $5, $7);
+    };
 
 %%
 

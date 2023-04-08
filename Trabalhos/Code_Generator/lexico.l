@@ -1,8 +1,8 @@
 %option noyywrap
 
 %{
-    #include <string.h>
-    #include <sintatico.tab.h>
+    #include "ast_node.hh"
+    #include "sintatico.tab.hh"
     extern YYSTYPE yylval;
 %}
 
