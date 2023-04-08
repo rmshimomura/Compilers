@@ -1,6 +1,6 @@
 /examples
 lexico
 sintatico
+sintatico.tab.*
 sintatico.output
-sintatico.tab.c
-sintatico.tab.h
+lex.yy.cc

@@ -1,12 +1,15 @@
 LEX=flex
 YY=bison
-CC=gcc
+CXX=g++
 BIN = sintatico
 L_SOURCE = lexico.l
 Y_SOURCE = sintatico.y
-CFLAGS = -std=c99 -I. -w
+CFLAGS = -std=c++11 -I. -w
 
 $(BIN): $(L_SOURCE) $(Y_SOURCE)
-	$(LEX) $(L_SOURCE)
-	$(YY) -d -v $(Y_SOURCE)
-	$(CC) *.c $(CFLAGS) -o $(BIN)
+	$(LEX) -o lex.yy.cc $(L_SOURCE) 
+	$(YY) -d -v $(Y_SOURCE) -o sintatico.tab.cc
+	$(CXX) *.cc $(CFLAGS) -o $(BIN) 
+
+clean:
+	rm -f $(BIN) lex.yy.c sintatico.tab.* sintatico.output lex.yy.cc
