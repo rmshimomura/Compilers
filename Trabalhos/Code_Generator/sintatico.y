@@ -11,8 +11,10 @@
     std::vector<ast::AST_Variable*> variaveis_globais;
     std::vector<ast::AST_Function*> funcoes;
 
-%}
+    std::vector<ast::AST_Variable*> variaveis_locais_temp;
+    std::vector<ast::AST_Parameter*> parametros_temp;
 
+%}
 
 %union {
     ast::AST_Node_BOP* Type_AST_Node_BOP;
@@ -141,6 +143,8 @@
 %type <Type_AST_Node_Lista_Comandos> ListaComandos
 %type <Type_AST_Node_Corpo_Funcao> CorpoFuncao
 
+%type <string_token> TipoDeVariavel
+
 
 %start Programa
 
@@ -174,12 +178,38 @@ LoopColchetes : L_SQUARE_BRACKET NUM_INTEGER R_SQUARE_BRACKET LoopColchetes {};
 LoopPonteirosTemporario: MULTIPLY LoopPonteirosTemporario {};
                     | {};
 
-DeclaraFuncao : FUNCTION COLON IDENTIFIER ConsumirNovasLinhas RETURN_TYPE COLON TipoDeVariavel ConsumirNovasLinhas ParametrosDeFuncao DeclararVariaveisLocais CorpoFuncao ConsumirNovasLinhas END_FUNCTION {};
+DeclaraFuncao : FUNCTION COLON IDENTIFIER ConsumirNovasLinhas RETURN_TYPE COLON TipoDeVariavel ConsumirNovasLinhas ParametrosDeFuncao DeclararVariaveisLocais CorpoFuncao ConsumirNovasLinhas END_FUNCTION {
+    funcoes.push_back(new ast::AST_Function($3, $7));
 
-ParametrosDeFuncao: PARAMETER COLON IDENTIFIER TYPE COLON TipoDeVariavel ConsumirNovasLinhas ParametrosDeFuncao {};
+    if (parametros_temp.size() > 0) {
+        for (int i = 0; i < parametros_temp.size(); i++) {
+            funcoes.back()->add_parameter(parametros_temp[i]);
+        }
+    }
+
+    if (variaveis_locais_temp.size() > 0) {
+        for (int i = 0; i < variaveis_locais_temp.size(); i++) {
+            funcoes.back()->add_variable(variaveis_locais_temp[i]);
+        }
+    }
+
+    parametros_temp.clear();
+    variaveis_locais_temp.clear();
+
+
+};
+
+ParametrosDeFuncao: PARAMETER COLON IDENTIFIER TYPE COLON TipoDeVariavel ConsumirNovasLinhas ParametrosDeFuncao {
+    ast::AST_Parameter* parametro = new ast::AST_Parameter($3, $6);
+    parametros_temp.push_back(parametro);
+
+};
           | {};
 
-DeclararVariaveisLocais: VARIABLE COLON IDENTIFIER TYPE COLON TipoDeVariavel ConsumirNovasLinhas DeclararVariaveisLocais {};
+DeclararVariaveisLocais: VARIABLE COLON IDENTIFIER TYPE COLON TipoDeVariavel ConsumirNovasLinhas DeclararVariaveisLocais {
+    ast::AST_Variable* variavel = new ast::AST_Variable($3, $6);
+    variaveis_locais_temp.push_back(variavel);
+};
             | {};
 
 /* COMANDOS */
