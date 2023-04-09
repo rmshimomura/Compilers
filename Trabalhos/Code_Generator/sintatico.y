@@ -40,7 +40,7 @@
     ast::AST_Node_Comando_Do_While* Type_AST_Node_Comando_Do_While;
     ast::AST_Node_Comando* Type_AST_Node_Comando;
     ast::AST_Node_Lista_Comandos_Temporario* Type_AST_Node_Lista_Comandos_Temporario;
-    ast::AST_Node_Lista_comandos* Type_AST_Node_Lista_comandos;
+    ast::AST_Node_Lista_Comandos* Type_AST_Node_Lista_Comandos;
     ast::AST_Node_Corpo_Funcao* Type_AST_Node_Corpo_Funcao;
     ast::AST_Variable* Type_AST_Variable;
     ast::AST_Constant* Type_AST_Constant;
@@ -117,6 +117,30 @@
 %type <Type_AST_Node_UOP> UOP
 %type <Type_AST_Node_TOP> TOP
 %type <Type_AST_Node_Expression> Expressao
+%type <Type_AST_Node_Loop_Matriz> LoopMatriz
+%type <Type_AST_Node_Loop_Expressoes_Temporario> LoopExpressoesTemporario
+%type <Type_AST_Node_Loop_Expressoes> LoopExpressoes
+%type <Type_AST_Node_Opcoes_Expressao> OpcoesExpressao
+%type <Type_AST_Node_Chamada_Funcao> ChamadaDeFuncao
+%type <Type_AST_Node_Ajuste_Valores> AjusteValores
+%type <Type_AST_Node_Condicao_Parada> CondicaoParada
+%type <Type_AST_Node_Inicializacao_For> InicializacaoFor
+%type <Type_AST_Node_Expressoes_Printf_Temporario> ExpressoesPrintfTemporario
+%type <Type_AST_Node_Expressoes_Printf> ExpressoesPrintf
+%type <Type_AST_Node_Endereco_Var> EnderecoVar
+%type <Type_AST_Node_Comando_Return> ComandoReturn
+%type <Type_AST_Node_Comando_Exit> ComandoExit
+%type <Type_AST_Node_Comando_Scanf> ComandoScanf
+%type <Type_AST_Node_Comando_Printf> ComandoPrintf
+%type <Type_AST_Node_Comando_For> ComandoFor
+%type <Type_AST_Node_Comando_While> ComandoWhile
+%type <Type_AST_Node_Comando_If> ComandoIf
+%type <Type_AST_Node_Comando_Do_While> ComandoDoWhile
+%type <Type_AST_Node_Comando> Comando
+%type <Type_AST_Node_Lista_Comandos_Temporario> ListaComandosTemporario
+%type <Type_AST_Node_Lista_Comandos> ListaComandos
+%type <Type_AST_Node_Corpo_Funcao> CorpoFuncao
+
 
 %start Programa
 
@@ -160,87 +184,87 @@ DeclararVariaveisLocais: VARIABLE COLON IDENTIFIER TYPE COLON TipoDeVariavel Con
 
 /* COMANDOS */
 
-CorpoFuncao: ListaComandos {};
+CorpoFuncao: ListaComandos {$$ = new ast::AST_Node_Corpo_Funcao($1);};
 
-ListaComandos: Comando ListaComandosTemporario {};
+ListaComandos: Comando ListaComandosTemporario {$$ = new ast::AST_Node_Lista_Comandos($1, $2);};
 
-ListaComandosTemporario: SEMICOLON ConsumirNovasLinhas Comando ListaComandosTemporario {};
-            | {};
+ListaComandosTemporario: SEMICOLON ConsumirNovasLinhas Comando ListaComandosTemporario {$$ = new ast::AST_Node_Lista_Comandos_Temporario($3, $4);};
+            | {$$ = nullptr;};
 
-Comando: Expressao {};
-        | ComandoDoWhile {};
-        | ComandoIf {};
-        | ComandoWhile {};
-        | ComandoFor {};
-        | ComandoPrintf {};
-        | ComandoScanf {};
-        | ComandoExit {};
-        | ComandoReturn {};
+Comando: Expressao {$$ = new ast::AST_Node_Comando($1);};
+        | ComandoDoWhile {$$ = new ast::AST_Node_Comando($1);};
+        | ComandoIf {$$ = new ast::AST_Node_Comando($1);};
+        | ComandoWhile {$$ = new ast::AST_Node_Comando($1);};
+        | ComandoFor {$$ = new ast::AST_Node_Comando($1);};
+        | ComandoPrintf {$$ = new ast::AST_Node_Comando($1);};
+        | ComandoScanf {$$ = new ast::AST_Node_Comando($1);};
+        | ComandoExit {$$ = new ast::AST_Node_Comando($1);};
+        | ComandoReturn {$$ = new ast::AST_Node_Comando($1);};
 
-ComandoDoWhile: DO_WHILE L_PAREN ListaComandos COMMA CondicaoParada R_PAREN {};
+ComandoDoWhile: DO_WHILE L_PAREN ListaComandos COMMA CondicaoParada R_PAREN {$$ = new ast::AST_Node_Comando_Do_While($3, $5);};
 
-ComandoIf: IF L_PAREN CondicaoParada COMMA ListaComandos COMMA ListaComandos R_PAREN {};
-        | IF L_PAREN CondicaoParada COMMA ListaComandos R_PAREN {};
+ComandoIf: IF L_PAREN CondicaoParada COMMA ListaComandos COMMA ListaComandos R_PAREN {$$ = new ast::AST_Node_Comando_If($3, $5, $7);};
+        | IF L_PAREN CondicaoParada COMMA ListaComandos R_PAREN {$$ = new ast::AST_Node_Comando_If($3, $5);};
 
-ComandoWhile: WHILE L_PAREN CondicaoParada COMMA ListaComandos R_PAREN {};
+ComandoWhile: WHILE L_PAREN CondicaoParada COMMA ListaComandos R_PAREN {$$ = new ast::AST_Node_Comando_While($3, $5);};
 
-ComandoFor: FOR L_PAREN InicializacaoFor COMMA CondicaoParada COMMA AjusteValores COMMA ListaComandos R_PAREN {};
+ComandoFor: FOR L_PAREN InicializacaoFor COMMA CondicaoParada COMMA AjusteValores COMMA ListaComandos R_PAREN {$$ = new ast::AST_Node_Comando_For($3, $5, $7, $9);};
 
-ComandoPrintf: PRINTF L_PAREN STRING COMMA ExpressoesPrintf R_PAREN {};
-            | PRINTF L_PAREN STRING R_PAREN {};
+ComandoPrintf: PRINTF L_PAREN STRING COMMA ExpressoesPrintf R_PAREN {$$ = new ast::AST_Node_Comando_Printf($3, $5);};
+            | PRINTF L_PAREN STRING R_PAREN {$$ = new ast::AST_Node_Comando_Printf($3);};
 
-ComandoScanf: SCANF L_PAREN STRING COMMA EnderecoVar R_PAREN {};
+ComandoScanf: SCANF L_PAREN STRING COMMA EnderecoVar R_PAREN {$$ = new ast::AST_Node_Comando_Scanf($3, $5);};
 
-ComandoExit: EXIT L_PAREN Expressao R_PAREN {};
+ComandoExit: EXIT L_PAREN Expressao R_PAREN {$$ = new ast::AST_Node_Comando_Exit($3);};
 
-ComandoReturn: RETURN L_PAREN CondicaoParada R_PAREN {};
+ComandoReturn: RETURN L_PAREN CondicaoParada R_PAREN {$$ = new ast::AST_Node_Comando_Return($3);};
 
 /* Scanf */
 
-EnderecoVar: BITWISE_AND L_PAREN IDENTIFIER R_PAREN {};
+EnderecoVar: BITWISE_AND L_PAREN IDENTIFIER R_PAREN {$$ = new ast::AST_Node_Endereco_Var($3);};
 
 /* Printf */
 
-ExpressoesPrintf: Expressao ExpressoesPrintfTemporario {};
-                | {};
+ExpressoesPrintf: Expressao ExpressoesPrintfTemporario {$$ = new ast::AST_Node_Expressoes_Printf($1, $2);};
+                | {$$ = nullptr;};
 
-ExpressoesPrintfTemporario: COMMA Expressao ExpressoesPrintfTemporario {};
-                        | {};
+ExpressoesPrintfTemporario: COMMA Expressao ExpressoesPrintfTemporario {$$ = new ast::AST_Node_Expressoes_Printf_Temporario($2, $3);};
+                        | {$$ = nullptr;};
 /* For */
 
-InicializacaoFor: ASSIGN L_PAREN IDENTIFIER COMMA Expressao R_PAREN {};
-                | {};
+InicializacaoFor: ASSIGN L_PAREN IDENTIFIER COMMA Expressao R_PAREN {$$ = new ast::AST_Node_Inicializacao_For($3, $5);};
+                | {$$ = nullptr;};
 
-CondicaoParada: Expressao {};
-                | {};
+CondicaoParada: Expressao {$$ = new ast::AST_Node_Condicao_Parada($1);};
+                | {$$ = nullptr;};
 
-AjusteValores: Expressao {};
-                | {};
+AjusteValores: Expressao {$$ = new ast::AST_Node_Ajuste_Valores($1);};
+                | {$$ = nullptr;};
 
 /* EXPRESSOES */
 
-Expressao: BOP {};
-        | UOP {};
-        | TOP {};
-        | ChamadaDeFuncao {};
-        | NUM_INTEGER {};
-        | CHARACTER {};
-        | STRING {};
+Expressao: BOP {$$ = new ast::AST_Node_Expressao($1);};
+        | UOP {$$ = new ast::AST_Node_Expressao($1);};
+        | TOP {$$ = new ast::AST_Node_Expressao($1);};
+        | ChamadaDeFuncao {$$ = new ast::AST_Node_Expressao($1);};
+        | NUM_INTEGER {$$ = new ast::AST_Node_Expressao($1);};
+        | CHARACTER {$$ = new ast::AST_Node_Expressao($1);};
+        | STRING {$$ = new ast::AST_Node_Expressao($1);};
 
-ChamadaDeFuncao: IDENTIFIER OpcoesExpressao {};
+ChamadaDeFuncao: IDENTIFIER OpcoesExpressao {$$ = new ast::AST_Node_Chamada_Funcao($1, $2);};
 
-OpcoesExpressao: L_PAREN LoopExpressoes R_PAREN {}; // Funcao
-            | L_SQUARE_BRACKET Expressao R_SQUARE_BRACKET LoopMatriz {}; // Vetor e/ou matriz
-            | {};
+OpcoesExpressao: L_PAREN LoopExpressoes R_PAREN { $$ = new ast::AST_Node_Opcoes_Expressao($2); }; // Funcao
+            | L_SQUARE_BRACKET Expressao R_SQUARE_BRACKET LoopMatriz { $$ = new ast::AST_Node_Opcoes_Expressao($2, $4); }; // Vetor e/ou matriz
+            | { $$ = nullptr; };
 
-LoopExpressoes: Expressao LoopExpressoesTemporario {};
-            | {};
+LoopExpressoes: Expressao LoopExpressoesTemporario { $$ = new ast::AST_Node_Loop_Expressoes($1, $2);};
+            | { $$ = nullptr; };
 
-LoopExpressoesTemporario: COMMA Expressao LoopExpressoesTemporario {};
-                    | {};
+LoopExpressoesTemporario: COMMA Expressao LoopExpressoesTemporario { $$ = new ast::AST_Node_Loop_Expressoes_Temporario($2, $3);};
+            | { $$ = nullptr; };
 
-LoopMatriz : L_SQUARE_BRACKET Expressao R_SQUARE_BRACKET LoopMatriz {};
-            | {};
+LoopMatriz : L_SQUARE_BRACKET Expressao R_SQUARE_BRACKET LoopMatriz { $$ = new ast::AST_Node_Loop_Matriz($2, $4); };
+            | { $$ = nullptr; };
 
 BOP: PLUS L_PAREN Expressao COMMA Expressao R_PAREN {
         $$ = new ast::AST_Node_BOP("PLUS", $3, $5);
