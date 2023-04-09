@@ -67,10 +67,24 @@
 "?"                     { return TERNARY_CONDITIONAL; }
 "-->"                   { return START_ARROW; }
 "//".*                  { }
-[_a-zA-Z][_a-zA-Z0-9]*  { return IDENTIFIER; }
-[0-9][0-9]*             { return NUM_INTEGER; }
-\"([^"\\\n]|\\.|\\\n)*\" { return STRING; }
-\'[^'\n]*\'             { return CHARACTER; }	
+[_a-zA-Z][_a-zA-Z0-9]*  { 
+                            yylval.string_token = new std::string(yytext);
+                            return IDENTIFIER; 
+                        }
+[0-9][0-9]*             { 
+                            yylval.integer_token = atoi(yytext);
+                            return NUM_INTEGER;
+                        }
+\"([^"\\\n]|\\.|\\\n)*\" { 
+                            yylval.string_token = new std::string(yytext);
+                            return STRING; 
+                            
+                        }
+\'[^'\n]*\'             { 
+    
+                            yylval.character_token = yytext[1];
+                            return CHARACTER;
+                        }	
 \n                      { return NEWLINE; }
 \r
 .                       { printf("Caracter Misterioso: %d\n", *yytext); exit(0); }
