@@ -830,20 +830,19 @@ class AST_Node_Corpo_Funcao : public AST_Node {
 
 class AST_Variable {
    public:
-    std::string name;
-    std::string type;
-    std::string value;
+    std::string* name;
+    std::string* type;
+    std::string* value;
 
-    AST_Variable() {
-        this->name = "";
-        this->type = "";
-        this->value = "";
-    }
-
-    AST_Variable(std::string name, std::string type, std::string value) {
+    AST_Variable(std::string* name, std::string* type, std::string* value) {
         this->name = name;
         this->type = type;
         this->value = value;
+    }
+
+    AST_Variable(std::string* name, std::string* type) {
+        this->name = name;
+        this->type = type;
     }
 };
 
@@ -865,17 +864,36 @@ class AST_Constant {
 
 class AST_Parameter {
    public:
-    std::string name;
-    std::string type;
+    std::string* name;
+    std::string* type;
+
+    AST_Parameter(std::string* name, std::string* type) {
+        this->name = name;
+        this->type = type;
+    }
 };
 
 class AST_Function {
    public:
-    std::string function_name;
-    std::string return_type;
-    std::vector<AST_Parameter> parameters;
-    std::vector<AST_Variable> variables;
+    std::string* function_name;
+    std::string* return_type;
+    std::vector<AST_Parameter*> parameters;
+    std::vector<AST_Variable*> variables;
     AST_Node_Corpo_Funcao* function_body;
+
+    AST_Function(std::string* function_name, std::string* return_type) {
+        this->function_name = function_name;
+        this->return_type = return_type;
+    }
+
+    void add_parameter(AST_Parameter* parameter) {
+        this->parameters.push_back(parameter);
+    }
+
+    void add_variable(AST_Variable* variable) {
+        this->variables.push_back(variable);
+    }
+
 };
 
 }  // namespace AST
