@@ -142,7 +142,7 @@ class AST_Node_Comando_If;
 class AST_Node_Comando_Do_While;
 class AST_Node_Comando;
 class AST_Node_Lista_Comandos_Temporario;
-class AST_Node_Lista_comandos;
+class AST_Node_Lista_Comandos;
 class AST_Node_Corpo_Funcao;
 class AST_Variable;
 class AST_Constant;
@@ -243,7 +243,7 @@ class AST_Node_Expressao : public AST_Node {
     char character;
 
     // Seventh rule
-    std::string string;
+    std::string* string;
 
     AST_Node_Expressao(AST_Node_BOP* bop) {
         init();
@@ -261,8 +261,8 @@ class AST_Node_Expressao : public AST_Node {
     }
 
     AST_Node_Expressao(AST_Node_Chamada_Funcao* chamada_funcao) {
-        // TODO: Implement this
         init();
+        this->chamada_funcao = chamada_funcao;
     }
 
     AST_Node_Expressao(int num_int) {
@@ -275,7 +275,7 @@ class AST_Node_Expressao : public AST_Node {
         this->character = character;
     }
 
-    AST_Node_Expressao(std::string string) {
+    AST_Node_Expressao(std::string* string) {
         init();
         this->string = string;
     }
@@ -291,10 +291,18 @@ class AST_Node_Expressao : public AST_Node {
 class AST_Node_Chamada_Funcao : public AST_Node {
    public:
     // First rule
-    std::string function_name;
+    std::string* function_name;
     AST_Node_Opcoes_Expressao* opcoes_expressao;
 
-    AST_Node_Chamada_Funcao() {
+    AST_Node_Chamada_Funcao(std::string* function_name, AST_Node_Opcoes_Expressao* opcoes_expressao) {
+        init();
+        this->function_name = function_name;
+        this->opcoes_expressao = opcoes_expressao;
+    }
+
+    private:
+
+    void init() {
         this->node_type = Node_Type::Non_Terminal;
         this->node_content = this;
         this->node_name = AST_Nonterminals::ChamadaFuncao;
@@ -429,9 +437,9 @@ class AST_Node_Inicializacao_For : public AST_Node {
    public:
     // First rule
     AST_Node_Expressao* expressao;
-    std::string identifier;
+    std::string* identifier;
 
-    AST_Node_Inicializacao_For(AST_Node_Expressao* expressao, std::string identifier) {
+    AST_Node_Inicializacao_For(std::string* identifier, AST_Node_Expressao* expressao) {
         init();
         this->expressao = expressao;
         this->identifier = identifier;
@@ -488,9 +496,9 @@ class AST_Node_Expressoes_Printf : public AST_Node {
 class AST_Node_Endereco_Var : public AST_Node {
    public:
     // First rule
-    std::string identifier;
+    std::string* identifier;
 
-    AST_Node_Endereco_Var(std::string identifier) {
+    AST_Node_Endereco_Var(std::string* identifier) {
         init();
         this->identifier = identifier;
     }
@@ -506,11 +514,11 @@ class AST_Node_Endereco_Var : public AST_Node {
 class AST_Node_Comando_Return : public AST_Node {
    public:
     // First rule
-    AST_Node_Expressao* expressao;
+    AST_Node_Condicao_Parada* CondicaoParada;
 
-    AST_Node_Comando_Return(AST_Node_Expressao* expressao) {
+    AST_Node_Comando_Return(AST_Node_Condicao_Parada* CondicaoParada) {
         init();
-        this->expressao = expressao;
+        this->CondicaoParada = CondicaoParada;
     }
 
     private:
@@ -542,10 +550,10 @@ class AST_Node_Comando_Exit : public AST_Node {
 class AST_Node_Comando_Scanf : public AST_Node {
    public:
     // First rule
-    std::string string;
+    std::string* string;
     AST_Node_Endereco_Var* endereco_var;
 
-    AST_Node_Comando_Scanf(std::string string, AST_Node_Endereco_Var* endereco_var) {
+    AST_Node_Comando_Scanf(std::string* string, AST_Node_Endereco_Var* endereco_var) {
         init();
         this->string = string;
         this->endereco_var = endereco_var;
@@ -565,11 +573,17 @@ class AST_Node_Comando_Printf : public AST_Node {
     AST_Node_Expressoes_Printf* expressoes_printf;
 
     // First and second rule
-    std::string string;
+    std::string* string;
 
-    AST_Node_Comando_Printf(AST_Node_Expressoes_Printf* expressoes_printf) {
+    AST_Node_Comando_Printf(std::string* string, AST_Node_Expressoes_Printf* expressoes_printf) {
         init();
+        this->string = string;
         this->expressoes_printf = expressoes_printf;
+    }
+
+    AST_Node_Comando_Printf(std::string* string) {
+        init();
+        this->string = string;
     }
 
     private:
@@ -586,9 +600,9 @@ class AST_Node_Comando_For : public AST_Node {
     AST_Node_Inicializacao_For* inicializacao_for;
     AST_Node_Condicao_Parada* condicao_parada;
     AST_Node_Ajuste_Valores* ajuste_valores;
-    AST_Node_Lista_comandos* lista_comandos;
+    AST_Node_Lista_Comandos* lista_comandos;
 
-    AST_Node_Comando_For(AST_Node_Inicializacao_For* inicializacao_for, AST_Node_Condicao_Parada* condicao_parada, AST_Node_Ajuste_Valores* ajuste_valores, AST_Node_Lista_comandos* lista_comandos) {
+    AST_Node_Comando_For(AST_Node_Inicializacao_For* inicializacao_for, AST_Node_Condicao_Parada* condicao_parada, AST_Node_Ajuste_Valores* ajuste_valores, AST_Node_Lista_Comandos* lista_comandos) {
         init();
         this->inicializacao_for = inicializacao_for;
         this->condicao_parada = condicao_parada;
@@ -608,9 +622,9 @@ class AST_Node_Comando_While : public AST_Node {
    public:
     // First rule
     AST_Node_Condicao_Parada* condicao_parada;
-    AST_Node_Lista_comandos* lista_comandos;
+    AST_Node_Lista_Comandos* lista_comandos;
 
-    AST_Node_Comando_While(AST_Node_Condicao_Parada* condicao_parada, AST_Node_Lista_comandos* lista_comandos) {
+    AST_Node_Comando_While(AST_Node_Condicao_Parada* condicao_parada, AST_Node_Lista_Comandos* lista_comandos) {
         init();
         this->condicao_parada = condicao_parada;
         this->lista_comandos = lista_comandos;
@@ -629,17 +643,17 @@ class AST_Node_Comando_If : public AST_Node {
    public:
     // First and second rule
     AST_Node_Condicao_Parada* condicao_parada;
-    AST_Node_Lista_comandos* lista_comandos_then;
-    AST_Node_Lista_comandos* lista_comandos_else;
+    AST_Node_Lista_Comandos* lista_comandos_then;
+    AST_Node_Lista_Comandos* lista_comandos_else;
 
-    AST_Node_Comando_If(AST_Node_Condicao_Parada* condicao_parada, AST_Node_Lista_comandos* lista_comandos_then, AST_Node_Lista_comandos* lista_comandos_else) {
+    AST_Node_Comando_If(AST_Node_Condicao_Parada* condicao_parada, AST_Node_Lista_Comandos* lista_comandos_then, AST_Node_Lista_Comandos* lista_comandos_else) {
         init();
         this->condicao_parada = condicao_parada;
         this->lista_comandos_then = lista_comandos_then;
         this->lista_comandos_else = lista_comandos_else;
     }
 
-    AST_Node_Comando_If(AST_Node_Condicao_Parada* condicao_parada, AST_Node_Lista_comandos* lista_comandos_then) {
+    AST_Node_Comando_If(AST_Node_Condicao_Parada* condicao_parada, AST_Node_Lista_Comandos* lista_comandos_then) {
         init();
         this->condicao_parada = condicao_parada;
         this->lista_comandos_then = lista_comandos_then;
@@ -657,10 +671,10 @@ class AST_Node_Comando_If : public AST_Node {
 class AST_Node_Comando_Do_While : public AST_Node {
    public:
     // First rule
-    AST_Node_Lista_comandos* lista_comandos;
+    AST_Node_Lista_Comandos* lista_comandos;
     AST_Node_Condicao_Parada* condicao_parada;
 
-    AST_Node_Comando_Do_While(AST_Node_Lista_comandos* lista_comandos, AST_Node_Condicao_Parada* condicao_parada) {
+    AST_Node_Comando_Do_While(AST_Node_Lista_Comandos* lista_comandos, AST_Node_Condicao_Parada* condicao_parada) {
         init();
         this->lista_comandos = lista_comandos;
         this->condicao_parada = condicao_parada;
@@ -699,6 +713,9 @@ class AST_Node_Comando : public AST_Node {
 
     // Eighth rule
     AST_Node_Comando_Return* comando_return;
+
+    // Ninth rule
+    AST_Node_Expressao* expressao;
 
     AST_Node_Comando(AST_Node_Comando_Do_While* comando_do_while) {
         init();
@@ -740,6 +757,11 @@ class AST_Node_Comando : public AST_Node {
         this->comando_return = comando_return;
     }
 
+    AST_Node_Comando(AST_Node_Expressao* expressao) {
+        init();
+        this->expressao = expressao;
+    }
+
     private:
     void init() {
         this->node_type = Node_Type::Non_Terminal;
@@ -768,13 +790,13 @@ class AST_Node_Lista_Comandos_Temporario : public AST_Node {
     }
 };
 
-class AST_Node_Lista_comandos : public AST_Node {
+class AST_Node_Lista_Comandos : public AST_Node {
    public:
     // First rule
     AST_Node_Comando* comando;
     AST_Node_Lista_Comandos_Temporario* lista_comandos_temporario;
 
-    AST_Node_Lista_comandos(AST_Node_Comando* comando, AST_Node_Lista_Comandos_Temporario* lista_comandos_temporario) {
+    AST_Node_Lista_Comandos(AST_Node_Comando* comando, AST_Node_Lista_Comandos_Temporario* lista_comandos_temporario) {
         init();
         this->comando = comando;
         this->lista_comandos_temporario = lista_comandos_temporario;
@@ -791,9 +813,9 @@ class AST_Node_Lista_comandos : public AST_Node {
 class AST_Node_Corpo_Funcao : public AST_Node {
    public:
     // First rule
-    AST_Node_Lista_comandos* lista_comandos;
+    AST_Node_Lista_Comandos* lista_comandos;
 
-    AST_Node_Corpo_Funcao(AST_Node_Lista_comandos* lista_comandos) {
+    AST_Node_Corpo_Funcao(AST_Node_Lista_Comandos* lista_comandos) {
         init();
         this->lista_comandos = lista_comandos;
     }
