@@ -165,7 +165,9 @@ Declaracoes : DeclaraConstante ConsumirNovasLinhas Declaracoes  {};
             | {};
 
 DeclaraConstante : CONSTANT COLON IDENTIFIER VALUE COLON NUM_INTEGER {
+
     constantes.push_back(new ast::AST_Constant($3, $6));
+
 };
 
 DeclaraVariavelGlobal : GLOBAL VARIABLE COLON IDENTIFIER TYPE COLON TipoDeVariavel {
@@ -179,32 +181,32 @@ TipoDeVariavel: INT TamanhoVariavel NEWLINE {
     $$ = new std::string("int" + *$2);
 
 };
-    | CHAR TamanhoVariavel NEWLINE {
+| CHAR TamanhoVariavel NEWLINE {
 
-        $$ = new std::string("char" + *$2);
+    $$ = new std::string("char" + *$2);
 
-    };
-    | VOID TamanhoVariavel NEWLINE {
-        $$ = new std::string("void" + *$2);
-    };
+};
+| VOID TamanhoVariavel NEWLINE {
+    $$ = new std::string("void" + *$2);
+};
 
 TamanhoVariavel: L_SQUARE_BRACKET NUM_INTEGER R_SQUARE_BRACKET LoopColchetes {
     $$ = new std::string("[" + std::to_string($2) + "]" + *$4);
 };
-                | MULTIPLY LoopPonteirosTemporario {
-                    $$ = new std::string("*" + *$2);
-                };
-                | { $$ = new std::string(""); };
+| MULTIPLY LoopPonteirosTemporario {
+    $$ = new std::string("*" + *$2);
+};
+| { $$ = new std::string(""); };
 
 LoopColchetes : L_SQUARE_BRACKET NUM_INTEGER R_SQUARE_BRACKET LoopColchetes {
     $$ = new std::string("[" + std::to_string($2) + "]" + *$4);
 };
-            | {$$ = new std::string(""); };
+| {$$ = new std::string(""); };
 
 LoopPonteirosTemporario: MULTIPLY LoopPonteirosTemporario {
     $$ = new std::string("*" + *$2);
 };
-                    | {$$ = new std::string(""); };
+| {$$ = new std::string(""); };
 
 DeclaraFuncao : FUNCTION COLON IDENTIFIER ConsumirNovasLinhas RETURN_TYPE COLON TipoDeVariavel ConsumirNovasLinhas ParametrosDeFuncao DeclararVariaveisLocais CorpoFuncao ConsumirNovasLinhas END_FUNCTION {
     funcoes.push_back(new ast::AST_Function($3, $7));
@@ -234,23 +236,22 @@ DeclaraFuncao : FUNCTION COLON IDENTIFIER ConsumirNovasLinhas RETURN_TYPE COLON 
 };
 
 ParametrosDeFuncao: PARAMETER COLON IDENTIFIER TYPE COLON TipoDeVariavel ConsumirNovasLinhas ParametrosDeFuncao {
+
     ast::AST_Parameter* parametro = new ast::AST_Parameter($3, $6);
     parametros_temp.push_back(parametro);
 
 };
-          | {};
+| {};
 
 DeclararVariaveisLocais: VARIABLE COLON IDENTIFIER TYPE COLON TipoDeVariavel ConsumirNovasLinhas DeclararVariaveisLocais {
     ast::AST_Variable* variavel = new ast::AST_Variable($3, $6);
     variaveis_locais_temp.push_back(variavel);
 };
-            | {};
+| {};
 
 /* COMANDOS */
 
-CorpoFuncao: ListaComandos {
-    corpo_funcao_temp = new ast::AST_Node_Corpo_Funcao($1);
-};
+CorpoFuncao: ListaComandos { corpo_funcao_temp = new ast::AST_Node_Corpo_Funcao($1); };
 
 ListaComandos: Comando ListaComandosTemporario {$$ = new ast::AST_Node_Lista_Comandos($1, $2);};
 
