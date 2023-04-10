@@ -1,9 +1,10 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <algorithm>
+
 
 namespace ast {
-
 
 /*
 enum AST_Terminals {
@@ -848,15 +849,10 @@ class AST_Variable {
 
 class AST_Constant {
    public:
-    std::string name;
+    std::string* name;
     int value;
 
-    AST_Constant() {
-        this->name = "";
-        this->value = 0;
-    }
-
-    AST_Constant(std::string name, int value) {
+    AST_Constant(std::string* name, int value) {
         this->name = name;
         this->value = value;
     }
@@ -894,6 +890,9 @@ class AST_Function {
         this->variables.push_back(variable);
     }
 
-};
+    void set_function_body(AST_Node_Corpo_Funcao* function_body) {
+        this->function_body = function_body;
+    }
 
-}  // namespace AST
+};
+}
