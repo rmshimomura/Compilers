@@ -14,7 +14,7 @@ sintatico: $(L_SOURCE) $(Y_SOURCE)
 debug: $(L_SOURCE) $(Y_SOURCE)
 	$(LEX) -o lex.yy.cc $(L_SOURCE) 
 	$(YY) -d -v $(Y_SOURCE) -o sintatico.tab.cc
-	$(CXX) -g *.cc $(CFLAGS) -o $(BIN)
+	$(CXX) -g -v -ftime-report *.cc $(CFLAGS) -o $(BIN)
 
 clean:
 	rm -f $(BIN) lex.yy.c sintatico.tab.* sintatico.output lex.yy.cc
