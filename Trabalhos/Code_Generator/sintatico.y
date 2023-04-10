@@ -14,6 +14,7 @@
     std::vector<ast::AST_Variable*> variaveis_locais_temp;
     std::vector<ast::AST_Parameter*> parametros_temp;
 
+    ast::AST_Node_Corpo_Funcao *corpo_funcao_temp;
 %}
 
 %union {
@@ -144,6 +145,9 @@
 %type <Type_AST_Node_Corpo_Funcao> CorpoFuncao
 
 %type <string_token> TipoDeVariavel
+%type <string_token> TamanhoVariavel
+%type <string_token> LoopColchetes
+%type <string_token> LoopPonteirosTemporario
 
 
 %start Programa
@@ -160,26 +164,53 @@ Declaracoes : DeclaraConstante ConsumirNovasLinhas Declaracoes  {};
             | DeclaraFuncao ConsumirNovasLinhas Declaracoes {};
             | {};
 
-DeclaraConstante : CONSTANT COLON IDENTIFIER VALUE COLON NUM_INTEGER {};
+DeclaraConstante : CONSTANT COLON IDENTIFIER VALUE COLON NUM_INTEGER {
+    constantes.push_back(new ast::AST_Constant($3, $6));
+};
 
-DeclaraVariavelGlobal : GLOBAL VARIABLE COLON IDENTIFIER TYPE COLON TipoDeVariavel {};
+DeclaraVariavelGlobal : GLOBAL VARIABLE COLON IDENTIFIER TYPE COLON TipoDeVariavel {
 
-TipoDeVariavel: INT TamanhoVariavel NEWLINE {};
-    | CHAR TamanhoVariavel NEWLINE {};
-    | VOID TamanhoVariavel NEWLINE {};
+    variaveis_globais.push_back(new ast::AST_Variable($4, $7));
 
-TamanhoVariavel: L_SQUARE_BRACKET NUM_INTEGER R_SQUARE_BRACKET LoopColchetes {};
-                | MULTIPLY LoopPonteirosTemporario {};
-                | {};
+};
 
-LoopColchetes : L_SQUARE_BRACKET NUM_INTEGER R_SQUARE_BRACKET LoopColchetes {};
-            | {};
+TipoDeVariavel: INT TamanhoVariavel NEWLINE {
 
-LoopPonteirosTemporario: MULTIPLY LoopPonteirosTemporario {};
-                    | {};
+    $$ = new std::string("int" + *$2);
+
+};
+    | CHAR TamanhoVariavel NEWLINE {
+
+        $$ = new std::string("char" + *$2);
+
+    };
+    | VOID TamanhoVariavel NEWLINE {
+        $$ = new std::string("void" + *$2);
+    };
+
+TamanhoVariavel: L_SQUARE_BRACKET NUM_INTEGER R_SQUARE_BRACKET LoopColchetes {
+    $$ = new std::string("[" + std::to_string($2) + "]" + *$4);
+};
+                | MULTIPLY LoopPonteirosTemporario {
+                    $$ = new std::string("*" + *$2);
+                };
+                | { $$ = new std::string(""); };
+
+LoopColchetes : L_SQUARE_BRACKET NUM_INTEGER R_SQUARE_BRACKET LoopColchetes {
+    $$ = new std::string("[" + std::to_string($2) + "]" + *$4);
+};
+            | {$$ = new std::string(""); };
+
+LoopPonteirosTemporario: MULTIPLY LoopPonteirosTemporario {
+    $$ = new std::string("*" + *$2);
+};
+                    | {$$ = new std::string(""); };
 
 DeclaraFuncao : FUNCTION COLON IDENTIFIER ConsumirNovasLinhas RETURN_TYPE COLON TipoDeVariavel ConsumirNovasLinhas ParametrosDeFuncao DeclararVariaveisLocais CorpoFuncao ConsumirNovasLinhas END_FUNCTION {
     funcoes.push_back(new ast::AST_Function($3, $7));
+
+    std::reverse(parametros_temp.begin(), parametros_temp.end());
+    std::reverse(variaveis_locais_temp.begin(), variaveis_locais_temp.end());
 
     if (parametros_temp.size() > 0) {
         for (int i = 0; i < parametros_temp.size(); i++) {
@@ -193,8 +224,11 @@ DeclaraFuncao : FUNCTION COLON IDENTIFIER ConsumirNovasLinhas RETURN_TYPE COLON 
         }
     }
 
+    funcoes.back()->set_function_body(corpo_funcao_temp);
+
     parametros_temp.clear();
     variaveis_locais_temp.clear();
+    corpo_funcao_temp = nullptr;
 
 
 };
@@ -214,7 +248,9 @@ DeclararVariaveisLocais: VARIABLE COLON IDENTIFIER TYPE COLON TipoDeVariavel Con
 
 /* COMANDOS */
 
-CorpoFuncao: ListaComandos {$$ = new ast::AST_Node_Corpo_Funcao($1);};
+CorpoFuncao: ListaComandos {
+    corpo_funcao_temp = new ast::AST_Node_Corpo_Funcao($1);
+};
 
 ListaComandos: Comando ListaComandosTemporario {$$ = new ast::AST_Node_Lista_Comandos($1, $2);};
 
@@ -396,10 +432,35 @@ TOP: TERNARY_CONDITIONAL L_PAREN Expressao COMMA Expressao COMMA Expressao R_PAR
 
 int main(int argc, char **argv) {
     
-    #ifdef YYDEBUG
-        yydebug = 1;
-    #endif
-
     yyparse();
-    
+
+    std::cout << "Constantes:" << std::endl;
+    for (auto &c : constantes) {
+        std::cout << *c->name << " = " << c->value << std::endl;
+    }
+
+    std::cout << std::endl;
+
+    std::cout << "Variaveis globais:" << std::endl;
+    for (auto &v : variaveis_globais) {
+        std::cout << *(v->name) << " - " << *(v->type) << std::endl;
+    }
+
+    std::cout << std::endl;
+
+    // Print the number of funcoes
+    std::cout << "Funcoes:" << std::endl;
+    for (auto &f : funcoes) {
+        std::cout << "Nome da função: " << *(f->function_name) << " Tipo de retorno: " << *(f->return_type) << std::endl;
+        std::cout << "Parametros:" << std::endl;
+        for (auto &p : f->parameters) {
+            std::cout << *(p->name) << " - " << *(p->type) << std::endl;
+        }
+        std::cout << "Variaveis locais:" << std::endl;
+        for (auto &v : f->variables) {
+            std::cout << *(v->name) << " - " << *(v->type) << std::endl;
+        }
+        std::cout << std::endl;
+    }
+
 }
