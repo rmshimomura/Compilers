@@ -1,7 +1,11 @@
+#ifndef AST_NODE_HH
+#define AST_NODE_HH
+
 #include <algorithm>
 #include <iostream>
 #include <string>
 #include <vector>
+#include <fstream>
 
 namespace ast {
 
@@ -154,6 +158,7 @@ class AST_Node {
     void* node_content;
     Node_Type node_type;
     int node_name;
+    AST_Node* parent;
 
     AST_Node() {
     }
@@ -174,9 +179,12 @@ class AST_Node_BOP : public AST_Node {
 
    private:
     void init() {
+        this->parent = nullptr;
         this->node_type = Node_Type::Non_Terminal;
         this->node_content = this;
         this->node_name = AST_Nonterminals::BOP;
+        this->left = nullptr;
+        this->right = nullptr;
     }
 };
 
@@ -195,9 +203,11 @@ class AST_Node_UOP : public AST_Node {
 
    private:
     void init() {
+        this->parent = nullptr;
         this->node_type = Node_Type::Non_Terminal;
         this->node_content = this;
         this->node_name = AST_Nonterminals::UOP;
+        this->child = nullptr;
     }
 };
 
@@ -216,9 +226,13 @@ class AST_Node_TOP : public AST_Node {
 
    private:
     void init() {
+        this->parent = nullptr;
         this->node_type = Node_Type::Non_Terminal;
         this->node_content = this;
         this->node_name = AST_Nonterminals::TOP;
+        this->test = nullptr;
+        this->left = nullptr;
+        this->right = nullptr;
     }
 };
 
@@ -282,9 +296,14 @@ class AST_Node_Expressao : public AST_Node {
 
    private:
     void init() {
+        this->parent = nullptr;
         this->node_type = Node_Type::Non_Terminal;
         this->node_content = this;
         this->node_name = AST_Nonterminals::Expressao;
+        this->bop = nullptr;
+        this->uop = nullptr;
+        this->top = nullptr;
+        this->chamada_funcao = nullptr;
     }
 };
 
@@ -302,9 +321,12 @@ class AST_Node_Chamada_Funcao : public AST_Node {
 
    private:
     void init() {
+        this->parent = nullptr;
         this->node_type = Node_Type::Non_Terminal;
         this->node_content = this;
         this->node_name = AST_Nonterminals::ChamadaFuncao;
+        this->function_name = nullptr;
+        this->opcoes_expressao = nullptr;
     }
 };
 
@@ -330,9 +352,13 @@ class AST_Node_Opcoes_Expressao : public AST_Node {
 
    private:
     void init() {
+        this->parent = nullptr;
         this->node_type = Node_Type::Non_Terminal;
         this->node_content = this;
         this->node_name = AST_Nonterminals::OpcoesExpressao;
+        this->loop_expressoes = nullptr;
+        this->expressao = nullptr;
+        this->loop_matriz = nullptr;
     }
 };
 
@@ -350,9 +376,12 @@ class AST_Node_Loop_Expressoes : public AST_Node {
 
    private:
     void init() {
+        this->parent = nullptr;
         this->node_type = Node_Type::Non_Terminal;
         this->node_content = this;
         this->node_name = AST_Nonterminals::LoopExpressoes;
+        this->expressao = nullptr;
+        this->loop_expressoes_temporario = nullptr;
     }
 };
 
@@ -369,9 +398,12 @@ class AST_Node_Loop_Expressoes_Temporario : public AST_Node {
 
    private:
     void init() {
+        this->parent = nullptr;
         this->node_type = Node_Type::Non_Terminal;
         this->node_content = this;
         this->node_name = AST_Nonterminals::LoopExpressoesTemporario;
+        this->expressao = nullptr;
+        this->loop_expressoes_temporario = nullptr;
     }
 };
 
@@ -388,9 +420,12 @@ class AST_Node_Loop_Matriz : public AST_Node {
 
    private:
     void init() {
+        this->parent = nullptr;
         this->node_type = Node_Type::Non_Terminal;
         this->node_content = this;
         this->node_name = AST_Nonterminals::LoopMatriz;
+        this->expressao = nullptr;
+        this->loop_matriz = nullptr;
     }
 };
 
@@ -406,9 +441,11 @@ class AST_Node_Condicao_Parada : public AST_Node {
 
    private:
     void init() {
+        this->parent = nullptr;
         this->node_type = Node_Type::Non_Terminal;
         this->node_content = this;
         this->node_name = AST_Nonterminals::CondicaoParada;
+        this->expressao = nullptr;
     }
 };
 
@@ -424,9 +461,11 @@ class AST_Node_Ajuste_Valores : public AST_Node {
 
    private:
     void init() {
+        this->parent = nullptr;
         this->node_type = Node_Type::Non_Terminal;
         this->node_content = this;
         this->node_name = AST_Nonterminals::AjusteValores;
+        this->expressao = nullptr;
     }
 };
 
@@ -444,9 +483,12 @@ class AST_Node_Inicializacao_For : public AST_Node {
 
    private:
     void init() {
+        this->parent = nullptr;
         this->node_type = Node_Type::Non_Terminal;
         this->node_content = this;
         this->node_name = AST_Nonterminals::InicializacaoFor;
+        this->expressao = nullptr;
+        this->identifier = nullptr;
     }
 };
 
@@ -464,9 +506,12 @@ class AST_Node_Expressoes_Printf_Temporario : public AST_Node {
 
    private:
     void init() {
+        this->parent = nullptr;
         this->node_type = Node_Type::Non_Terminal;
         this->node_content = this;
         this->node_name = AST_Nonterminals::ExpressoesPrintfTemporario;
+        this->expressao = nullptr;
+        this->expressoes_printf_temporario = nullptr;
     }
 };
 
@@ -484,9 +529,12 @@ class AST_Node_Expressoes_Printf : public AST_Node {
 
    private:
     void init() {
+        this->parent = nullptr;
         this->node_type = Node_Type::Non_Terminal;
         this->node_content = this;
         this->node_name = AST_Nonterminals::ExpressoesPrintf;
+        this->expressao = nullptr;
+        this->expressoes_printf_temporario = nullptr;
     }
 };
 
@@ -502,9 +550,11 @@ class AST_Node_Endereco_Var : public AST_Node {
 
    private:
     void init() {
+        this->parent = nullptr;
         this->node_type = Node_Type::Non_Terminal;
         this->node_content = this;
         this->node_name = AST_Nonterminals::EnderecoVar;
+        this->identifier = nullptr;
     }
 };
 
@@ -520,9 +570,11 @@ class AST_Node_Comando_Return : public AST_Node {
 
    private:
     void init() {
+        this->parent = nullptr;
         this->node_type = Node_Type::Non_Terminal;
         this->node_content = this;
         this->node_name = AST_Nonterminals::ComandoReturn;
+        this->CondicaoParada = nullptr;
     }
 };
 
@@ -538,9 +590,11 @@ class AST_Node_Comando_Exit : public AST_Node {
 
    private:
     void init() {
+        this->parent = nullptr;
         this->node_type = Node_Type::Non_Terminal;
         this->node_content = this;
         this->node_name = AST_Nonterminals::ComandoExit;
+        this->expressao = nullptr;
     }
 };
 
@@ -558,9 +612,12 @@ class AST_Node_Comando_Scanf : public AST_Node {
 
    private:
     void init() {
+        this->parent = nullptr;
         this->node_type = Node_Type::Non_Terminal;
         this->node_content = this;
         this->node_name = AST_Nonterminals::ComandoScanf;
+        this->string = nullptr;
+        this->endereco_var = nullptr;
     }
 };
 
@@ -585,9 +642,12 @@ class AST_Node_Comando_Printf : public AST_Node {
 
    private:
     void init() {
+        this->parent = nullptr;
         this->node_type = Node_Type::Non_Terminal;
         this->node_content = this;
         this->node_name = AST_Nonterminals::ComandoPrintf;
+        this->string = nullptr;
+        this->expressoes_printf = nullptr;
     }
 };
 
@@ -609,9 +669,14 @@ class AST_Node_Comando_For : public AST_Node {
 
    private:
     void init() {
+        this->parent = nullptr;
         this->node_type = Node_Type::Non_Terminal;
         this->node_content = this;
         this->node_name = AST_Nonterminals::ComandoFor;
+        this->inicializacao_for = nullptr;
+        this->condicao_parada = nullptr;
+        this->ajuste_valores = nullptr;
+        this->lista_comandos = nullptr;
     }
 };
 
@@ -629,9 +694,12 @@ class AST_Node_Comando_While : public AST_Node {
 
    private:
     void init() {
+        this->parent = nullptr;
         this->node_type = Node_Type::Non_Terminal;
         this->node_content = this;
         this->node_name = AST_Nonterminals::ComandoWhile;
+        this->condicao_parada = nullptr;
+        this->lista_comandos = nullptr;
     }
 };
 
@@ -657,9 +725,13 @@ class AST_Node_Comando_If : public AST_Node {
 
    private:
     void init() {
+        this->parent = nullptr;
         this->node_type = Node_Type::Non_Terminal;
         this->node_content = this;
         this->node_name = AST_Nonterminals::ComandoIf;
+        this->condicao_parada = nullptr;
+        this->lista_comandos_then = nullptr;
+        this->lista_comandos_else = nullptr;
     }
 };
 
@@ -677,9 +749,12 @@ class AST_Node_Comando_Do_While : public AST_Node {
 
    private:
     void init() {
+        this->parent = nullptr;
         this->node_type = Node_Type::Non_Terminal;
         this->node_content = this;
         this->node_name = AST_Nonterminals::ComandoDoWhile;
+        this->lista_comandos = nullptr;
+        this->condicao_parada = nullptr;
     }
 };
 
@@ -759,9 +834,19 @@ class AST_Node_Comando : public AST_Node {
 
    private:
     void init() {
+        this->parent = nullptr;
         this->node_type = Node_Type::Non_Terminal;
         this->node_content = this;
         this->node_name = AST_Nonterminals::Comando;
+        this->comando_do_while = nullptr;
+        this->comando_if = nullptr;
+        this->comando_while = nullptr;
+        this->comando_for = nullptr;
+        this->comando_printf = nullptr;
+        this->comando_scanf = nullptr;
+        this->comando_exit = nullptr;
+        this->comando_return = nullptr;
+        this->expressao = nullptr;
     }
 };
 
@@ -779,9 +864,12 @@ class AST_Node_Lista_Comandos_Temporario : public AST_Node {
 
    private:
     void init() {
+        this->parent = nullptr;
         this->node_type = Node_Type::Non_Terminal;
         this->node_content = this;
         this->node_name = AST_Nonterminals::ListaComandosTemporario;
+        this->comando = nullptr;
+        this->lista_comandos_temporario = nullptr;
     }
 };
 
@@ -799,9 +887,12 @@ class AST_Node_Lista_Comandos : public AST_Node {
 
    private:
     void init() {
+        this->parent = nullptr;
         this->node_type = Node_Type::Non_Terminal;
         this->node_content = this;
         this->node_name = AST_Nonterminals::ListaComandos;
+        this->comando = nullptr;
+        this->lista_comandos_temporario = nullptr;
     }
 };
 
@@ -817,9 +908,11 @@ class AST_Node_Corpo_Funcao : public AST_Node {
 
    private:
     void init() {
+        this->parent = nullptr;
         this->node_type = Node_Type::Non_Terminal;
         this->node_content = this;
         this->node_name = AST_Nonterminals::CorpoFuncao;
+        this->lista_comandos = nullptr;
     }
 };
 
@@ -838,6 +931,7 @@ class AST_Variable {
     AST_Variable(std::string* name, std::string* type) {
         this->name = name;
         this->type = type;
+        this->value = nullptr;
     }
 };
 
@@ -888,4 +982,43 @@ class AST_Function {
         this->function_body = function_body;
     }
 };
-}  // namespace ast
+
+namespace traversal {
+    
+    void general_AST_available_functions(ast::AST_Function* function);
+    void traversal_AST(ast::AST_Function* function);
+    void start_traversal(ast::AST_Node* runner);
+
+    void traversal_BOP(ast::AST_Node_BOP* runner);
+    void traversal_UOP(ast::AST_Node_UOP* runner);
+    void traversal_TOP(ast::AST_Node_TOP* runner);
+    void traversal_Expressao(ast::AST_Node_Expressao* runner);
+    void traversal_ChamadaFuncao(ast::AST_Node_Chamada_Funcao* runner);
+    void traversal_OpcoesExpressao(ast::AST_Node_Opcoes_Expressao* runner);
+    void traversal_LoopExpressoes(ast::AST_Node_Loop_Expressoes* runner);
+    void traversal_LoopExpressoesTemporario(ast::AST_Node_Loop_Expressoes_Temporario* runner);
+    void traversal_LoopMatriz(ast::AST_Node_Loop_Matriz* runner);
+    void traversal_CondicaoParada(ast::AST_Node_Condicao_Parada* runner);
+    void traversal_AjusteValores(ast::AST_Node_Ajuste_Valores* runner);
+    void traversal_InicializacaoFor(ast::AST_Node_Inicializacao_For* runner);
+    void traversal_ExpressoesPrintfTemporario(ast::AST_Node_Expressoes_Printf_Temporario* runner);
+    void traversal_ExpressoesPrintf(ast::AST_Node_Expressoes_Printf* runner);
+    void traversal_EnderecoVar(ast::AST_Node_Endereco_Var* runner);
+    void traversal_ComandoReturn(ast::AST_Node_Comando_Return* runner);
+    void traversal_ComandoExit(ast::AST_Node_Comando_Exit* runner);
+    void traversal_ComandoScanf(ast::AST_Node_Comando_Scanf* runner);
+    void traversal_ComandoPrintf(ast::AST_Node_Comando_Printf* runner);
+    void traversal_ComandoFor(ast::AST_Node_Comando_For* runner);
+    void traversal_ComandoWhile(ast::AST_Node_Comando_While* runner);
+    void traversal_ComandoIf(ast::AST_Node_Comando_If* runner);
+    void traversal_ComandoDoWhile(ast::AST_Node_Comando_Do_While* runner);
+    void traversal_Comando(ast::AST_Node_Comando* runner);
+    void traversal_ListaComandosTemporario(ast::AST_Node_Lista_Comandos_Temporario* runner);
+    void traversal_ListaComandos(ast::AST_Node_Lista_Comandos* runner);
+    void traversal_CorpoFuncao(ast::AST_Node_Corpo_Funcao* runner);
+
+};  
+
+};
+
+#endif  // AST_H
