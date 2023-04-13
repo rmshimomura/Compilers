@@ -435,7 +435,7 @@ int main(int argc, char **argv) {
     
     yyparse();
 
-    std::cout << "Constantes:" << std::endl;
+    /* std::cout << "Constantes:" << std::endl;
     for (auto &c : constantes) {
         std::cout << *c->name << " = " << c->value << std::endl;
     }
@@ -449,19 +449,12 @@ int main(int argc, char **argv) {
 
     std::cout << std::endl;
 
-    // Print the number of funcoes
-    std::cout << "Funcoes:" << std::endl;
-    for (auto &f : funcoes) {
-        std::cout << "Nome da função: " << *(f->function_name) << " Tipo de retorno: " << *(f->return_type) << std::endl;
-        std::cout << "Parametros:" << std::endl;
-        for (auto &p : f->parameters) {
-            std::cout << *(p->name) << " - " << *(p->type) << std::endl;
-        }
-        std::cout << "Variaveis locais:" << std::endl;
-        for (auto &v : f->variables) {
-            std::cout << *(v->name) << " - " << *(v->type) << std::endl;
-        }
-        std::cout << std::endl;
+    for (auto &f: funcoes) {
+        ast::general_AST_available_functions(f);
+    } */
+
+    for (auto &f: funcoes) {
+        ast::traversal::traversal_AST(f);
     }
 
 }
