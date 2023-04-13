@@ -23,7 +23,7 @@
     ast::AST_Node_TOP* Type_AST_Node_TOP;
     ast::AST_Node_Expressao* Type_AST_Node_Expression;
     ast::AST_Node_Chamada_Funcao* Type_AST_Node_Chamada_Funcao;
-    ast::AST_Node_Opcoes_Expressao* Type_AST_Node_Opcoes_Expressao;
+    ast::AST_Node_Acesso_Variavel* Type_AST_Node_Acesso_Variavel;
     ast::AST_Node_Loop_Expressoes* Type_AST_Node_Loop_Expressoes;
     ast::AST_Node_Loop_Expressoes_Temporario* Type_AST_Node_Loop_Expressoes_Temporario;
     ast::AST_Node_Loop_Matriz* Type_AST_Node_Loop_Matriz;
@@ -120,10 +120,10 @@
 %type <Type_AST_Node_UOP> UOP
 %type <Type_AST_Node_TOP> TOP
 %type <Type_AST_Node_Expression> Expressao
+%type <Type_AST_Node_Acesso_Variavel> AcessoVariavel
 %type <Type_AST_Node_Loop_Matriz> LoopMatriz
 %type <Type_AST_Node_Loop_Expressoes_Temporario> LoopExpressoesTemporario
 %type <Type_AST_Node_Loop_Expressoes> LoopExpressoes
-%type <Type_AST_Node_Opcoes_Expressao> OpcoesExpressao
 %type <Type_AST_Node_Chamada_Funcao> ChamadaDeFuncao
 %type <Type_AST_Node_Ajuste_Valores> AjusteValores
 %type <Type_AST_Node_Condicao_Parada> CondicaoParada
@@ -314,15 +314,14 @@ Expressao: BOP {$$ = new ast::AST_Node_Expressao($1);};
         | UOP {$$ = new ast::AST_Node_Expressao($1);};
         | TOP {$$ = new ast::AST_Node_Expressao($1);};
         | ChamadaDeFuncao {$$ = new ast::AST_Node_Expressao($1);};
+        | AcessoVariavel {$$ = new ast::AST_Node_Expressao($1);};
         | NUM_INTEGER {$$ = new ast::AST_Node_Expressao($1);};
         | CHARACTER {$$ = new ast::AST_Node_Expressao($1);};
         | STRING {$$ = new ast::AST_Node_Expressao($1);};
 
-ChamadaDeFuncao: IDENTIFIER OpcoesExpressao {$$ = new ast::AST_Node_Chamada_Funcao($1, $2);};
+ChamadaDeFuncao: IDENTIFIER L_PAREN LoopExpressoes R_PAREN {$$ = new ast::AST_Node_Chamada_Funcao($1, $3);};
 
-OpcoesExpressao: L_PAREN LoopExpressoes R_PAREN { $$ = new ast::AST_Node_Opcoes_Expressao($2); }; // Funcao
-            | L_SQUARE_BRACKET Expressao R_SQUARE_BRACKET LoopMatriz { $$ = new ast::AST_Node_Opcoes_Expressao($2, $4); }; // Vetor e/ou matriz
-            | { $$ = nullptr; };
+AcessoVariavel: IDENTIFIER LoopMatriz {$$ = new ast::AST_Node_Acesso_Variavel($1, $2);};
 
 LoopExpressoes: Expressao LoopExpressoesTemporario { $$ = new ast::AST_Node_Loop_Expressoes($1, $2);};
             | { $$ = nullptr; };

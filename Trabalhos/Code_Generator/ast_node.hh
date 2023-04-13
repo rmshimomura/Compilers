@@ -108,7 +108,7 @@ enum AST_Nonterminals {
     AjusteValores,
     Expressao,
     ChamadaFuncao,
-    OpcoesExpressao,
+    AcessoVariavel,
     LoopMatriz,
     BOP,
     UOP,
@@ -126,7 +126,7 @@ class AST_Node_UOP;
 class AST_Node_TOP;
 class AST_Node_Expressao;
 class AST_Node_Chamada_Funcao;
-class AST_Node_Opcoes_Expressao;
+class AST_Node_Acesso_Variavel;
 class AST_Node_Loop_Expressoes;
 class AST_Node_Loop_Expressoes_Temporario;
 class AST_Node_Loop_Matriz;
@@ -166,13 +166,13 @@ class AST_Node {
 
 class AST_Node_BOP : public AST_Node {
    public:
-    std::string opearation;
+    std::string operation;
     AST_Node_Expressao* left;
     AST_Node_Expressao* right;
 
     AST_Node_BOP(std::string operation, AST_Node_Expressao* left, AST_Node_Expressao* right) {
         init();
-        this->opearation = operation;
+        this->operation = operation;
         this->left = left;
         this->right = right;
     }
@@ -190,13 +190,13 @@ class AST_Node_BOP : public AST_Node {
 
 class AST_Node_UOP : public AST_Node {
    public:
-    std::string opearation;
+    std::string operation;
     AST_Node_Expressao* child;
     int is_postfix;
 
     AST_Node_UOP(std::string operation, AST_Node_Expressao* child, int is_postfix) {
         init();
-        this->opearation = operation;
+        this->operation = operation;
         this->child = child;
         this->is_postfix = is_postfix;
     }
@@ -259,6 +259,8 @@ class AST_Node_Expressao : public AST_Node {
     // Seventh rule
     std::string* string;
 
+    AST_Node_Acesso_Variavel* acesso_variavel;
+
     AST_Node_Expressao(AST_Node_BOP* bop) {
         init();
         this->bop = bop;
@@ -294,6 +296,11 @@ class AST_Node_Expressao : public AST_Node {
         this->string = string;
     }
 
+    AST_Node_Expressao(AST_Node_Acesso_Variavel* acesso_variavel) {
+        init();
+        this->acesso_variavel = acesso_variavel;
+    }
+
    private:
     void init() {
         this->parent = nullptr;
@@ -304,6 +311,10 @@ class AST_Node_Expressao : public AST_Node {
         this->uop = nullptr;
         this->top = nullptr;
         this->chamada_funcao = nullptr;
+        this->num_int = 0;
+        this->character = 0;
+        this->string = nullptr;
+        this->acesso_variavel = nullptr;
     }
 };
 
@@ -311,12 +322,12 @@ class AST_Node_Chamada_Funcao : public AST_Node {
    public:
     // First rule
     std::string* function_name;
-    AST_Node_Opcoes_Expressao* opcoes_expressao;
+    AST_Node_Loop_Expressoes* loop_expressoes;
 
-    AST_Node_Chamada_Funcao(std::string* function_name, AST_Node_Opcoes_Expressao* opcoes_expressao) {
+    AST_Node_Chamada_Funcao(std::string* function_name, AST_Node_Loop_Expressoes* loop_expressoes) {
         init();
         this->function_name = function_name;
-        this->opcoes_expressao = opcoes_expressao;
+        this->loop_expressoes = loop_expressoes;
     }
 
    private:
@@ -326,28 +337,27 @@ class AST_Node_Chamada_Funcao : public AST_Node {
         this->node_content = this;
         this->node_name = AST_Nonterminals::ChamadaFuncao;
         this->function_name = nullptr;
-        this->opcoes_expressao = nullptr;
+        this->loop_expressoes = nullptr;
     }
 };
 
-class AST_Node_Opcoes_Expressao : public AST_Node {
+class AST_Node_Acesso_Variavel : public AST_Node {
    public:
     // First rule
-    AST_Node_Loop_Expressoes* loop_expressoes;
+    std::string* variable_name;
 
     // Second rule
-    AST_Node_Expressao* expressao;
     AST_Node_Loop_Matriz* loop_matriz;
 
-    AST_Node_Opcoes_Expressao(AST_Node_Loop_Expressoes* loop_expressoes) {
+    AST_Node_Acesso_Variavel(std::string* variable_name, AST_Node_Loop_Matriz* loop_matriz) {
         init();
-        this->loop_expressoes = loop_expressoes;
+        this->variable_name = variable_name;
+        this->loop_matriz = loop_matriz;
     }
 
-    AST_Node_Opcoes_Expressao(AST_Node_Expressao* expressao, AST_Node_Loop_Matriz* loop_matriz) {
+    AST_Node_Acesso_Variavel(std::string* variable_name) {
         init();
-        this->expressao = expressao;
-        this->loop_matriz = loop_matriz;
+        this->variable_name = variable_name;
     }
 
    private:
@@ -355,9 +365,8 @@ class AST_Node_Opcoes_Expressao : public AST_Node {
         this->parent = nullptr;
         this->node_type = Node_Type::Non_Terminal;
         this->node_content = this;
-        this->node_name = AST_Nonterminals::OpcoesExpressao;
-        this->loop_expressoes = nullptr;
-        this->expressao = nullptr;
+        this->node_name = AST_Nonterminals::AcessoVariavel;
+        this->variable_name = nullptr;
         this->loop_matriz = nullptr;
     }
 };
@@ -994,7 +1003,7 @@ namespace traversal {
     void traversal_TOP(ast::AST_Node_TOP* runner);
     void traversal_Expressao(ast::AST_Node_Expressao* runner);
     void traversal_ChamadaFuncao(ast::AST_Node_Chamada_Funcao* runner);
-    void traversal_OpcoesExpressao(ast::AST_Node_Opcoes_Expressao* runner);
+    void traversal_AcessoVariavel(ast::AST_Node_Acesso_Variavel* runner);
     void traversal_LoopExpressoes(ast::AST_Node_Loop_Expressoes* runner);
     void traversal_LoopExpressoesTemporario(ast::AST_Node_Loop_Expressoes_Temporario* runner);
     void traversal_LoopMatriz(ast::AST_Node_Loop_Matriz* runner);

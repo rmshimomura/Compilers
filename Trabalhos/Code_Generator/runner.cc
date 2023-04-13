@@ -19,6 +19,8 @@ void ast::traversal::traversal_AST(ast::AST_Function* function) {
 
     // Open a file name test.dot
     // std::ofstream dotfile("test.dot");
+
+    int node_number = 0;
     
 
     if (function->function_body == nullptr) {
@@ -37,7 +39,7 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner) {
     ast::traversal::traversal_Expressao(runner->left);
     ast::traversal::traversal_Expressao(runner->right);
 
-    std::cout << "BOP" << std::endl;
+    std::cout << "BOP: " << runner->operation << std::endl;
     
 
 }
@@ -48,7 +50,7 @@ void ast::traversal::traversal_UOP(ast::AST_Node_UOP* runner) {
 
     ast::traversal::traversal_Expressao(runner->child);
 
-    std::cout << "UOP" << std::endl;
+    std::cout << "UOP: " << runner->operation << std::endl;
 
 }
 
@@ -72,7 +74,8 @@ void ast::traversal::traversal_Expressao(ast::AST_Node_Expressao* runner) {
     ast::traversal::traversal_UOP(runner->uop);
     ast::traversal::traversal_TOP(runner->top);
     ast::traversal::traversal_ChamadaFuncao(runner->chamada_funcao);
-
+    ast::traversal::traversal_AcessoVariavel(runner->acesso_variavel);
+    
     std::cout << "Expressao" << std::endl;
 
 }
@@ -81,7 +84,7 @@ void ast::traversal::traversal_ChamadaFuncao(ast::AST_Node_Chamada_Funcao* runne
 
     if(runner == nullptr) return;
 
-    ast::traversal::traversal_OpcoesExpressao(runner->opcoes_expressao);
+    ast::traversal::traversal_LoopExpressoes(runner->loop_expressoes);
 
     std::cout << "funcao " << *(runner->function_name) << std::endl;
 
@@ -89,15 +92,13 @@ void ast::traversal::traversal_ChamadaFuncao(ast::AST_Node_Chamada_Funcao* runne
 
 }
 
-void ast::traversal::traversal_OpcoesExpressao(ast::AST_Node_Opcoes_Expressao* runner) {
+void ast::traversal::traversal_AcessoVariavel(ast::AST_Node_Acesso_Variavel* runner) {
 
     if(runner == nullptr) return;
 
-    ast::traversal::traversal_LoopExpressoes(runner->loop_expressoes);
-    ast::traversal::traversal_Expressao(runner->expressao);
     ast::traversal::traversal_LoopMatriz(runner->loop_matriz);
 
-    std::cout << "Opcoes Expressao" << std::endl;
+    std::cout << "Acesso Variavel: " << *(runner->variable_name) << std::endl;
 
 }
 
