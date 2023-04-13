@@ -1,7 +1,7 @@
 LEX=flex
 YY=bison
 CXX=g++
-BIN = sintatico
+BIN = gerador
 L_SOURCE = lexico.l
 Y_SOURCE = sintatico.y
 CFLAGS = -std=c++11 -I. -w
