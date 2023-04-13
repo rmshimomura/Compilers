@@ -433,27 +433,6 @@ TOP: TERNARY_CONDITIONAL L_PAREN Expressao COMMA Expressao COMMA Expressao R_PAR
 int main(int argc, char **argv) {
     
     yyparse();
-
-    /* std::cout << "Constantes:" << std::endl;
-    for (auto &c : constantes) {
-        std::cout << *c->name << " = " << c->value << std::endl;
-    }
-
-    std::cout << std::endl;
-
-    std::cout << "Variaveis globais:" << std::endl;
-    for (auto &v : variaveis_globais) {
-        std::cout << *(v->name) << " - " << *(v->type) << std::endl;
-    }
-
-    std::cout << std::endl;
-
-    for (auto &f: funcoes) {
-        ast::general_AST_available_functions(f);
-    } */
-
-    for (auto &f: funcoes) {
-        ast::traversal::traversal_AST(f);
-    }
+    ast::traversal::print_ASTs(funcoes);
 
 }
