@@ -1031,6 +1031,7 @@ namespace traversal {
     void general_AST_available_functions(ast::AST_Function* function);
     void traversal_AST(ast::AST_Function* function, int print_graphviz);
     void print_ASTs(std::vector<ast::AST_Function*> funcoes);
+    void free_ASTs(std::vector<ast::AST_Function*> funcoes);
 
     void traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz);
     void traversal_UOP(ast::AST_Node_UOP* runner, int print_graphviz);

@@ -435,4 +435,6 @@ int main(int argc, char **argv) {
     yyparse();
     ast::traversal::print_ASTs(funcoes);
 
+    /* ast::traversal::free_ASTs(funcoes); */
+
 }

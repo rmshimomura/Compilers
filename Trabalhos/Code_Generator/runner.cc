@@ -3,18 +3,6 @@
 std::ofstream dotfile("test.dot");
 int node_counter = 0;
 
-void ast::traversal::print_ASTs(std::vector<ast::AST_Function*> funcoes) {
-    dotfile << "digraph ARV {" << std::endl;
-    dotfile << "graph [pad=\"0.5\", nodesep=\"0.5\", ranksep=\"2\"];" << std::endl;
-
-    for (auto function : funcoes) {
-        ast::traversal::traversal_AST(function, 1);
-    }
-
-    dotfile << "}" << std::endl;
-    dotfile.close();
-}
-
 void ast::traversal::general_AST_available_functions(ast::AST_Function* function) {
     std::cout << "Function name: " << *function->function_name << std::endl;
     std::cout << "Return type: " << *function->return_type << std::endl;
@@ -27,6 +15,18 @@ void ast::traversal::general_AST_available_functions(ast::AST_Function* function
         std::cout << "Name: " << *(variable->name) << " Type: " << *(variable->type) << " Value: " << (variable->value != nullptr ? *(variable->value) : "Not defined.") << std::endl;
     }
     std::cout << std::endl;
+}
+
+void ast::traversal::print_ASTs(std::vector<ast::AST_Function*> funcoes) {
+    dotfile << "digraph ARV {" << std::endl;
+    dotfile << "graph [pad=\"0.5\", nodesep=\"0.5\", ranksep=\"2\"];" << std::endl;
+
+    for (auto function : funcoes) {
+        ast::traversal::traversal_AST(function, 1);
+    }
+
+    dotfile << "}" << std::endl;
+    dotfile.close();
 }
 
 void ast::traversal::traversal_AST(ast::AST_Function* function, int print_graphviz) {
@@ -45,6 +45,14 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
 
     if (runner->node_number == -1) {
         runner->node_number = node_counter++;
+    }
+
+    if (runner->left) {
+        runner->left->parent = runner;
+    }
+
+    if (runner->right) {
+        runner->right->parent = runner;
     }
 
     ast::traversal::traversal_Expressao(runner->left, print_graphviz);
@@ -70,6 +78,10 @@ void ast::traversal::traversal_UOP(ast::AST_Node_UOP* runner, int print_graphviz
         runner->node_number = node_counter++;
     }
 
+    if (runner->child) {
+        runner->child->parent = runner;
+    }
+
     ast::traversal::traversal_Expressao(runner->child, print_graphviz);
 
     if (print_graphviz) {
@@ -86,6 +98,18 @@ void ast::traversal::traversal_TOP(ast::AST_Node_TOP* runner, int print_graphviz
 
     if (runner->node_number == -1) {
         runner->node_number = node_counter++;
+    }
+
+    if (runner->test) {
+        runner->test->parent = runner;
+    }
+
+    if (runner->left) {
+        runner->left->parent = runner;
+    }
+
+    if (runner->right) {
+        runner->right->parent = runner;
     }
 
     ast::traversal::traversal_Expressao(runner->test, print_graphviz);
@@ -116,6 +140,26 @@ void ast::traversal::traversal_Expressao(ast::AST_Node_Expressao* runner, int pr
 
     if (runner->node_number == -1) {
         runner->node_number = node_counter++;
+    }
+
+    if (runner->bop) {
+        runner->bop->parent = runner;
+    }
+
+    if (runner->uop) {
+        runner->uop->parent = runner;
+    }
+
+    if (runner->top) {
+        runner->top->parent = runner;
+    }
+
+    if (runner->chamada_funcao) {
+        runner->chamada_funcao->parent = runner;
+    }
+
+    if (runner->acesso_variavel) {
+        runner->acesso_variavel->parent = runner;
     }
 
     ast::traversal::traversal_BOP(runner->bop, print_graphviz);
@@ -169,6 +213,10 @@ void ast::traversal::traversal_Chamada_Funcao(ast::AST_Node_Chamada_Funcao* runn
         runner->node_number = node_counter++;
     }
 
+    if (runner->loop_expressoes) {
+        runner->loop_expressoes->parent = runner;
+    }
+
     ast::traversal::traversal_Loop_Expressoes(runner->loop_expressoes, print_graphviz);
 
     if (print_graphviz) {
@@ -187,6 +235,10 @@ void ast::traversal::traversal_Acesso_Variavel(ast::AST_Node_Acesso_Variavel* ru
         runner->node_number = node_counter++;
     }
 
+    if (runner->loop_matriz) {
+        runner->loop_matriz->parent = runner;
+    }
+
     ast::traversal::traversal_Loop_Matriz(runner->loop_matriz, print_graphviz);
 
     if (print_graphviz) {
@@ -203,6 +255,14 @@ void ast::traversal::traversal_Loop_Expressoes(ast::AST_Node_Loop_Expressoes* ru
 
     if (runner->node_number == -1) {
         runner->node_number = node_counter++;
+    }
+
+    if (runner->expressao) {
+        runner->expressao->parent = runner;
+    }
+
+    if (runner->loop_expressoes_temporario) {
+        runner->loop_expressoes_temporario->parent = runner;
     }
 
     ast::traversal::traversal_Expressao(runner->expressao, print_graphviz);
@@ -230,6 +290,14 @@ void ast::traversal::traversal_Loop_Expressoes_Temporario(ast::AST_Node_Loop_Exp
         runner->node_number = node_counter++;
     }
 
+    if (runner->expressao) {
+        runner->expressao->parent = runner;
+    }
+
+    if (runner->loop_expressoes_temporario) {
+        runner->loop_expressoes_temporario->parent = runner;
+    }
+
     ast::traversal::traversal_Expressao(runner->expressao, print_graphviz);
     ast::traversal::traversal_Loop_Expressoes_Temporario(runner->loop_expressoes_temporario, print_graphviz);
 
@@ -253,6 +321,14 @@ void ast::traversal::traversal_Loop_Matriz(ast::AST_Node_Loop_Matriz* runner, in
 
     if (runner->node_number == -1) {
         runner->node_number = node_counter++;
+    }
+
+    if (runner->expressao) {
+        runner->expressao->parent = runner;
+    }
+
+    if (runner->loop_matriz) {
+        runner->loop_matriz->parent = runner;
     }
 
     ast::traversal::traversal_Expressao(runner->expressao, print_graphviz);
@@ -280,6 +356,10 @@ void ast::traversal::traversal_Condicao_Parada(ast::AST_Node_Condicao_Parada* ru
         runner->node_number = node_counter++;
     }
 
+    if (runner->expressao) {
+        runner->expressao->parent = runner;
+    }
+
     ast::traversal::traversal_Expressao(runner->expressao, print_graphviz);
 
     if (print_graphviz) {
@@ -298,6 +378,10 @@ void ast::traversal::traversal_Ajuste_Valores(ast::AST_Node_Ajuste_Valores* runn
 
     if (runner->node_number == -1) {
         runner->node_number = node_counter++;
+    }
+
+    if (runner->expressao) {
+        runner->expressao->parent = runner;
     }
 
     ast::traversal::traversal_Expressao(runner->expressao, print_graphviz);
@@ -320,6 +404,10 @@ void ast::traversal::traversal_Inicializacao_For(ast::AST_Node_Inicializacao_For
         runner->node_number = node_counter++;
     }
 
+    if (runner->expressao) {
+        runner->expressao->parent = runner;
+    }
+
     ast::traversal::traversal_Expressao(runner->expressao, print_graphviz);
 
     if (print_graphviz) {
@@ -338,6 +426,10 @@ void ast::traversal::traversal_Expressoes_Printf_Temporario(ast::AST_Node_Expres
 
     if (runner->node_number == -1) {
         runner->node_number = node_counter++;
+    }
+
+    if (runner->expressao) {
+        runner->expressao->parent = runner;
     }
 
     ast::traversal::traversal_Expressao(runner->expressao, print_graphviz);
@@ -363,6 +455,14 @@ void ast::traversal::traversal_Expressoes_Printf(ast::AST_Node_Expressoes_Printf
 
     if (runner->node_number == -1) {
         runner->node_number = node_counter++;
+    }
+
+    if (runner->expressao) {
+        runner->expressao->parent = runner;
+    }
+
+    if(runner->expressoes_printf_temporario) {
+        runner->expressoes_printf_temporario->parent = runner;
     }
 
     ast::traversal::traversal_Expressao(runner->expressao, print_graphviz);
@@ -402,6 +502,10 @@ void ast::traversal::traversal_Comando_Return(ast::AST_Node_Comando_Return* runn
         runner->node_number = node_counter++;
     }
 
+    if (runner->CondicaoParada) {
+        runner->CondicaoParada->parent = runner;
+    }
+
     ast::traversal::traversal_Condicao_Parada(runner->CondicaoParada, print_graphviz);
 
     if (print_graphviz) {
@@ -420,6 +524,10 @@ void ast::traversal::traversal_Comando_Exit(ast::AST_Node_Comando_Exit* runner, 
 
     if (runner->node_number == -1) {
         runner->node_number = node_counter++;
+    }
+
+    if (runner->expressao) {
+        runner->expressao->parent = runner;
     }
 
     ast::traversal::traversal_Expressao(runner->expressao, print_graphviz);
@@ -442,6 +550,10 @@ void ast::traversal::traversal_Comando_Scanf(ast::AST_Node_Comando_Scanf* runner
         runner->node_number = node_counter++;
     }
 
+    if (runner->endereco_var) {
+        runner->endereco_var->parent = runner;
+    }
+
     ast::traversal::traversal_Endereco_Var(runner->endereco_var, print_graphviz);
 
     if (print_graphviz) {
@@ -460,6 +572,10 @@ void ast::traversal::traversal_Comando_Printf(ast::AST_Node_Comando_Printf* runn
 
     if (runner->node_number == -1) {
         runner->node_number = node_counter++;
+    }
+
+    if (runner->expressoes_printf) {
+        runner->expressoes_printf->parent = runner;
     }
 
     ast::traversal::traversal_Expressoes_Printf(runner->expressoes_printf, print_graphviz);
@@ -481,6 +597,22 @@ void ast::traversal::traversal_Comando_For(ast::AST_Node_Comando_For* runner, in
 
     if (runner->node_number == -1) {
         runner->node_number = node_counter++;
+    }
+
+    if (runner->inicializacao_for) {
+        runner->inicializacao_for->parent = runner;
+    }
+
+    if (runner->condicao_parada) {
+        runner->condicao_parada->parent = runner;
+    }
+
+    if (runner->ajuste_valores) {
+        runner->ajuste_valores->parent = runner;
+    }
+
+    if (runner->lista_comandos) {
+        runner->lista_comandos->parent = runner;
     }
 
     ast::traversal::traversal_Inicializacao_For(runner->inicializacao_for, print_graphviz);
@@ -518,6 +650,14 @@ void ast::traversal::traversal_Comando_While(ast::AST_Node_Comando_While* runner
         runner->node_number = node_counter++;
     }
 
+    if (runner->condicao_parada) {
+        runner->condicao_parada->parent = runner;
+    }
+
+    if (runner->lista_comandos) {
+        runner->lista_comandos->parent = runner;
+    }
+
     ast::traversal::traversal_Condicao_Parada(runner->condicao_parada, print_graphviz);
     ast::traversal::traversal_Lista_Comandos(runner->lista_comandos, print_graphviz);
 
@@ -541,6 +681,18 @@ void ast::traversal::traversal_Comando_If(ast::AST_Node_Comando_If* runner, int 
 
     if (runner->node_number == -1) {
         runner->node_number = node_counter++;
+    }
+
+    if (runner->condicao_parada) {
+        runner->condicao_parada->parent = runner;
+    }
+
+    if (runner->lista_comandos_then) {
+        runner->lista_comandos_then->parent = runner;
+    }
+
+    if (runner->lista_comandos_else) {
+        runner->lista_comandos_else->parent = runner;
     }
 
     ast::traversal::traversal_Condicao_Parada(runner->condicao_parada, print_graphviz);
@@ -569,6 +721,18 @@ void ast::traversal::traversal_Comando_If(ast::AST_Node_Comando_If* runner, int 
 void ast::traversal::traversal_Comando_Do_While(ast::AST_Node_Comando_Do_While* runner, int print_graphviz) {
     if (!runner) return;
 
+    if (runner->node_number == -1) {
+        runner->node_number = node_counter++;
+    }
+
+    if (runner->condicao_parada) {
+        runner->condicao_parada->parent = runner;
+    }
+
+    if (runner->lista_comandos) {
+        runner->lista_comandos->parent = runner;
+    }
+
     ast::traversal::traversal_Lista_Comandos(runner->lista_comandos, print_graphviz);
     ast::traversal::traversal_Condicao_Parada(runner->condicao_parada, print_graphviz);
 
@@ -592,6 +756,42 @@ void ast::traversal::traversal_Comando(ast::AST_Node_Comando* runner, int print_
 
     if (runner->node_number == -1) {
         runner->node_number = node_counter++;
+    }
+
+    if (runner->expressao) {
+        runner->expressao->parent = runner;
+    }
+
+    if (runner->comando_do_while) {
+        runner->comando_do_while->parent = runner;
+    }
+
+    if (runner->comando_for) {
+        runner->comando_for->parent = runner;
+    }
+
+    if (runner->comando_if) {
+        runner->comando_if->parent = runner;
+    }
+
+    if (runner->comando_while) {
+        runner->comando_while->parent = runner;
+    }
+
+    if (runner->comando_printf) {
+        runner->comando_printf->parent = runner;
+    }
+
+    if (runner->comando_scanf) {
+        runner->comando_scanf->parent = runner;
+    }
+
+    if (runner->comando_exit) {
+        runner->comando_exit->parent = runner;
+    }
+
+    if (runner->comando_return) {
+        runner->comando_return->parent = runner;
     }
 
     ast::traversal::traversal_Expressao(runner->expressao, print_graphviz);
@@ -654,6 +854,14 @@ void ast::traversal::traversal_Lista_Comandos_Temporario(ast::AST_Node_Lista_Com
         runner->node_number = node_counter++;
     }
 
+    if (runner->comando) {
+        runner->comando->parent = runner;
+    }
+
+    if (runner->lista_comandos_temporario) {
+        runner->lista_comandos_temporario->parent = runner;
+    }
+
     ast::traversal::traversal_Comando(runner->comando, print_graphviz);
     ast::traversal::traversal_Lista_Comandos_Temporario(runner->lista_comandos_temporario, print_graphviz);
 
@@ -675,6 +883,14 @@ void ast::traversal::traversal_Lista_Comandos(ast::AST_Node_Lista_Comandos* runn
 
     if (runner->node_number == -1) {
         runner->node_number = node_counter++;
+    }
+
+    if (runner->comando) {
+        runner->comando->parent = runner;
+    }
+
+    if (runner->lista_comandos_temporario) {
+        runner->lista_comandos_temporario->parent = runner;
     }
 
     ast::traversal::traversal_Comando(runner->comando, print_graphviz);
@@ -700,7 +916,9 @@ void ast::traversal::traversal_Corpo_Funcao(ast::AST_Node_Corpo_Funcao* runner, 
         runner->node_number = node_counter++;
     }
 
-    runner->node_number = node_counter++;
+    if (runner->lista_comandos) {
+        runner->lista_comandos->parent = runner;
+    }
 
     ast::traversal::traversal_Lista_Comandos(runner->lista_comandos, print_graphviz);
 
