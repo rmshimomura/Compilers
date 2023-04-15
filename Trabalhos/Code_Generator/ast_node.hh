@@ -1029,36 +1029,36 @@ class AST_Function {
 namespace traversal {
     
     void general_AST_available_functions(ast::AST_Function* function);
-    void traversal_AST(ast::AST_Function* function);
+    void traversal_AST(ast::AST_Function* function, int print_graphviz);
     void print_ASTs(std::vector<ast::AST_Function*> funcoes);
 
-    void traversal_BOP(ast::AST_Node_BOP* runner);
-    void traversal_UOP(ast::AST_Node_UOP* runner);
-    void traversal_TOP(ast::AST_Node_TOP* runner);
-    void traversal_Expressao(ast::AST_Node_Expressao* runner);
-    void traversal_ChamadaFuncao(ast::AST_Node_Chamada_Funcao* runner);
-    void traversal_AcessoVariavel(ast::AST_Node_Acesso_Variavel* runner);
-    void traversal_LoopExpressoes(ast::AST_Node_Loop_Expressoes* runner);
-    void traversal_LoopExpressoesTemporario(ast::AST_Node_Loop_Expressoes_Temporario* runner);
-    void traversal_LoopMatriz(ast::AST_Node_Loop_Matriz* runner);
-    void traversal_CondicaoParada(ast::AST_Node_Condicao_Parada* runner);
-    void traversal_AjusteValores(ast::AST_Node_Ajuste_Valores* runner);
-    void traversal_InicializacaoFor(ast::AST_Node_Inicializacao_For* runner);
-    void traversal_ExpressoesPrintfTemporario(ast::AST_Node_Expressoes_Printf_Temporario* runner);
-    void traversal_ExpressoesPrintf(ast::AST_Node_Expressoes_Printf* runner);
-    void traversal_EnderecoVar(ast::AST_Node_Endereco_Var* runner);
-    void traversal_ComandoReturn(ast::AST_Node_Comando_Return* runner);
-    void traversal_ComandoExit(ast::AST_Node_Comando_Exit* runner);
-    void traversal_ComandoScanf(ast::AST_Node_Comando_Scanf* runner);
-    void traversal_ComandoPrintf(ast::AST_Node_Comando_Printf* runner);
-    void traversal_ComandoFor(ast::AST_Node_Comando_For* runner);
-    void traversal_ComandoWhile(ast::AST_Node_Comando_While* runner);
-    void traversal_ComandoIf(ast::AST_Node_Comando_If* runner);
-    void traversal_ComandoDoWhile(ast::AST_Node_Comando_Do_While* runner);
-    void traversal_Comando(ast::AST_Node_Comando* runner);
-    void traversal_ListaComandosTemporario(ast::AST_Node_Lista_Comandos_Temporario* runner);
-    void traversal_ListaComandos(ast::AST_Node_Lista_Comandos* runner);
-    void traversal_CorpoFuncao(ast::AST_Node_Corpo_Funcao* runner);
+    void traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz);
+    void traversal_UOP(ast::AST_Node_UOP* runner, int print_graphviz);
+    void traversal_TOP(ast::AST_Node_TOP* runner, int print_graphviz);
+    void traversal_Expressao(ast::AST_Node_Expressao* runner, int print_graphviz);
+    void traversal_Chamada_Funcao(ast::AST_Node_Chamada_Funcao* runner, int print_graphviz);
+    void traversal_Acesso_Variavel(ast::AST_Node_Acesso_Variavel* runner, int print_graphviz);
+    void traversal_Loop_Expressoes(ast::AST_Node_Loop_Expressoes* runner, int print_graphviz);
+    void traversal_Loop_Expressoes_Temporario(ast::AST_Node_Loop_Expressoes_Temporario* runner, int print_graphviz);
+    void traversal_Loop_Matriz(ast::AST_Node_Loop_Matriz* runner, int print_graphviz);
+    void traversal_Condicao_Parada(ast::AST_Node_Condicao_Parada* runner, int print_graphviz);
+    void traversal_Ajuste_Valores(ast::AST_Node_Ajuste_Valores* runner, int print_graphviz);
+    void traversal_Inicializacao_For(ast::AST_Node_Inicializacao_For* runner, int print_graphviz);
+    void traversal_Expressoes_Printf_Temporario(ast::AST_Node_Expressoes_Printf_Temporario* runner, int print_graphviz);
+    void traversal_Expressoes_Printf(ast::AST_Node_Expressoes_Printf* runner, int print_graphviz);
+    void traversal_Endereco_Var(ast::AST_Node_Endereco_Var* runner, int print_graphviz);
+    void traversal_Comando_Return(ast::AST_Node_Comando_Return* runner, int print_graphviz);
+    void traversal_Comando_Exit(ast::AST_Node_Comando_Exit* runner, int print_graphviz);
+    void traversal_Comando_Scanf(ast::AST_Node_Comando_Scanf* runner, int print_graphviz);
+    void traversal_Comando_Printf(ast::AST_Node_Comando_Printf* runner, int print_graphviz);
+    void traversal_Comando_For(ast::AST_Node_Comando_For* runner, int print_graphviz);
+    void traversal_Comando_While(ast::AST_Node_Comando_While* runner, int print_graphviz);
+    void traversal_Comando_If(ast::AST_Node_Comando_If* runner, int print_graphviz);
+    void traversal_Comando_Do_While(ast::AST_Node_Comando_Do_While* runner, int print_graphviz);
+    void traversal_Comando(ast::AST_Node_Comando* runner, int print_graphviz);
+    void traversal_Lista_Comandos_Temporario(ast::AST_Node_Lista_Comandos_Temporario* runner, int print_graphviz);
+    void traversal_Lista_Comandos(ast::AST_Node_Lista_Comandos* runner, int print_graphviz);
+    void traversal_Corpo_Funcao(ast::AST_Node_Corpo_Funcao* runner, int print_graphviz);
 
 };  
 
