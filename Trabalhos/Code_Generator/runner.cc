@@ -17,19 +17,58 @@ void ast::traversal::general_AST_available_functions(ast::AST_Function* function
     std::cout << std::endl;
 }
 
+void ast::traversal::free_ASTs(std::vector<ast::AST_Function*> funcoes, std::vector<ast::AST_Constant*> constantes, std::vector<ast::AST_Variable*> variaveis_globais) {
+
+    for (auto function : funcoes) {
+        ast::traversal::traversal_AST(function, 0, 1);
+        delete function->function_name;
+        delete function->return_type;
+
+        for (auto parameter : function->parameters) {
+            delete parameter->name;
+            delete parameter->type;
+            delete parameter;
+        }
+
+        for (auto variable : function->variables) {
+            delete variable->name;
+            delete variable->type;
+            delete variable->value;
+            delete variable;
+        }
+
+        delete function;
+
+    }
+
+    for (auto constant : constantes) {
+        delete constant->name;
+        delete constant;
+    }
+
+    for (auto variable : variaveis_globais) {
+        delete variable->name;
+        delete variable->type;
+        delete variable->value;
+        delete variable;
+    }
+
+
+}
+
 void ast::traversal::print_ASTs(std::vector<ast::AST_Function*> funcoes) {
     dotfile << "digraph ARV {" << std::endl;
     dotfile << "graph [pad=\"0.5\", nodesep=\"0.5\", ranksep=\"2\"];" << std::endl;
 
     for (auto function : funcoes) {
-        ast::traversal::traversal_AST(function, 1);
+        ast::traversal::traversal_AST(function, 1, 0);
     }
 
     dotfile << "}" << std::endl;
     dotfile.close();
 }
 
-void ast::traversal::traversal_AST(ast::AST_Function* function, int print_graphviz) {
+void ast::traversal::traversal_AST(ast::AST_Function* function, int print_graphviz, int free_AST) {
     if (function->function_body == nullptr) {
         std::cout << "Function body is empty." << std::endl;
         return;
@@ -37,10 +76,11 @@ void ast::traversal::traversal_AST(ast::AST_Function* function, int print_graphv
 
     function->function_body->function_name = function->function_name;
 
-    ast::traversal::traversal_Corpo_Funcao(function->function_body, print_graphviz);
+    ast::traversal::traversal_Corpo_Funcao(function->function_body, print_graphviz, free_AST);
+
 }
 
-void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz) {
+void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz, int free_AST) {
     if (runner == nullptr) return;
 
     if (runner->node_number == -1) {
@@ -55,8 +95,8 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
         runner->right->parent = runner;
     }
 
-    ast::traversal::traversal_Expressao(runner->left, print_graphviz);
-    ast::traversal::traversal_Expressao(runner->right, print_graphviz);
+    ast::traversal::traversal_Expressao(runner->left, print_graphviz, free_AST);
+    ast::traversal::traversal_Expressao(runner->right, print_graphviz, free_AST);
 
     if (print_graphviz) {
         if (runner->left != nullptr) {
@@ -69,9 +109,13 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
 
         dotfile << "\t" << runner->node_number << " [shape = box, label = \"" << runner->operation << "\"];" << std::endl;
     }
+
+    if (free_AST) {
+        delete runner;
+    }
 }
 
-void ast::traversal::traversal_UOP(ast::AST_Node_UOP* runner, int print_graphviz) {
+void ast::traversal::traversal_UOP(ast::AST_Node_UOP* runner, int print_graphviz, int free_AST) {
     if (runner == nullptr) return;
 
     if (runner->node_number == -1) {
@@ -82,7 +126,7 @@ void ast::traversal::traversal_UOP(ast::AST_Node_UOP* runner, int print_graphviz
         runner->child->parent = runner;
     }
 
-    ast::traversal::traversal_Expressao(runner->child, print_graphviz);
+    ast::traversal::traversal_Expressao(runner->child, print_graphviz, free_AST);
 
     if (print_graphviz) {
         if (runner->child != nullptr) {
@@ -91,9 +135,14 @@ void ast::traversal::traversal_UOP(ast::AST_Node_UOP* runner, int print_graphviz
 
         dotfile << "\t" << runner->node_number << " [shape = box, label = \"" << runner->operation << "\"];" << std::endl;
     }
+
+    if (free_AST) {
+        delete runner;
+    }
+
 }
 
-void ast::traversal::traversal_TOP(ast::AST_Node_TOP* runner, int print_graphviz) {
+void ast::traversal::traversal_TOP(ast::AST_Node_TOP* runner, int print_graphviz, int free_AST) {
     if (runner == nullptr) return;
 
     if (runner->node_number == -1) {
@@ -112,9 +161,9 @@ void ast::traversal::traversal_TOP(ast::AST_Node_TOP* runner, int print_graphviz
         runner->right->parent = runner;
     }
 
-    ast::traversal::traversal_Expressao(runner->test, print_graphviz);
-    ast::traversal::traversal_Expressao(runner->left, print_graphviz);
-    ast::traversal::traversal_Expressao(runner->right, print_graphviz);
+    ast::traversal::traversal_Expressao(runner->test, print_graphviz, free_AST);
+    ast::traversal::traversal_Expressao(runner->left, print_graphviz, free_AST);
+    ast::traversal::traversal_Expressao(runner->right, print_graphviz, free_AST);
 
     if (print_graphviz) {
         if (runner->test != nullptr) {
@@ -133,9 +182,13 @@ void ast::traversal::traversal_TOP(ast::AST_Node_TOP* runner, int print_graphviz
                 << "?"
                 << "\"];" << std::endl;
     }
+
+    if (free_AST) {
+        delete runner;
+    }
 }
 
-void ast::traversal::traversal_Expressao(ast::AST_Node_Expressao* runner, int print_graphviz) {
+void ast::traversal::traversal_Expressao(ast::AST_Node_Expressao* runner, int print_graphviz, int free_AST) {
     if (runner == nullptr) return;
 
     if (runner->node_number == -1) {
@@ -162,11 +215,11 @@ void ast::traversal::traversal_Expressao(ast::AST_Node_Expressao* runner, int pr
         runner->acesso_variavel->parent = runner;
     }
 
-    ast::traversal::traversal_BOP(runner->bop, print_graphviz);
-    ast::traversal::traversal_UOP(runner->uop, print_graphviz);
-    ast::traversal::traversal_TOP(runner->top, print_graphviz);
-    ast::traversal::traversal_Chamada_Funcao(runner->chamada_funcao, print_graphviz);
-    ast::traversal::traversal_Acesso_Variavel(runner->acesso_variavel, print_graphviz);
+    ast::traversal::traversal_BOP(runner->bop, print_graphviz, free_AST);
+    ast::traversal::traversal_UOP(runner->uop, print_graphviz, free_AST);
+    ast::traversal::traversal_TOP(runner->top, print_graphviz, free_AST);
+    ast::traversal::traversal_Chamada_Funcao(runner->chamada_funcao, print_graphviz, free_AST);
+    ast::traversal::traversal_Acesso_Variavel(runner->acesso_variavel, print_graphviz, free_AST);
 
     if (print_graphviz) {
         if (runner->bop != nullptr) {
@@ -204,9 +257,14 @@ void ast::traversal::traversal_Expressao(ast::AST_Node_Expressao* runner, int pr
                 << variable
                 << "\"];" << std::endl;
     }
+
+    if (free_AST) {
+        delete runner;
+    }
+
 }
 
-void ast::traversal::traversal_Chamada_Funcao(ast::AST_Node_Chamada_Funcao* runner, int print_graphviz) {
+void ast::traversal::traversal_Chamada_Funcao(ast::AST_Node_Chamada_Funcao* runner, int print_graphviz, int free_AST) {
     if (runner == nullptr) return;
 
     if (runner->node_number == -1) {
@@ -217,7 +275,7 @@ void ast::traversal::traversal_Chamada_Funcao(ast::AST_Node_Chamada_Funcao* runn
         runner->loop_expressoes->parent = runner;
     }
 
-    ast::traversal::traversal_Loop_Expressoes(runner->loop_expressoes, print_graphviz);
+    ast::traversal::traversal_Loop_Expressoes(runner->loop_expressoes, print_graphviz, free_AST);
 
     if (print_graphviz) {
         if (runner->loop_expressoes != nullptr) {
@@ -226,9 +284,15 @@ void ast::traversal::traversal_Chamada_Funcao(ast::AST_Node_Chamada_Funcao* runn
 
         dotfile << "\t" << runner->node_number << " [shape = box, label = \"Chamada Funcao " << *(runner->function_name) << "\"];" << std::endl;
     }
+
+    if (free_AST) {
+        delete runner->function_name;
+        delete runner;
+    }
+
 }
 
-void ast::traversal::traversal_Acesso_Variavel(ast::AST_Node_Acesso_Variavel* runner, int print_graphviz) {
+void ast::traversal::traversal_Acesso_Variavel(ast::AST_Node_Acesso_Variavel* runner, int print_graphviz, int free_AST) {
     if (runner == nullptr) return;
 
     if (runner->node_number == -1) {
@@ -239,7 +303,7 @@ void ast::traversal::traversal_Acesso_Variavel(ast::AST_Node_Acesso_Variavel* ru
         runner->loop_matriz->parent = runner;
     }
 
-    ast::traversal::traversal_Loop_Matriz(runner->loop_matriz, print_graphviz);
+    ast::traversal::traversal_Loop_Matriz(runner->loop_matriz, print_graphviz, free_AST);
 
     if (print_graphviz) {
         if (runner->loop_matriz != nullptr) {
@@ -248,9 +312,14 @@ void ast::traversal::traversal_Acesso_Variavel(ast::AST_Node_Acesso_Variavel* ru
 
         dotfile << "\t" << runner->node_number << " [shape = box, label = \"Acesso Variavel " << *(runner->variable_name) << "\"];" << std::endl;
     }
+
+    if (free_AST) {
+        delete runner->variable_name;
+        delete runner;
+    }
 }
 
-void ast::traversal::traversal_Loop_Expressoes(ast::AST_Node_Loop_Expressoes* runner, int print_graphviz) {
+void ast::traversal::traversal_Loop_Expressoes(ast::AST_Node_Loop_Expressoes* runner, int print_graphviz, int free_AST) {
     if (runner == nullptr) return;
 
     if (runner->node_number == -1) {
@@ -265,8 +334,8 @@ void ast::traversal::traversal_Loop_Expressoes(ast::AST_Node_Loop_Expressoes* ru
         runner->loop_expressoes_temporario->parent = runner;
     }
 
-    ast::traversal::traversal_Expressao(runner->expressao, print_graphviz);
-    ast::traversal::traversal_Loop_Expressoes_Temporario(runner->loop_expressoes_temporario, print_graphviz);
+    ast::traversal::traversal_Expressao(runner->expressao, print_graphviz, free_AST);
+    ast::traversal::traversal_Loop_Expressoes_Temporario(runner->loop_expressoes_temporario, print_graphviz, free_AST);
 
     if (print_graphviz) {
         if (runner->expressao != nullptr) {
@@ -281,9 +350,13 @@ void ast::traversal::traversal_Loop_Expressoes(ast::AST_Node_Loop_Expressoes* ru
                 << "Loop Expressoes"
                 << "\"];" << std::endl;
     }
+
+    if (free_AST) {
+        delete runner;
+    }
 }
 
-void ast::traversal::traversal_Loop_Expressoes_Temporario(ast::AST_Node_Loop_Expressoes_Temporario* runner, int print_graphviz) {
+void ast::traversal::traversal_Loop_Expressoes_Temporario(ast::AST_Node_Loop_Expressoes_Temporario* runner, int print_graphviz, int free_AST) {
     if (runner == nullptr) return;
 
     if (runner->node_number == -1) {
@@ -298,8 +371,8 @@ void ast::traversal::traversal_Loop_Expressoes_Temporario(ast::AST_Node_Loop_Exp
         runner->loop_expressoes_temporario->parent = runner;
     }
 
-    ast::traversal::traversal_Expressao(runner->expressao, print_graphviz);
-    ast::traversal::traversal_Loop_Expressoes_Temporario(runner->loop_expressoes_temporario, print_graphviz);
+    ast::traversal::traversal_Expressao(runner->expressao, print_graphviz, free_AST);
+    ast::traversal::traversal_Loop_Expressoes_Temporario(runner->loop_expressoes_temporario, print_graphviz, free_AST);
 
     if (print_graphviz) {
         if (runner->expressao != nullptr) {
@@ -314,9 +387,13 @@ void ast::traversal::traversal_Loop_Expressoes_Temporario(ast::AST_Node_Loop_Exp
                 << "Loop Expressoes Temporario"
                 << "\"];" << std::endl;
     }
+
+    if (free_AST) {
+        delete runner;
+    }
 }
 
-void ast::traversal::traversal_Loop_Matriz(ast::AST_Node_Loop_Matriz* runner, int print_graphviz) {
+void ast::traversal::traversal_Loop_Matriz(ast::AST_Node_Loop_Matriz* runner, int print_graphviz, int free_AST) {
     if (runner == nullptr) return;
 
     if (runner->node_number == -1) {
@@ -331,8 +408,8 @@ void ast::traversal::traversal_Loop_Matriz(ast::AST_Node_Loop_Matriz* runner, in
         runner->loop_matriz->parent = runner;
     }
 
-    ast::traversal::traversal_Expressao(runner->expressao, print_graphviz);
-    ast::traversal::traversal_Loop_Matriz(runner->loop_matriz, print_graphviz);
+    ast::traversal::traversal_Expressao(runner->expressao, print_graphviz, free_AST);
+    ast::traversal::traversal_Loop_Matriz(runner->loop_matriz, print_graphviz, free_AST);
 
     if (print_graphviz) {
         if (runner->expressao != nullptr) {
@@ -347,9 +424,14 @@ void ast::traversal::traversal_Loop_Matriz(ast::AST_Node_Loop_Matriz* runner, in
                 << "Loop Matriz"
                 << "\"];" << std::endl;
     }
+
+    if (free_AST) {
+        delete runner;
+    }
+
 }
 
-void ast::traversal::traversal_Condicao_Parada(ast::AST_Node_Condicao_Parada* runner, int print_graphviz) {
+void ast::traversal::traversal_Condicao_Parada(ast::AST_Node_Condicao_Parada* runner, int print_graphviz, int free_AST) {
     if (runner == nullptr) return;
 
     if (runner->node_number == -1) {
@@ -360,7 +442,7 @@ void ast::traversal::traversal_Condicao_Parada(ast::AST_Node_Condicao_Parada* ru
         runner->expressao->parent = runner;
     }
 
-    ast::traversal::traversal_Expressao(runner->expressao, print_graphviz);
+    ast::traversal::traversal_Expressao(runner->expressao, print_graphviz, free_AST);
 
     if (print_graphviz) {
         if (runner->expressao != nullptr) {
@@ -371,9 +453,14 @@ void ast::traversal::traversal_Condicao_Parada(ast::AST_Node_Condicao_Parada* ru
                 << "Condicao Parada"
                 << "\"];" << std::endl;
     }
+
+    if (free_AST) {
+        delete runner;
+    }
+
 }
 
-void ast::traversal::traversal_Ajuste_Valores(ast::AST_Node_Ajuste_Valores* runner, int print_graphviz) {
+void ast::traversal::traversal_Ajuste_Valores(ast::AST_Node_Ajuste_Valores* runner, int print_graphviz, int free_AST) {
     if (runner == nullptr) return;
 
     if (runner->node_number == -1) {
@@ -384,7 +471,7 @@ void ast::traversal::traversal_Ajuste_Valores(ast::AST_Node_Ajuste_Valores* runn
         runner->expressao->parent = runner;
     }
 
-    ast::traversal::traversal_Expressao(runner->expressao, print_graphviz);
+    ast::traversal::traversal_Expressao(runner->expressao, print_graphviz, free_AST);
 
     if (print_graphviz) {
         if (runner->expressao != nullptr) {
@@ -395,9 +482,14 @@ void ast::traversal::traversal_Ajuste_Valores(ast::AST_Node_Ajuste_Valores* runn
                 << "Ajuste Valores"
                 << "\"];" << std::endl;
     }
+
+    if (free_AST) {
+        delete runner;
+    }
+
 }
 
-void ast::traversal::traversal_Inicializacao_For(ast::AST_Node_Inicializacao_For* runner, int print_graphviz) {
+void ast::traversal::traversal_Inicializacao_For(ast::AST_Node_Inicializacao_For* runner, int print_graphviz, int free_AST) {
     if (runner == nullptr) return;
 
     if (runner->node_number == -1) {
@@ -408,7 +500,7 @@ void ast::traversal::traversal_Inicializacao_For(ast::AST_Node_Inicializacao_For
         runner->expressao->parent = runner;
     }
 
-    ast::traversal::traversal_Expressao(runner->expressao, print_graphviz);
+    ast::traversal::traversal_Expressao(runner->expressao, print_graphviz, free_AST);
 
     if (print_graphviz) {
         if (runner->expressao != nullptr) {
@@ -419,9 +511,14 @@ void ast::traversal::traversal_Inicializacao_For(ast::AST_Node_Inicializacao_For
                 << "Inicializacao For"
                 << "\"];" << std::endl;
     }
+
+    if (free_AST) {
+        delete runner->identifier;
+        delete runner;
+    }
 }
 
-void ast::traversal::traversal_Expressoes_Printf_Temporario(ast::AST_Node_Expressoes_Printf_Temporario* runner, int print_graphviz) {
+void ast::traversal::traversal_Expressoes_Printf_Temporario(ast::AST_Node_Expressoes_Printf_Temporario* runner, int print_graphviz, int free_AST) {
     if (runner == nullptr) return;
 
     if (runner->node_number == -1) {
@@ -432,8 +529,8 @@ void ast::traversal::traversal_Expressoes_Printf_Temporario(ast::AST_Node_Expres
         runner->expressao->parent = runner;
     }
 
-    ast::traversal::traversal_Expressao(runner->expressao, print_graphviz);
-    ast::traversal::traversal_Expressoes_Printf_Temporario(runner->expressoes_printf_temporario, print_graphviz);
+    ast::traversal::traversal_Expressao(runner->expressao, print_graphviz, free_AST);
+    ast::traversal::traversal_Expressoes_Printf_Temporario(runner->expressoes_printf_temporario, print_graphviz, free_AST);
 
     if (print_graphviz) {
         if (runner->expressao != nullptr) {
@@ -448,9 +545,13 @@ void ast::traversal::traversal_Expressoes_Printf_Temporario(ast::AST_Node_Expres
                 << "Expressoes Printf Temporario"
                 << "\"];" << std::endl;
     }
+
+    if (free_AST) {
+        delete runner;
+    }
 }
 
-void ast::traversal::traversal_Expressoes_Printf(ast::AST_Node_Expressoes_Printf* runner, int print_graphviz) {
+void ast::traversal::traversal_Expressoes_Printf(ast::AST_Node_Expressoes_Printf* runner, int print_graphviz, int free_AST) {
     if (runner == nullptr) return;
 
     if (runner->node_number == -1) {
@@ -465,8 +566,8 @@ void ast::traversal::traversal_Expressoes_Printf(ast::AST_Node_Expressoes_Printf
         runner->expressoes_printf_temporario->parent = runner;
     }
 
-    ast::traversal::traversal_Expressao(runner->expressao, print_graphviz);
-    ast::traversal::traversal_Expressoes_Printf_Temporario(runner->expressoes_printf_temporario, print_graphviz);
+    ast::traversal::traversal_Expressao(runner->expressao, print_graphviz, free_AST);
+    ast::traversal::traversal_Expressoes_Printf_Temporario(runner->expressoes_printf_temporario, print_graphviz, free_AST);
 
     if (print_graphviz) {
         if (runner->expressao != nullptr) {
@@ -481,9 +582,13 @@ void ast::traversal::traversal_Expressoes_Printf(ast::AST_Node_Expressoes_Printf
                 << "Expressoes Printf"
                 << "\"];" << std::endl;
     }
+
+    if (free_AST) {
+        delete runner;
+    }
 }
 
-void ast::traversal::traversal_Endereco_Var(ast::AST_Node_Endereco_Var* runner, int print_graphviz) {
+void ast::traversal::traversal_Endereco_Var(ast::AST_Node_Endereco_Var* runner, int print_graphviz, int free_AST) {
     if (runner == nullptr) return;
 
     if (runner->node_number == -1) {
@@ -493,9 +598,14 @@ void ast::traversal::traversal_Endereco_Var(ast::AST_Node_Endereco_Var* runner, 
     if (print_graphviz) {
         dotfile << "\t" << runner->node_number << " [shape = box, label = \"" << *(runner->identifier) << "\"];" << std::endl;
     }
+
+    if (free_AST) {
+        delete runner->identifier;
+        delete runner;
+    }
 }
 
-void ast::traversal::traversal_Comando_Return(ast::AST_Node_Comando_Return* runner, int print_graphviz) {
+void ast::traversal::traversal_Comando_Return(ast::AST_Node_Comando_Return* runner, int print_graphviz, int free_AST) {
     if (runner == nullptr) return;
 
     if (runner->node_number == -1) {
@@ -506,7 +616,7 @@ void ast::traversal::traversal_Comando_Return(ast::AST_Node_Comando_Return* runn
         runner->CondicaoParada->parent = runner;
     }
 
-    ast::traversal::traversal_Condicao_Parada(runner->CondicaoParada, print_graphviz);
+    ast::traversal::traversal_Condicao_Parada(runner->CondicaoParada, print_graphviz, free_AST);
 
     if (print_graphviz) {
         if (runner->CondicaoParada != nullptr) {
@@ -517,9 +627,14 @@ void ast::traversal::traversal_Comando_Return(ast::AST_Node_Comando_Return* runn
                 << "Comando Return"
                 << "\"];" << std::endl;
     }
+
+    if (free_AST) {
+        delete runner;
+    }
+
 }
 
-void ast::traversal::traversal_Comando_Exit(ast::AST_Node_Comando_Exit* runner, int print_graphviz) {
+void ast::traversal::traversal_Comando_Exit(ast::AST_Node_Comando_Exit* runner, int print_graphviz, int free_AST) {
     if (runner == nullptr) return;
 
     if (runner->node_number == -1) {
@@ -530,7 +645,7 @@ void ast::traversal::traversal_Comando_Exit(ast::AST_Node_Comando_Exit* runner, 
         runner->expressao->parent = runner;
     }
 
-    ast::traversal::traversal_Expressao(runner->expressao, print_graphviz);
+    ast::traversal::traversal_Expressao(runner->expressao, print_graphviz, free_AST);
 
     if (print_graphviz) {
         if (runner->expressao != nullptr) {
@@ -541,9 +656,13 @@ void ast::traversal::traversal_Comando_Exit(ast::AST_Node_Comando_Exit* runner, 
                 << "Comando Exit"
                 << "\"];" << std::endl;
     }
+
+    if (free_AST) {
+        delete runner;
+    }
 }
 
-void ast::traversal::traversal_Comando_Scanf(ast::AST_Node_Comando_Scanf* runner, int print_graphviz) {
+void ast::traversal::traversal_Comando_Scanf(ast::AST_Node_Comando_Scanf* runner, int print_graphviz, int free_AST) {
     if (runner == nullptr) return;
 
     if (runner->node_number == -1) {
@@ -554,7 +673,7 @@ void ast::traversal::traversal_Comando_Scanf(ast::AST_Node_Comando_Scanf* runner
         runner->endereco_var->parent = runner;
     }
 
-    ast::traversal::traversal_Endereco_Var(runner->endereco_var, print_graphviz);
+    ast::traversal::traversal_Endereco_Var(runner->endereco_var, print_graphviz, free_AST);
 
     if (print_graphviz) {
         if (runner->endereco_var != nullptr) {
@@ -563,11 +682,17 @@ void ast::traversal::traversal_Comando_Scanf(ast::AST_Node_Comando_Scanf* runner
 
         dotfile << "\t" << runner->node_number << " [shape = box, label = \""
                 << "Comando Scanf"
+                << runner->string->substr(1, runner->string->size() - 2)
                 << "\"];" << std::endl;
+    }
+
+    if (free_AST) {
+        delete runner->string;
+        delete runner;
     }
 }
 
-void ast::traversal::traversal_Comando_Printf(ast::AST_Node_Comando_Printf* runner, int print_graphviz) {
+void ast::traversal::traversal_Comando_Printf(ast::AST_Node_Comando_Printf* runner, int print_graphviz, int free_AST) {
     if (runner == nullptr) return;
 
     if (runner->node_number == -1) {
@@ -578,7 +703,7 @@ void ast::traversal::traversal_Comando_Printf(ast::AST_Node_Comando_Printf* runn
         runner->expressoes_printf->parent = runner;
     }
 
-    ast::traversal::traversal_Expressoes_Printf(runner->expressoes_printf, print_graphviz);
+    ast::traversal::traversal_Expressoes_Printf(runner->expressoes_printf, print_graphviz, free_AST);
 
     if (print_graphviz) {
         if (runner->expressoes_printf != nullptr) {
@@ -590,9 +715,14 @@ void ast::traversal::traversal_Comando_Printf(ast::AST_Node_Comando_Printf* runn
                 << runner->string->substr(1, runner->string->size() - 2)
                 << "\"];" << std::endl;
     }
+
+    if (free_AST) {
+        delete runner->string;
+        delete runner;
+    }
 }
 
-void ast::traversal::traversal_Comando_For(ast::AST_Node_Comando_For* runner, int print_graphviz) {
+void ast::traversal::traversal_Comando_For(ast::AST_Node_Comando_For* runner, int print_graphviz, int free_AST) {
     if (runner == nullptr) return;
 
     if (runner->node_number == -1) {
@@ -615,10 +745,10 @@ void ast::traversal::traversal_Comando_For(ast::AST_Node_Comando_For* runner, in
         runner->lista_comandos->parent = runner;
     }
 
-    ast::traversal::traversal_Inicializacao_For(runner->inicializacao_for, print_graphviz);
-    ast::traversal::traversal_Condicao_Parada(runner->condicao_parada, print_graphviz);
-    ast::traversal::traversal_Ajuste_Valores(runner->ajuste_valores, print_graphviz);
-    ast::traversal::traversal_Lista_Comandos(runner->lista_comandos, print_graphviz);
+    ast::traversal::traversal_Inicializacao_For(runner->inicializacao_for, print_graphviz, free_AST);
+    ast::traversal::traversal_Condicao_Parada(runner->condicao_parada, print_graphviz, free_AST);
+    ast::traversal::traversal_Ajuste_Valores(runner->ajuste_valores, print_graphviz, free_AST);
+    ast::traversal::traversal_Lista_Comandos(runner->lista_comandos, print_graphviz, free_AST);
 
     if (print_graphviz) {
         if (runner->inicializacao_for != nullptr) {
@@ -641,9 +771,13 @@ void ast::traversal::traversal_Comando_For(ast::AST_Node_Comando_For* runner, in
                 << "Comando For"
                 << "\"];" << std::endl;
     }
+
+    if (free_AST) {
+        delete runner;
+    }
 }
 
-void ast::traversal::traversal_Comando_While(ast::AST_Node_Comando_While* runner, int print_graphviz) {
+void ast::traversal::traversal_Comando_While(ast::AST_Node_Comando_While* runner, int print_graphviz, int free_AST) {
     if (runner == nullptr) return;
 
     if (runner->node_number == -1) {
@@ -658,8 +792,8 @@ void ast::traversal::traversal_Comando_While(ast::AST_Node_Comando_While* runner
         runner->lista_comandos->parent = runner;
     }
 
-    ast::traversal::traversal_Condicao_Parada(runner->condicao_parada, print_graphviz);
-    ast::traversal::traversal_Lista_Comandos(runner->lista_comandos, print_graphviz);
+    ast::traversal::traversal_Condicao_Parada(runner->condicao_parada, print_graphviz, free_AST);
+    ast::traversal::traversal_Lista_Comandos(runner->lista_comandos, print_graphviz, free_AST);
 
     if (print_graphviz) {
         if (runner->condicao_parada != nullptr) {
@@ -674,9 +808,13 @@ void ast::traversal::traversal_Comando_While(ast::AST_Node_Comando_While* runner
                 << "Comando While"
                 << "\"];" << std::endl;
     }
+
+    if (free_AST) {
+        delete runner;
+    }
 }
 
-void ast::traversal::traversal_Comando_If(ast::AST_Node_Comando_If* runner, int print_graphviz) {
+void ast::traversal::traversal_Comando_If(ast::AST_Node_Comando_If* runner, int print_graphviz, int free_AST) {
     if (runner == nullptr) return;
 
     if (runner->node_number == -1) {
@@ -695,9 +833,9 @@ void ast::traversal::traversal_Comando_If(ast::AST_Node_Comando_If* runner, int 
         runner->lista_comandos_else->parent = runner;
     }
 
-    ast::traversal::traversal_Condicao_Parada(runner->condicao_parada, print_graphviz);
-    ast::traversal::traversal_Lista_Comandos(runner->lista_comandos_then, print_graphviz);
-    ast::traversal::traversal_Lista_Comandos(runner->lista_comandos_else, print_graphviz);
+    ast::traversal::traversal_Condicao_Parada(runner->condicao_parada, print_graphviz, free_AST);
+    ast::traversal::traversal_Lista_Comandos(runner->lista_comandos_then, print_graphviz, free_AST);
+    ast::traversal::traversal_Lista_Comandos(runner->lista_comandos_else, print_graphviz, free_AST);
 
     if (print_graphviz) {
         if (runner->condicao_parada != nullptr) {
@@ -716,9 +854,13 @@ void ast::traversal::traversal_Comando_If(ast::AST_Node_Comando_If* runner, int 
                 << "Comando If"
                 << "\"];" << std::endl;
     }
+
+    if (free_AST) {
+        delete runner;
+    }
 }
 
-void ast::traversal::traversal_Comando_Do_While(ast::AST_Node_Comando_Do_While* runner, int print_graphviz) {
+void ast::traversal::traversal_Comando_Do_While(ast::AST_Node_Comando_Do_While* runner, int print_graphviz, int free_AST) {
     if (!runner) return;
 
     if (runner->node_number == -1) {
@@ -733,8 +875,8 @@ void ast::traversal::traversal_Comando_Do_While(ast::AST_Node_Comando_Do_While* 
         runner->lista_comandos->parent = runner;
     }
 
-    ast::traversal::traversal_Lista_Comandos(runner->lista_comandos, print_graphviz);
-    ast::traversal::traversal_Condicao_Parada(runner->condicao_parada, print_graphviz);
+    ast::traversal::traversal_Lista_Comandos(runner->lista_comandos, print_graphviz, free_AST);
+    ast::traversal::traversal_Condicao_Parada(runner->condicao_parada, print_graphviz, free_AST);
 
     if (print_graphviz) {
         if (runner->condicao_parada != nullptr) {
@@ -749,9 +891,13 @@ void ast::traversal::traversal_Comando_Do_While(ast::AST_Node_Comando_Do_While* 
                 << "Comando Do While"
                 << "\"];" << std::endl;
     }
+
+    if (free_AST) {
+        delete runner;
+    }
 }
 
-void ast::traversal::traversal_Comando(ast::AST_Node_Comando* runner, int print_graphviz) {
+void ast::traversal::traversal_Comando(ast::AST_Node_Comando* runner, int print_graphviz, int free_AST) {
     if (runner == nullptr) return;
 
     if (runner->node_number == -1) {
@@ -794,15 +940,15 @@ void ast::traversal::traversal_Comando(ast::AST_Node_Comando* runner, int print_
         runner->comando_return->parent = runner;
     }
 
-    ast::traversal::traversal_Expressao(runner->expressao, print_graphviz);
-    ast::traversal::traversal_Comando_Do_While(runner->comando_do_while, print_graphviz);
-    ast::traversal::traversal_Comando_If(runner->comando_if, print_graphviz);
-    ast::traversal::traversal_Comando_While(runner->comando_while, print_graphviz);
-    ast::traversal::traversal_Comando_For(runner->comando_for, print_graphviz);
-    ast::traversal::traversal_Comando_Printf(runner->comando_printf, print_graphviz);
-    ast::traversal::traversal_Comando_Scanf(runner->comando_scanf, print_graphviz);
-    ast::traversal::traversal_Comando_Exit(runner->comando_exit, print_graphviz);
-    ast::traversal::traversal_Comando_Return(runner->comando_return, print_graphviz);
+    ast::traversal::traversal_Expressao(runner->expressao, print_graphviz, free_AST);
+    ast::traversal::traversal_Comando_Do_While(runner->comando_do_while, print_graphviz, free_AST);
+    ast::traversal::traversal_Comando_If(runner->comando_if, print_graphviz, free_AST);
+    ast::traversal::traversal_Comando_While(runner->comando_while, print_graphviz, free_AST);
+    ast::traversal::traversal_Comando_For(runner->comando_for, print_graphviz, free_AST);
+    ast::traversal::traversal_Comando_Printf(runner->comando_printf, print_graphviz, free_AST);
+    ast::traversal::traversal_Comando_Scanf(runner->comando_scanf, print_graphviz, free_AST);
+    ast::traversal::traversal_Comando_Exit(runner->comando_exit, print_graphviz, free_AST);
+    ast::traversal::traversal_Comando_Return(runner->comando_return, print_graphviz, free_AST);
 
     if (print_graphviz) {
         if (runner->expressao != nullptr) {
@@ -845,9 +991,13 @@ void ast::traversal::traversal_Comando(ast::AST_Node_Comando* runner, int print_
                 << "Comando"
                 << "\"];" << std::endl;
     }
+
+    if (free_AST) {
+        delete runner;
+    }
 }
 
-void ast::traversal::traversal_Lista_Comandos_Temporario(ast::AST_Node_Lista_Comandos_Temporario* runner, int print_graphviz) {
+void ast::traversal::traversal_Lista_Comandos_Temporario(ast::AST_Node_Lista_Comandos_Temporario* runner, int print_graphviz, int free_AST) {
     if (runner == nullptr) return;
 
     if (runner->node_number == -1) {
@@ -862,8 +1012,8 @@ void ast::traversal::traversal_Lista_Comandos_Temporario(ast::AST_Node_Lista_Com
         runner->lista_comandos_temporario->parent = runner;
     }
 
-    ast::traversal::traversal_Comando(runner->comando, print_graphviz);
-    ast::traversal::traversal_Lista_Comandos_Temporario(runner->lista_comandos_temporario, print_graphviz);
+    ast::traversal::traversal_Comando(runner->comando, print_graphviz, free_AST);
+    ast::traversal::traversal_Lista_Comandos_Temporario(runner->lista_comandos_temporario, print_graphviz, free_AST);
 
     if (print_graphviz) {
         dotfile << "\t" << runner->node_number << " -> " << runner->comando->node_number << ";" << std::endl;
@@ -876,9 +1026,13 @@ void ast::traversal::traversal_Lista_Comandos_Temporario(ast::AST_Node_Lista_Com
                 << "Lista Comandos Temporario"
                 << "\"];" << std::endl;
     }
+
+    if (free_AST) {
+        delete runner;
+    }
 }
 
-void ast::traversal::traversal_Lista_Comandos(ast::AST_Node_Lista_Comandos* runner, int print_graphviz) {
+void ast::traversal::traversal_Lista_Comandos(ast::AST_Node_Lista_Comandos* runner, int print_graphviz, int free_AST) {
     if (runner == nullptr) return;
 
     if (runner->node_number == -1) {
@@ -893,8 +1047,8 @@ void ast::traversal::traversal_Lista_Comandos(ast::AST_Node_Lista_Comandos* runn
         runner->lista_comandos_temporario->parent = runner;
     }
 
-    ast::traversal::traversal_Comando(runner->comando, print_graphviz);
-    ast::traversal::traversal_Lista_Comandos_Temporario(runner->lista_comandos_temporario, print_graphviz);
+    ast::traversal::traversal_Comando(runner->comando, print_graphviz, free_AST);
+    ast::traversal::traversal_Lista_Comandos_Temporario(runner->lista_comandos_temporario, print_graphviz, free_AST);
 
     if (print_graphviz) {
         dotfile << "\t" << runner->node_number << " -> " << runner->comando->node_number << ";" << std::endl;
@@ -907,9 +1061,13 @@ void ast::traversal::traversal_Lista_Comandos(ast::AST_Node_Lista_Comandos* runn
                 << "Lista Comandos"
                 << "\"];" << std::endl;
     }
+
+    if (free_AST) {
+        delete runner;
+    }
 }
 
-void ast::traversal::traversal_Corpo_Funcao(ast::AST_Node_Corpo_Funcao* runner, int print_graphviz) {
+void ast::traversal::traversal_Corpo_Funcao(ast::AST_Node_Corpo_Funcao* runner, int print_graphviz, int free_AST) {
     if (runner == nullptr) return;
 
     if (runner->node_number == -1) {
@@ -920,7 +1078,7 @@ void ast::traversal::traversal_Corpo_Funcao(ast::AST_Node_Corpo_Funcao* runner, 
         runner->lista_comandos->parent = runner;
     }
 
-    ast::traversal::traversal_Lista_Comandos(runner->lista_comandos, print_graphviz);
+    ast::traversal::traversal_Lista_Comandos(runner->lista_comandos, print_graphviz, free_AST);
 
     if (print_graphviz) {
         if (runner->lista_comandos != nullptr) {
@@ -931,5 +1089,9 @@ void ast::traversal::traversal_Corpo_Funcao(ast::AST_Node_Corpo_Funcao* runner, 
                 << "Corpo Funcao\n"
                 << *(runner->function_name)
                 << "\"];" << std::endl;
+    }
+
+    if (free_AST) {
+        delete runner;
     }
 }

@@ -10,11 +10,13 @@ sintatico: $(L_SOURCE) $(Y_SOURCE)
 	$(LEX) -o lex.yy.cc $(L_SOURCE) 
 	$(YY) -d $(Y_SOURCE) -o sintatico.tab.cc
 	$(CXX) -g *.cc $(CFLAGS) -o $(BIN) 
+	rm -f lex.yy.cc sintatico.tab.cc sintatico.tab.hh
 
 debug: $(L_SOURCE) $(Y_SOURCE)
 	$(LEX) -o lex.yy.cc $(L_SOURCE) 
 	$(YY) -d -v $(Y_SOURCE) -o sintatico.tab.cc
 	$(CXX) -g *.cc $(CFLAGS) -o $(BIN)
+	rm -f lex.yy.cc sintatico.tab.cc sintatico.tab.hh
 
 clean:
 	rm -f $(BIN) lex.yy.c sintatico.tab.* sintatico.output lex.yy.cc *.o

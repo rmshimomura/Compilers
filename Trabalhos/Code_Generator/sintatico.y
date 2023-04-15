@@ -7,6 +7,7 @@
     extern int yydebug;
     int yydebug = 1;
     extern void yyerror(char *s);
+    extern void yylex_destroy(void);
     std::vector<ast::AST_Constant*> constantes;
     std::vector<ast::AST_Variable*> variaveis_globais;
     std::vector<ast::AST_Function*> funcoes;
@@ -178,35 +179,43 @@ Declara_Variavel_Global : GLOBAL VARIABLE COLON IDENTIFIER TYPE COLON Tipo_Varia
 
 Tipo_Variavel: INT Tamanho_Variavel NEWLINE {
 
-    $$ = new std::string("int" + *$2);
+    $$ = new std::string("int" + ($2 != nullptr ? *$2 : ""));
+    delete $2;
 
 };
 | CHAR Tamanho_Variavel NEWLINE {
 
-    $$ = new std::string("char" + *$2);
+    $$ = new std::string("char" + ($2 != nullptr ? *$2 : ""));
+    delete $2;
 
 };
 | VOID Tamanho_Variavel NEWLINE {
-    $$ = new std::string("void" + *$2);
+    $$ = new std::string("void" + ($2 != nullptr ? *$2 : ""));
+    delete $2;
 };
 
 Tamanho_Variavel: L_SQUARE_BRACKET NUM_INTEGER R_SQUARE_BRACKET Loop_Colchetes {
-    $$ = new std::string("[" + std::to_string($2) + "]" + *$4);
+    $$ = new std::string("[" + std::to_string($2) + "]" + 
+    ($4 != nullptr ? *$4 : ""));
+    delete $4;
 };
 | MULTIPLY Loop_Ponteiros_Temporario {
-    $$ = new std::string("*" + *$2);
+    $$ = new std::string("*" + ($2 != nullptr ? *$2 : ""));
+    delete $2;
 };
-| { $$ = new std::string(""); };
+| {$$ = nullptr;};
 
 Loop_Colchetes : L_SQUARE_BRACKET NUM_INTEGER R_SQUARE_BRACKET Loop_Colchetes {
-    $$ = new std::string("[" + std::to_string($2) + "]" + *$4);
+    $$ = new std::string("[" + std::to_string($2) + "]" + ($4 != nullptr ? *$4 : ""));
+    delete $4;
 };
-| {$$ = new std::string(""); };
+| {$$ = nullptr;};
 
 Loop_Ponteiros_Temporario: MULTIPLY Loop_Ponteiros_Temporario {
-    $$ = new std::string("*" + *$2);
+    $$ = new std::string("*" + ($2 != nullptr ? *$2 : ""));
+    delete $2;
 };
-| {$$ = new std::string(""); };
+| {$$ = nullptr;};
 
 Declara_Funcao : FUNCTION COLON IDENTIFIER Consumir_Novas_Linhas RETURN_TYPE COLON Tipo_Variavel Consumir_Novas_Linhas Parametros_De_Funcao Declarar_Variaveis_Locais Corpo_Funcao Consumir_Novas_Linhas END_FUNCTION {
     funcoes.push_back(new ast::AST_Function($3, $7));
@@ -432,9 +441,12 @@ TOP: TERNARY_CONDITIONAL L_PAREN Expressao COMMA Expressao COMMA Expressao R_PAR
 
 int main(int argc, char **argv) {
     
-    yyparse();
-    ast::traversal::print_ASTs(funcoes);
+    int print_ASTs = 0;
 
-    /* ast::traversal::free_ASTs(funcoes); */
+    yyparse();
+    if(print_ASTs) ast::traversal::print_ASTs(funcoes);
+    ast::traversal::free_ASTs(funcoes, constantes, variaveis_globais);
+    yylex_destroy();
+    if(!print_ASTs) std::remove("test.dot");
 
 }
