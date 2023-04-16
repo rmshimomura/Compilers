@@ -152,14 +152,15 @@ class AST_Variable;
 class AST_Constant;
 class AST_Parameter;
 class AST_Function;
+class AST_Node_Strings;
 
 class AST_Node {
    public:
-    void* node_content;
     Node_Type node_type;
+    void* node_content;
     int node_name;
-    AST_Node* parent;
     int node_number;
+    AST_Node* parent;
 
     AST_Node() {
     }
@@ -265,6 +266,8 @@ class AST_Node_Expressao : public AST_Node {
 
     int using_int;
 
+    int strings_added;
+
     AST_Node_Acesso_Variavel* acesso_variavel;
 
     AST_Node_Expressao(AST_Node_BOP* bop) {
@@ -310,6 +313,7 @@ class AST_Node_Expressao : public AST_Node {
 
    private:
     void init() {
+        this->strings_added = 0;
         this->node_number = -1;
         this->parent = nullptr;
         this->node_type = Node_Type::Non_Terminal;
@@ -631,6 +635,9 @@ class AST_Node_Comando_Exit : public AST_Node {
 
 class AST_Node_Comando_Scanf : public AST_Node {
    public:
+
+    int strings_added;
+
     // First rule
     std::string* string;
     AST_Node_Endereco_Var* endereco_var;
@@ -643,6 +650,7 @@ class AST_Node_Comando_Scanf : public AST_Node {
 
    private:
     void init() {
+        this->strings_added = 0;
         this->node_number = -1;
         this->parent = nullptr;
         this->node_type = Node_Type::Non_Terminal;
@@ -655,6 +663,9 @@ class AST_Node_Comando_Scanf : public AST_Node {
 
 class AST_Node_Comando_Printf : public AST_Node {
    public:
+
+    int strings_added;
+
     // First rule
     AST_Node_Expressoes_Printf* expressoes_printf;
 
@@ -674,6 +685,7 @@ class AST_Node_Comando_Printf : public AST_Node {
 
    private:
     void init() {
+        this->strings_added = 0;
         this->node_number = -1;
         this->parent = nullptr;
         this->node_type = Node_Type::Non_Terminal;
@@ -1026,12 +1038,24 @@ class AST_Function {
     }
 };
 
+class AST_Node_Strings {
+    public:
+     std::vector<std::string> strings;
+     int node_number;
+
+    AST_Node_Strings(std::vector<std::string> strings, int node_number) {
+        this->strings = strings;
+        this->node_number = node_number;
+    }
+
+};
+
 namespace traversal {
     
     void general_AST_available_functions(ast::AST_Function* function);
     void traversal_AST(ast::AST_Function* function, int print_graphviz, int free_AST);
     void print_ASTs(std::vector<ast::AST_Function*> funcoes);
-    void free_ASTs(std::vector<ast::AST_Function*> funcoes, std::vector<ast::AST_Constant*> constantes, std::vector<ast::AST_Variable*> variaveis_globais);
+    void free_ASTs(std::vector<ast::AST_Function*> funcoes, std::vector<ast::AST_Constant*> constantes, std::vector<ast::AST_Variable*> variaveis_globais, std::vector<ast::AST_Node_Strings*> node_strings);
 
     void traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz, int free_AST);
     void traversal_UOP(ast::AST_Node_UOP* runner, int print_graphviz, int free_AST);
@@ -1069,5 +1093,9 @@ namespace mips {
     void print_consts_and_global_vars(std::vector<ast::AST_Constant*> consts, std::vector<ast::AST_Variable*> global_vars);
     int calculate_bytes_multipler(std::string type);
 };
+
+namespace helpers {
+    void split_format_string(std::string str, int node_number);
+}
 
 #endif  // AST_H
