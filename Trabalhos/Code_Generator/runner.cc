@@ -3,6 +3,9 @@
 std::ofstream dotfile("test.dot");
 int node_counter = 0;
 extern std::vector<ast::AST_Node_Strings*> node_strings;
+extern std::vector<ast::AST_Function*> funcoes;
+std::string current_function_name;
+bool used_registers[10] = {0};
 
 void ast::traversal::general_AST_available_functions(ast::AST_Function* function) {
     std::cout << "Function name: " << *function->function_name << std::endl;
@@ -80,6 +83,8 @@ void ast::traversal::traversal_AST(ast::AST_Function* function, int print_graphv
     }
 
     function->function_body->function_name = function->function_name;
+
+    current_function_name = *function->function_name;
 
     ast::traversal::traversal_Corpo_Funcao(function->function_body, print_graphviz, free_AST);
 
@@ -277,6 +282,7 @@ void ast::traversal::traversal_Expressao(ast::AST_Node_Expressao* runner, int pr
 
         if(runner->string != nullptr) delete runner->string;
         delete runner;
+
     }
 
 }
@@ -1127,11 +1133,6 @@ void ast::traversal::traversal_Corpo_Funcao(ast::AST_Node_Corpo_Funcao* runner, 
 namespace helpers {
 
     void split_format_string(std::string str, int node_number) {
-
-        // Remove quotes from the string
-        if(str[0] == '\"' && str[str.length() - 1] == '\"') {
-            str = str.substr(1, str.length() - 2);
-        }
         
         std::vector<std::string> tokens;
 
