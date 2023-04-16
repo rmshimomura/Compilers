@@ -48,8 +48,7 @@ namespace mips {
             for (int i = 0; i < s->strings.size(); i++) {
 
                 if(s->strings[i][0] != '%') { // If it's not a format string
-                    std::cout << "\tstring_" << s->node_number << "_" <<  i << ": .asciiz " << s->strings[i] << std::endl;
-                    continue;
+                    std::cout << "\tstring_" << s->node_number << "_" <<  i << ": .asciiz \"" << s->strings[i] << "\"" << std::endl;
                 }
             }
         }
