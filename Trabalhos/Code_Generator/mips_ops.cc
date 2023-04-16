@@ -2,13 +2,14 @@
 
 namespace mips {
 
-    void print_consts_and_global_vars(std::vector<ast::AST_Constant*> consts, std::vector<ast::AST_Variable*> global_vars) {
+    void print_data_segment(std::vector<ast::AST_Constant*> consts, std::vector<ast::AST_Variable*> global_vars, std::vector<ast::AST_Node_Strings*> node_strings) {
         
         std::cout << ".data" << std::endl;
 
         for (auto c : consts) {
             std::cout << "\t" << *(c->name) << ": .word " << c->value << std::endl;
         }
+
         for (auto v : global_vars) {
 
             std::string type = *(v->type);
@@ -41,6 +42,18 @@ namespace mips {
             }
 
         }
+
+        for (auto s : node_strings) {
+
+            for (int i = 0; i < s->strings.size(); i++) {
+
+                if(s->strings[i][0] != '%') { // If it's not a format string
+                    std::cout << "\tstring_" << s->node_number << "_" <<  i << ": .asciiz " << s->strings[i] << std::endl;
+                    continue;
+                }
+            }
+        }
+
     }
 
     int calculate_bytes_multipler(std::string type) {
@@ -115,6 +128,30 @@ namespace mips {
 
         void print_label(std::string label) {
             std::cout << label << ":" << std::endl;
+        }
+
+        void save_s_registers_on_stack() {
+            std::cout << "\tsw $s0, 0($sp)" << std::endl;
+            std::cout << "\tsw $s1, 4($sp)" << std::endl;
+            std::cout << "\tsw $s2, 8($sp)" << std::endl;
+            std::cout << "\tsw $s3, 12($sp)" << std::endl;
+            std::cout << "\tsw $s4, 16($sp)" << std::endl;
+            std::cout << "\tsw $s5, 20($sp)" << std::endl;
+            std::cout << "\tsw $s6, 24($sp)" << std::endl;
+            std::cout << "\tsw $s7, 28($sp)" << std::endl;
+            std::cout << "\taddiu $sp, $sp, -32" << std::endl;
+        }
+
+        void restore_s_registers_on_stack() {
+            std::cout << "\taddiu $sp, $sp, 32" << std::endl;
+            std::cout << "\tlw $s0, 0($sp)" << std::endl;
+            std::cout << "\tlw $s1, 4($sp)" << std::endl;
+            std::cout << "\tlw $s2, 8($sp)" << std::endl;
+            std::cout << "\tlw $s3, 12($sp)" << std::endl;
+            std::cout << "\tlw $s4, 16($sp)" << std::endl;
+            std::cout << "\tlw $s5, 20($sp)" << std::endl;
+            std::cout << "\tlw $s6, 24($sp)" << std::endl;
+            std::cout << "\tlw $s7, 28($sp)" << std::endl;
         }
 
     };

@@ -442,22 +442,22 @@ TOP: TERNARY_CONDITIONAL L_PAREN Expressao COMMA Expressao COMMA Expressao R_PAR
 
 int main(int argc, char **argv) {
     
-    int print_ASTs = 1;
+    int print_ASTs = 0;
 
     yyparse();
     if(print_ASTs) ast::traversal::print_ASTs(funcoes);
-    /* mips::print_consts_and_global_vars(constantes, variaveis_globais); */
+    mips::print_data_segment(constantes, variaveis_globais, node_strings);
 
     for (auto function : funcoes) {
         ast::traversal::traversal_AST(function, 0, 0);
     }
 
-    for (auto node : node_strings) {
+    /* for (auto node : node_strings) {
         for (auto str : node->strings) {
             std::cout << str << std::endl;
         }
         std::cout << node->node_number << std::endl;
-    }
+    } */
 
     ast::traversal::free_ASTs(funcoes, constantes, variaveis_globais, node_strings);
     yylex_destroy();

@@ -1090,7 +1090,7 @@ namespace traversal {
 };
 
 namespace mips {
-    void print_consts_and_global_vars(std::vector<ast::AST_Constant*> consts, std::vector<ast::AST_Variable*> global_vars);
+    void print_data_segment(std::vector<ast::AST_Constant*> consts, std::vector<ast::AST_Variable*> global_vars, std::vector<ast::AST_Node_Strings*> node_strings);
     int calculate_bytes_multipler(std::string type);
 };
 

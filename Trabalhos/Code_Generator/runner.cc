@@ -1137,44 +1137,32 @@ namespace helpers {
 
         std::string part = "";
 
-        // Split the string into tokens using space as a delimiter
         for(int i = 0; i < str.length(); i++) {
-            if(str[i] == ' ') {
-                if(part != "") {
+            if(str[i] == '%') {
+                if(part == "") {
+                    part += str[i];
+                    part += str[i + 1];
                     tokens.push_back(part);
                     part = "";
+                    i++;
+                } else {
+                    tokens.push_back(part);
+                    part = "";
+                    part += str[i];
+                    part += str[i + 1];
+                    tokens.push_back(part);
+                    part = "";
+                    i++;
                 }
             } else {
                 part += str[i];
             }
-
         }
 
         if(part != "") {
             tokens.push_back(part);
         }
 
-        std::vector<std::string> final_tokens;
-
-        // Join tokens that are not directives
-        for(int i = 0; i < tokens.size(); i++) {
-
-            if(tokens[i][0] != '%') {
-                int j = i + 1;
-
-                while(j < tokens.size() && tokens[j][0] != '%') {
-                    tokens[i] += " " + tokens[j];
-                    j++;
-                }
-
-                final_tokens.push_back(tokens[i]);
-                i = j - 1;
-
-            } else {
-                final_tokens.push_back(tokens[i]);
-            }
-
-        }
 
         /*
         
@@ -1183,7 +1171,7 @@ namespace helpers {
 
         */
         
-        ast::AST_Node_Strings* node = new ast::AST_Node_Strings(final_tokens, node_number);
+        ast::AST_Node_Strings* node = new ast::AST_Node_Strings(tokens, node_number);
         node_strings.push_back(node);
         
 
