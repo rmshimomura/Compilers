@@ -2,6 +2,7 @@
 
 std::ofstream dotfile("test.dot");
 int node_counter = 0;
+extern std::vector<ast::AST_Node_Strings*> node_strings;
 
 void ast::traversal::general_AST_available_functions(ast::AST_Function* function) {
     std::cout << "Function name: " << *function->function_name << std::endl;
@@ -17,7 +18,7 @@ void ast::traversal::general_AST_available_functions(ast::AST_Function* function
     std::cout << std::endl;
 }
 
-void ast::traversal::free_ASTs(std::vector<ast::AST_Function*> funcoes, std::vector<ast::AST_Constant*> constantes, std::vector<ast::AST_Variable*> variaveis_globais) {
+void ast::traversal::free_ASTs(std::vector<ast::AST_Function*> funcoes, std::vector<ast::AST_Constant*> constantes, std::vector<ast::AST_Variable*> variaveis_globais, std::vector<ast::AST_Node_Strings*> node_strings) {
 
     for (auto function : funcoes) {
         ast::traversal::traversal_AST(function, 0, 1);
@@ -53,6 +54,10 @@ void ast::traversal::free_ASTs(std::vector<ast::AST_Function*> funcoes, std::vec
         delete variable;
     }
 
+    for (auto node_string : node_strings) {
+        delete node_string;
+    }
+
 
 }
 
@@ -79,7 +84,6 @@ void ast::traversal::traversal_AST(ast::AST_Function* function, int print_graphv
     ast::traversal::traversal_Corpo_Funcao(function->function_body, print_graphviz, free_AST);
 
 }
-
 void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz, int free_AST) {
     if (runner == nullptr) return;
 
@@ -264,7 +268,14 @@ void ast::traversal::traversal_Expressao(ast::AST_Node_Expressao* runner, int pr
                 << "\"];" << std::endl;
     }
 
+    if (runner->string != nullptr && !runner->strings_added) {
+        helpers::split_format_string(*(runner->string), runner->node_number);
+        runner->strings_added = true;
+    }
+
     if (free_AST) {
+
+        if(runner->string != nullptr) delete runner->string;
         delete runner;
     }
 
@@ -687,9 +698,14 @@ void ast::traversal::traversal_Comando_Scanf(ast::AST_Node_Comando_Scanf* runner
         }
 
         dotfile << "\t" << runner->node_number << " [shape = box, label = \""
-                << "Comando Scanf"
+                << "Comando Scanf : "
                 << runner->string->substr(1, runner->string->size() - 2)
                 << "\"];" << std::endl;
+    }
+
+    if (!runner->strings_added) {
+        helpers::split_format_string(runner->string->substr(1, runner->string->size() - 2), runner->node_number);
+        runner->strings_added = true;
     }
 
     if (free_AST) {
@@ -720,6 +736,12 @@ void ast::traversal::traversal_Comando_Printf(ast::AST_Node_Comando_Printf* runn
                 << "Comando Printf \n"
                 << runner->string->substr(1, runner->string->size() - 2)
                 << "\"];" << std::endl;
+    }
+
+    if(!runner->strings_added) {
+
+        helpers::split_format_string(runner->string->substr(1, runner->string->size() - 2), runner->node_number);
+        runner->strings_added = true;
     }
 
     if (free_AST) {
@@ -1101,3 +1123,70 @@ void ast::traversal::traversal_Corpo_Funcao(ast::AST_Node_Corpo_Funcao* runner, 
         delete runner;
     }
 }
+
+namespace helpers {
+
+    void split_format_string(std::string str, int node_number) {
+
+        // Remove quotes from the string
+        if(str[0] == '\"' && str[str.length() - 1] == '\"') {
+            str = str.substr(1, str.length() - 2);
+        }
+        
+        std::vector<std::string> tokens;
+
+        std::string part = "";
+
+        // Split the string into tokens using space as a delimiter
+        for(int i = 0; i < str.length(); i++) {
+            if(str[i] == ' ') {
+                if(part != "") {
+                    tokens.push_back(part);
+                    part = "";
+                }
+            } else {
+                part += str[i];
+            }
+
+        }
+
+        if(part != "") {
+            tokens.push_back(part);
+        }
+
+        std::vector<std::string> final_tokens;
+
+        // Join tokens that are not directives
+        for(int i = 0; i < tokens.size(); i++) {
+
+            if(tokens[i][0] != '%') {
+                int j = i + 1;
+
+                while(j < tokens.size() && tokens[j][0] != '%') {
+                    tokens[i] += " " + tokens[j];
+                    j++;
+                }
+
+                final_tokens.push_back(tokens[i]);
+                i = j - 1;
+
+            } else {
+                final_tokens.push_back(tokens[i]);
+            }
+
+        }
+
+        /*
+        
+            Not considering the case where the string is the type: %d%d%d%d%d
+            Only considering the case where the string is the type: %d %d %d %d %d with mixed text also
+
+        */
+        
+        ast::AST_Node_Strings* node = new ast::AST_Node_Strings(final_tokens, node_number);
+        node_strings.push_back(node);
+        
+
+    }
+
+};

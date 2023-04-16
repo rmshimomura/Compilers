@@ -11,6 +11,7 @@
     std::vector<ast::AST_Constant*> constantes;
     std::vector<ast::AST_Variable*> variaveis_globais;
     std::vector<ast::AST_Function*> funcoes;
+    std::vector<ast::AST_Node_Strings*> node_strings;
 
     std::vector<ast::AST_Variable*> variaveis_locais_temp;
     std::vector<ast::AST_Parameter*> parametros_temp;
@@ -441,12 +442,24 @@ TOP: TERNARY_CONDITIONAL L_PAREN Expressao COMMA Expressao COMMA Expressao R_PAR
 
 int main(int argc, char **argv) {
     
-    int print_ASTs = 0;
+    int print_ASTs = 1;
 
     yyparse();
     if(print_ASTs) ast::traversal::print_ASTs(funcoes);
-    MIPS_OPS::print_consts_and_global_vars(constantes, variaveis_globais);
-    ast::traversal::free_ASTs(funcoes, constantes, variaveis_globais);
+    /* mips::print_consts_and_global_vars(constantes, variaveis_globais); */
+
+    for (auto function : funcoes) {
+        ast::traversal::traversal_AST(function, 0, 0);
+    }
+
+    for (auto node : node_strings) {
+        for (auto str : node->strings) {
+            std::cout << str << std::endl;
+        }
+        std::cout << node->node_number << std::endl;
+    }
+
+    ast::traversal::free_ASTs(funcoes, constantes, variaveis_globais, node_strings);
     yylex_destroy();
     if(!print_ASTs) std::remove("test.dot");
 
