@@ -265,6 +265,8 @@ class AST_Node_Expressao : public AST_Node {
     std::string* string;
 
     int using_int;
+    int using_char;
+    int using_string;
 
     int strings_added;
 
@@ -299,11 +301,13 @@ class AST_Node_Expressao : public AST_Node {
     AST_Node_Expressao(char character) {
         init();
         this->character = character;
+        this->using_char = 1;
     }
 
     AST_Node_Expressao(std::string* string) {
         init();
         this->string = string;
+        this->using_string = 1;
     }
 
     AST_Node_Expressao(AST_Node_Acesso_Variavel* acesso_variavel) {
@@ -328,6 +332,8 @@ class AST_Node_Expressao : public AST_Node {
         this->string = nullptr;
         this->acesso_variavel = nullptr;
         this->using_int = 0;
+        this->using_char = 0;
+        this->using_string = 0;
     }
 };
 
