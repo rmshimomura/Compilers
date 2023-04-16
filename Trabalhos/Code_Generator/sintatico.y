@@ -445,6 +445,7 @@ int main(int argc, char **argv) {
 
     yyparse();
     if(print_ASTs) ast::traversal::print_ASTs(funcoes);
+    MIPS_OPS::print_consts_and_global_vars(constantes, variaveis_globais);
     ast::traversal::free_ASTs(funcoes, constantes, variaveis_globais);
     yylex_destroy();
     if(!print_ASTs) std::remove("test.dot");

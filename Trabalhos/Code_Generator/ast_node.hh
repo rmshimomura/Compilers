@@ -1065,4 +1065,9 @@ namespace traversal {
 
 };
 
+namespace mips {
+    void print_consts_and_global_vars(std::vector<ast::AST_Constant*> consts, std::vector<ast::AST_Variable*> global_vars);
+    int calculate_bytes_multipler(std::string type);
+};
+
 #endif  // AST_H

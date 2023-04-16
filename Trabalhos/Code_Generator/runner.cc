@@ -133,7 +133,13 @@ void ast::traversal::traversal_UOP(ast::AST_Node_UOP* runner, int print_graphviz
             dotfile << "\t" << runner->node_number << " -> " << runner->child->node_number << ";" << std::endl;
         }
 
-        dotfile << "\t" << runner->node_number << " [shape = box, label = \"" << runner->operation << "\"];" << std::endl;
+        dotfile << 
+        "\t" << 
+        runner->node_number << 
+        " [shape = box, label = \"" 
+        << runner->operation 
+        << (runner->is_postfix ? "postfix" : "prefix")
+        << "\"];" << std::endl;
     }
 
     if (free_AST) {
