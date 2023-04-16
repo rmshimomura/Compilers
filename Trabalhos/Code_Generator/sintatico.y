@@ -445,19 +445,14 @@ int main(int argc, char **argv) {
     int print_ASTs = 0;
 
     yyparse();
-    if(print_ASTs) ast::traversal::print_ASTs(funcoes);
-    mips::print_data_segment(constantes, variaveis_globais, node_strings);
-
-    for (auto function : funcoes) {
-        ast::traversal::traversal_AST(function, 0, 0);
-    }
-
-    /* for (auto node : node_strings) {
-        for (auto str : node->strings) {
-            std::cout << str << std::endl;
+    if(print_ASTs) {
+        ast::traversal::print_ASTs(funcoes);
+    } else {
+        for (auto function : funcoes) {
+            ast::traversal::traversal_AST(function, 0, 0);
         }
-        std::cout << node->node_number << std::endl;
-    } */
+    }
+    mips::print_data_segment(constantes, variaveis_globais, node_strings);
 
     ast::traversal::free_ASTs(funcoes, constantes, variaveis_globais, node_strings);
     yylex_destroy();
