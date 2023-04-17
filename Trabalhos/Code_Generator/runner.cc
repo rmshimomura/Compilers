@@ -3,14 +3,48 @@
 std::ofstream dotfile("test.dot");
 int node_counter = 0;
 
-extern std::vector<ast::AST_Function*> funcoes;
-std::string current_function_name;
-bool used_registers[10] = {0};
+extern std::vector<ast::AST_Constant*> constantes;
+extern std::vector<ast::AST_Variable*> variaveis_globais;
+ast::AST_Function* current_function;
+bool used_registers[32] = {0};
+
+enum registers {
+    $ZERO,
+    $AT,
+    $V0,
+    $V1,
+    $A0,
+    $A1,
+    $A2,
+    $A3,
+    $T0,
+    $T1,
+    $T2,
+    $T3,
+    $T4,
+    $T5,
+    $T6,
+    $T7,
+    $S0,
+    $S1,
+    $S2,
+    $S3,
+    $S4,
+    $S5,
+    $S6,
+    $S7,
+    $T8,
+    $T9,
+    $K0,
+    $K1,
+    $GP,
+    $SP,
+    $FP,
+    $RA
+};
 
 void ast::sort_functions(std::vector<ast::AST_Function*> funcoes) {
-    // Reverse funcoes
     std::reverse(funcoes.begin(), funcoes.end());
-    std::cout << *(funcoes[0]->function_name) << std::endl;
 }
 
 void ast::traversal::general_AST_available_functions(ast::AST_Function* function) {
@@ -90,9 +124,20 @@ void ast::traversal::traversal_AST(ast::AST_Function* function, int print_graphv
 
     function->function_body->function_name = function->function_name;
 
-    current_function_name = *function->function_name;
+    current_function = function;
+
+    if (produce_MIPS) {
+
+        if (*function->function_name == "main") {
+            std::cout << ".text" << std::endl;
+        }
+
+        std::cout << *function->function_name << ":" << std::endl;
+    }
 
     ast::traversal::traversal_Corpo_Funcao(function->function_body, print_graphviz, free_AST, produce_MIPS);
+
+    if(produce_MIPS) mips::ops::exit();
 
 }
 
@@ -114,57 +159,76 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
     ast::traversal::traversal_Expressao(runner->left, print_graphviz, free_AST, produce_MIPS);
     ast::traversal::traversal_Expressao(runner->right, print_graphviz, free_AST, produce_MIPS);
 
+    // TODO COLOCAR VERIFICADOR DA ONDE A VARIAVEL É
+    // SE FOR a[i], tem que dar save word.......
+
     if (produce_MIPS) {
         int reg1 = runner->left->mapped_to_register;
         int reg2 = runner->right->mapped_to_register;
 
         if (reg1 == -1 || reg2 == -1) {
+            std::cout << runner->node_number << std::endl;
             std::cout << "Error: Trying to perform a BOP with two values that are not mapped to registers." << std::endl;
             exit(1);
         }
 
+        int variable_type_1 = helpers::return_register_type(reg1);
+        int variable_type_2 = helpers::return_register_type(reg2);
+
+        int reg_to_store = -1;
+
+        if (variable_type_1 == helpers::T) {
+            reg_to_store = reg1;
+        } else if (variable_type_2 == helpers::T) {
+            reg_to_store = reg2;
+        } 
+
+        if (reg_to_store == -1) { // None of the registers are temporaries
+            reg_to_store = helpers::return_first_unused_register();
+        }
+
         if (runner->operation == "PLUS") {
 
-            std::cout << "\tadd $t" << reg1 << ", $t" << reg1 << ", $t" << reg2 << std::endl;
+            std::cout << "\tadd $" << reg_to_store << ", $" << reg1 << ", $" << reg2 << std::endl;
 
         } else if (runner->operation == "MINUS") {
 
-            std::cout << "\tsub $t" << reg1 << ", $t" << reg1 << ", $t" << reg2 << std::endl;
+            std::cout << "\tsub $" << reg_to_store << ", $" << reg1 << ", $" << reg2 << std::endl;
 
         } else if (runner->operation == "MULTIPLY") {
 
-            std::cout << "\tmul $t" << reg1 << ", $t" << reg1 << ", $t" << reg2 << std::endl;
+            std::cout << "\tmul $" << reg_to_store << ", $" << reg1 << ", $" << reg2 << std::endl;
 
         } else if (runner->operation == "DIV") {
 
-            std::cout << "\tdiv $t" << reg1 << ", $t" << reg1 << ", $t" << reg2 << std::endl;
-            std::cout << "\tmflo $t" << reg1 << std::endl;
+            std::cout << "\tdiv $" << reg_to_store << ", $" << reg1 << ", $" << reg2 << std::endl;
+            std::cout << "\tmflo $" << reg_to_store << std::endl;
             
         } else if (runner->operation == "REMAINDER") {
 
-            std::cout << "\tdiv $t" << reg1 << ", $t" << reg1 << ", $t" << reg2 << std::endl;
-            std::cout << "\tmfhi $t" << reg1 << std::endl;
+            std::cout << "\tdiv $" << reg_to_store << ", $" << reg1 << ", $" << reg2 << std::endl;
+            std::cout << "\tmfhi $" << reg_to_store << std::endl;
             
         } else if (runner->operation == "BITWISE_AND") {
 
-            std::cout << "\tand $t" << reg1 << ", $t" << reg1 << ", $t" << reg2 << std::endl;
+            std::cout << "\tand $" << reg_to_store << ", $" << reg1 << ", $" << reg2 << std::endl;
             
         } else if (runner->operation == "BITWISE_OR") {
 
-            std::cout << "\tor $t" << reg1 << ", $t" << reg1 << ", $t" << reg2 << std::endl;
+            std::cout << "\tor $" << reg_to_store << ", $" << reg1 << ", $" << reg2 << std::endl;
             
         } else if (runner->operation == "BITWISE_XOR") {
 
-            std::cout << "\txor $t" << reg1 << ", $t" << reg1 << ", $t" << reg2 << std::endl;
+            std::cout << "\txor $" << reg_to_store << ", $" << reg1 << ", $" << reg2 << std::endl;
             
         } else if (runner->operation == "LOGICAL_AND") {
 
             int first_temp = helpers::return_first_unused_register();
             int second_temp = helpers::return_first_unused_register();
 
-            std::cout << "\tsltu $t" << first_temp << ", $zero" << ", $t" << reg1 << std::endl;
-            std::cout << "\tsltu $t" << second_temp << ", $zero" << ", $t" << reg2 << std::endl;
-            std::cout << "\tand $t" << reg1 << ", $t" << first_temp << ", $t" << second_temp << std::endl;
+            std::cout << "\tsltu $" << first_temp << ", $zero" << ", $" << reg1 << std::endl;
+            std::cout << "\tsltu $" << second_temp << ", $zero" << ", $" << reg2 << std::endl;
+            std::cout << "\tand $" << reg_to_store << ", $" << first_temp << ", $" << second_temp << std::endl;
             used_registers[first_temp] = 0;
             used_registers[second_temp] = 0;
             
@@ -173,71 +237,69 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
             int first_temp = helpers::return_first_unused_register();
             int second_temp = helpers::return_first_unused_register();
 
-            std::cout << "\tsltu $t" << first_temp << ", $zero" << ", $t" << reg1 << std::endl;
-            std::cout << "\tsltu $t" << second_temp << ", $zero" << ", $t" << reg2 << std::endl;
-            std::cout << "\tor $t" << reg1 << ", $t" << first_temp << ", $t" << second_temp << std::endl;
+            std::cout << "\tsltu $" << first_temp << ", $zero" << ", $" << reg1 << std::endl;
+            std::cout << "\tsltu $" << second_temp << ", $zero" << ", $" << reg2 << std::endl;
+            std::cout << "\tor $" << reg_to_store << ", $" << first_temp << ", $" << second_temp << std::endl;
             used_registers[first_temp] = 0;
             used_registers[second_temp] = 0;
             
         } else if (runner->operation == "EQUAL") {
 
-            std::cout << "\tsubu $t" << reg1 << ", $t" << reg1 << ", $t" << reg2 << std::endl;
-            std::cout << "\tsltiu $t" << reg1 << ", $t" << reg1 << ", 1" << std::endl;
+            std::cout << "\tsubu $" << reg_to_store << ", $" << reg1 << ", $" << reg2 << std::endl;
+            std::cout << "\tsltiu $" << reg_to_store << ", $" << reg_to_store << ", 1" << std::endl;
             
         } else if (runner->operation == "NOT_EQUAL") {
 
-            std::cout << "\tsubu $t" << reg1 << ", $t" << reg1 << ", $t" << reg2 << std::endl;
-            std::cout << "\tsltu $t" << reg1 << ", $zero" << ", $t" << reg1 << std::endl;
+            std::cout << "\tsubu $" << reg_to_store << ", $" << reg1 << ", $" << reg2 << std::endl;
+            std::cout << "\tsltu $" << reg_to_store << ", $zero" << ", $" << reg1 << std::endl;
             
         } else if (runner->operation == "LESS_THAN") {
 
-            std::cout << "\tslt $t" << reg1 << ", $t" << reg1 << ", $t" << reg2 << std::endl;
+            std::cout << "\tslt $" << reg_to_store << ", $" << reg1 << ", $" << reg2 << std::endl;
             
         } else if (runner->operation == "GREATER_THAN") {
 
-            std::cout << "\tslt $t" << reg1 << ", $t" << reg2 << ", $t" << reg1 << std::endl;
+            std::cout << "\tslt $" << reg_to_store << ", $" << reg2 << ", $" << reg1 << std::endl;
             
         } else if (runner->operation == "LESS_EQUAL") {
 
-            std::cout << "\tslt $t" << reg1 << ", $t" << reg2 << ", $t" << reg1 << std::endl;
-            std::cout << "\tori $t" << reg2 << ", $zero" << ", 1" << std::endl;
-            std::cout << "\tsubu $t" << reg1 << ", $t" << reg2 << ", $t" << reg1 << std::endl;
+            std::cout << "\tslt $" << reg_to_store << ", $" << reg2 << ", $" << reg1 << std::endl;
+            std::cout << "\tori $" << reg2 << ", $zero" << ", 1" << std::endl;
+            std::cout << "\tsubu $" << reg_to_store << ", $" << reg2 << ", $" << reg1 << std::endl;
             
         } else if (runner->operation == "GREATER_EQUAL") {
 
-            std::cout << "\tslt $t" << reg1 << ", $t" << reg1 << ", $t" << reg2 << std::endl;
-            std::cout << "\tori $t" << reg2 << ", $zero" << ", 1" << std::endl;
-            std::cout << "\tsubu $t" << reg1 << ", $t" << reg2 << ", $t" << reg1 << std::endl;
+            std::cout << "\tslt $" << reg_to_store << ", $" << reg1 << ", $" << reg2 << std::endl;
+            std::cout << "\tori $" << reg2 << ", $zero" << ", 1" << std::endl;
+            std::cout << "\tsubu $" << reg_to_store << ", $" << reg2 << ", $" << reg1 << std::endl;
             
         } else if (runner->operation == "R_SHIFT") {
 
-            std::cout << "\tsrl $t" << reg1 << ", $t" << reg1 << ", $t" << reg2 << std::endl;
+            std::cout << "\tsrl $" << reg_to_store << ", $" << reg1 << ", $" << reg2 << std::endl;
             
         } else if (runner->operation == "L_SHIFT") {
 
-            std::cout << "\tsll $t" << reg1 << ", $t" << reg1 << ", $t" << reg2 << std::endl;
+            std::cout << "\tsll $" << reg_to_store << ", $" << reg1 << ", $" << reg2 << std::endl;
             
         } else if (runner->operation == "ASSIGN") {
 
-            std::cout << "\tmove $t" << reg1 << ", $t" << reg2 << std::endl;
+            std::cout << "\tmove $" << reg_to_store << ", $" << reg2 << std::endl;
             
         } else if (runner->operation == "ADD_ASSIGN") {
 
-            std::cout << "\tadd $t" << reg1 << ", $t" << reg1 << ", $t" << reg2 << std::endl;
+            std::cout << "\tadd $" << reg_to_store << ", $" << reg1 << ", $" << reg2 << std::endl;
             
         } else if (runner->operation == "MINUS_ASSIGN") {
 
-            std::cout << "\tsub $t" << reg1 << ", $t" << reg1 << ", $t" << reg2 << std::endl;
+            std::cout << "\tsub $" << reg_to_store << ", $" << reg1 << ", $" << reg2 << std::endl;
             
         } 
 
-        used_registers[reg2] = 0;
-
         runner->right->mapped_to_register = -1;
         runner->left->mapped_to_register = -1;
-        runner->mapped_to_register = reg1;
+        runner->mapped_to_register = reg_to_store;
 
-        ((ast::AST_Node_Expressao*)runner->parent)->mapped_to_register = reg1;
+        ((ast::AST_Node_Expressao*)runner->parent)->mapped_to_register = reg_to_store;
 
     }
 
@@ -282,7 +344,11 @@ void ast::traversal::traversal_UOP(ast::AST_Node_UOP* runner, int print_graphviz
 
         if (runner->operation == "PLUS") {
 
+            std::cout << "\tadd $" << reg1 << ", $zero, $" << reg1 << std::endl;
+
         } else if (runner->operation == "MINUS") {
+
+            std::cout << "\tsub $" << reg1 << ", $zero, $" << reg1 << std::endl;
 
         } else if (runner->operation == "MULTIPLY") {
 
@@ -296,7 +362,7 @@ void ast::traversal::traversal_UOP(ast::AST_Node_UOP* runner, int print_graphviz
 
             } else {
 
-                std::cout << "\taddiu $t" << reg1 << ", $t" << reg1 << ", 1" << std::endl;
+                std::cout << "\taddiu $" << reg1 << ", $" << reg1 << ", 1" << std::endl;
 
             }
 
@@ -308,17 +374,17 @@ void ast::traversal::traversal_UOP(ast::AST_Node_UOP* runner, int print_graphviz
 
             } else {
 
-                std::cout << "\taddiu $t" << reg1 << ", $t" << reg1 << ", -1" << std::endl;
+                std::cout << "\taddiu $" << reg1 << ", $" << reg1 << ", -1" << std::endl;
 
             }
             
         } else if (runner->operation == "BITWISE_NOT") {
 
-            std::cout << "\tnor $t" << reg1 << ", $t" << reg1 << ", $zero"<< std::endl;
+            std::cout << "\tnor $" << reg1 << ", $" << reg1 << ", $zero"<< std::endl;
             
         } else if (runner->operation == "NOT") {
 
-            std::cout << "\txori $t" << reg1 << ", $t" << reg1 << ", 1" << std::endl;
+            std::cout << "\txori $" << reg1 << ", $" << reg1 << ", 1" << std::endl;
             
         }
 
@@ -378,7 +444,7 @@ void ast::traversal::traversal_TOP(ast::AST_Node_TOP* runner, int print_graphviz
             exit(1);
         }
 
-        std::cout << "\tbeq $t" << reg1 << ", $zero, TOP_" << runner->node_number << "_ELSE" << std::endl;
+        std::cout << "\tbeq $" << reg1 << ", $zero, TOP_" << runner->node_number << "_ELSE" << std::endl;
 
     }
 
@@ -454,6 +520,27 @@ void ast::traversal::traversal_Expressao(ast::AST_Node_Expressao* runner, int pr
     ast::traversal::traversal_Chamada_Funcao(runner->chamada_funcao, print_graphviz, free_AST, produce_MIPS);
     ast::traversal::traversal_Acesso_Variavel(runner->acesso_variavel, print_graphviz, free_AST, produce_MIPS);
 
+    if (produce_MIPS) {
+
+        if (runner->using_int) {
+
+            int reg1 = helpers::return_first_unused_register();
+            runner->mapped_to_register = reg1;
+
+            std::cout << "\tli $" << reg1 << ", " << runner->num_int << std::endl;
+
+        } else if (runner->using_char) {
+
+            int reg1 = helpers::return_first_unused_register();
+            runner->mapped_to_register = reg1;
+
+            std::cout << "\tli $" << reg1 << ", '" << runner->character << "'" <<std::endl;
+
+        } else if (runner->using_string) {
+            std::cout << "Usando string direto na expressao!" << std::endl;
+        }
+    }
+
     if (print_graphviz) {
         if (runner->bop != nullptr) {
             dotfile << "\t" << runner->node_number << " -> " << runner->bop->node_number << ";" << std::endl;
@@ -477,9 +564,9 @@ void ast::traversal::traversal_Expressao(ast::AST_Node_Expressao* runner, int pr
 
         std::string variable;
 
-        if (runner->string != nullptr) {
+        if (runner->using_string) {
             variable = std::string(*(runner->string));
-        } else if (runner->character != 0) {
+        } else if (runner->using_char) {
             variable = std::string(1, runner->character);
         } else if (runner->using_int) {
             variable = std::to_string(runner->num_int);
@@ -491,7 +578,7 @@ void ast::traversal::traversal_Expressao(ast::AST_Node_Expressao* runner, int pr
                 << "\"];" << std::endl;
     }
 
-    if (runner->string != nullptr && !runner->strings_added) {
+    if (runner->using_string && !runner->strings_added) {
         helpers::split_format_string(*(runner->string), runner->node_number);
         runner->strings_added = true;
     }
@@ -549,9 +636,50 @@ void ast::traversal::traversal_Acesso_Variavel(ast::AST_Node_Acesso_Variavel* ru
         runner->loop_matriz->parent = runner;
     }
 
-
-
     ast::traversal::traversal_Loop_Matriz(runner->loop_matriz, print_graphviz, free_AST, produce_MIPS);
+
+    if (produce_MIPS) {
+        
+        // TODO PENSAR EM VETORES
+
+        if(runner->loop_matriz == nullptr) {
+
+            int is_global_var = 0;
+
+            for (auto var_global: variaveis_globais) {
+
+                if (*(var_global->name) == *(runner->variable_name)) {
+
+                    int reg1 = helpers::return_first_unused_register();
+                    runner->mapped_to_register = reg1;
+                    is_global_var = 1;
+                    ((AST_Node_Expressao*)runner->parent)->mapped_to_register = reg1;
+                    std::cout << "\tlw $" << reg1 << ", " << *(var_global->name) << std::endl;
+
+                    break;
+                }
+
+            }
+
+            if (!is_global_var) {
+
+                for (int i = 0; i < current_function->variables.size(); i++) {
+
+                    if (*(current_function->variables[i]->name) == *(runner->variable_name)) {
+
+                        runner->mapped_to_register = $S0 + i;
+
+                        ((AST_Node_Expressao*)runner->parent)->mapped_to_register = $S0 + i;
+
+                        break;
+                    }
+
+                }
+
+            }
+
+        }
+    }
 
     if (print_graphviz) {
         if (runner->loop_matriz != nullptr) {
@@ -691,6 +819,16 @@ void ast::traversal::traversal_Condicao_Parada(ast::AST_Node_Condicao_Parada* ru
     }
 
     ast::traversal::traversal_Expressao(runner->expressao, print_graphviz, free_AST, produce_MIPS);
+
+    if (produce_MIPS) {
+
+        if (!runner->expressao) {
+            runner->mapped_to_register = -1;
+        } else {
+            runner->mapped_to_register = runner->expressao->mapped_to_register;
+        }
+
+    }
 
     if (print_graphviz) {
         if (runner->expressao != nullptr) {
@@ -866,6 +1004,16 @@ void ast::traversal::traversal_Comando_Return(ast::AST_Node_Comando_Return* runn
 
     ast::traversal::traversal_Condicao_Parada(runner->CondicaoParada, print_graphviz, free_AST, produce_MIPS);
 
+    if (produce_MIPS) {
+        if(runner->CondicaoParada->expressao != nullptr) {
+            std::cout << "\tmove $v0, $" << runner->CondicaoParada->expressao->mapped_to_register << std::endl;
+        } else {
+            // Already mapped on corpo funcao
+        }
+        used_registers[$V0] = true;
+        used_registers[runner->CondicaoParada->expressao->mapped_to_register] = false;
+    }
+
     if (print_graphviz) {
         if (runner->CondicaoParada != nullptr) {
             dotfile << "\t" << runner->node_number << " -> " << runner->CondicaoParada->node_number << ";" << std::endl;
@@ -895,6 +1043,11 @@ void ast::traversal::traversal_Comando_Exit(ast::AST_Node_Comando_Exit* runner, 
 
     ast::traversal::traversal_Expressao(runner->expressao, print_graphviz, free_AST, produce_MIPS);
 
+    if (produce_MIPS) {
+        std::cout << "\tli $v0, 10" << std::endl;
+        std::cout << "\tsyscall" << std::endl;
+    }
+
     if (print_graphviz) {
         if (runner->expressao != nullptr) {
             dotfile << "\t" << runner->node_number << " -> " << runner->expressao->node_number << ";" << std::endl;
@@ -922,6 +1075,150 @@ void ast::traversal::traversal_Comando_Scanf(ast::AST_Node_Comando_Scanf* runner
     }
 
     ast::traversal::traversal_Endereco_Var(runner->endereco_var, print_graphviz, free_AST, produce_MIPS);
+
+    if (produce_MIPS) {
+
+        int is_const = 0;
+        int is_global_var = 0;
+        int is_local_var = 0;
+
+        // First search if the variable is a constant
+        for (auto constante : constantes) {
+
+            if (runner->endereco_var->identifier == constante->name) {
+
+                is_const = 1;
+
+                std::cout << "Error: Cannot read constant" << std::endl;
+                exit(1);
+
+                break;
+            }
+        }
+
+        if (!is_const) {
+            // Then search if the variable is a global variable
+            for (auto var_global : variaveis_globais) {
+
+                if (*(runner->endereco_var->identifier) == *(var_global->name)) {
+
+                    is_global_var = 1;
+
+                    std::string* var_type = var_global->type;
+
+                    if (var_type->find("int") != std::string::npos) {
+
+                        if (var_type->find("*") != std::string::npos) {
+                            std::cout << "Error: Cannot read int pointer variable" << std::endl;
+                            exit(1);
+                        } else if (var_type->find("[") != std::string::npos) {
+                            std::cout << "Error: Cannot read int array variable" << std::endl;
+                            exit(1);
+                        }
+                        
+                        int reg1 = helpers::return_first_unused_register();
+
+                        std::cout << "\tla $" << reg1 << ", " << var_global->name << std::endl;
+                        
+                        used_registers[reg1] = true;
+
+                        mips::ops::read_int();
+
+                        std::cout << "\tsw $v0, 0($" << reg1 << ")" << std::endl;
+
+                        used_registers[reg1] = false;
+
+                    } else if (var_type->find("char") != std::string::npos) {
+                        
+                        if (var_type->find("*") != std::string::npos) {
+
+                            std::cout << "Cannot read string" << std::endl;
+                            exit(1);
+
+                        } else {
+
+                            int reg1 = helpers::return_first_unused_register();
+
+                            std::cout << "\tla $" << reg1 << ", " << var_global->name << std::endl;
+
+                            mips::ops::read_char();
+
+                            std::cout << "\tsw $v0, 0($" << reg1 << ")" << std::endl;
+
+                        }
+
+                    } else if (var_type->find("void") != std::string::npos) {
+
+                        std::cout << "Error: Cannot read void variable" << std::endl;
+                        exit(1);
+                        
+                    }
+
+                    break;
+                }
+            }
+        }
+
+        if (!is_const && !is_global_var) {
+            // Finally search if the variable is a local variable
+            for (int i = 0; i < current_function->variables.size(); i++) {
+
+                if(*(current_function->variables[i]->name) == *(runner->endereco_var->identifier)) {
+                        
+                    is_local_var = 1;
+
+                    std::string* var_type = current_function->variables[i]->type;
+
+                    if (var_type->find("int") != std::string::npos) {
+
+                        if (var_type->find("*") != std::string::npos) {
+                            std::cout << "Error: Cannot read pointer variable" << std::endl;
+                            exit(1);
+                        } else if (var_type->find("[") != std::string::npos) {
+                            std::cout << "Error: Cannot read array variable" << std::endl;
+                            exit(1);
+                        }
+
+                        mips::ops::read_int();
+
+                        std::cout << "\tadd $s" << i << ", $v0, $zero" << std::endl;
+
+                    } else if (var_type->find("char") != std::string::npos) {
+                        
+                        if (var_type->find("*") != std::string::npos) {
+
+                            std::cout << "Cannot read string" << std::endl;
+                            exit(1);
+
+                        } else {
+
+                            int reg1 = helpers::return_first_unused_register();
+
+                            mips::ops::read_char();
+
+                            std::cout << "\tadd $s" << i << ", $v0, $zero" << std::endl;
+
+                        }
+
+                    } else if (var_type->find("void") != std::string::npos) {
+
+                        std::cout << "Error: Cannot read void variable" << std::endl;
+                        exit(1);
+                        
+                    }
+
+                    break;
+                }
+
+            }
+        }
+
+        if (!is_const && !is_global_var && !is_local_var) {
+            std::cout << "Error: Variable " << *(runner->endereco_var->identifier) << " not declared" << std::endl;
+            exit(1);
+        }
+
+    }
 
     if (print_graphviz) {
         if (runner->endereco_var != nullptr) {
@@ -957,6 +1254,21 @@ void ast::traversal::traversal_Comando_Printf(ast::AST_Node_Comando_Printf* runn
     }
 
     ast::traversal::traversal_Expressoes_Printf(runner->expressoes_printf, print_graphviz, free_AST, produce_MIPS);
+
+    if (produce_MIPS) {
+
+        if (runner->expressoes_printf == nullptr) {
+
+            std::cout << "\tla $a0, string_" << runner->node_number << "_0" << std::endl;
+            mips::ops::print_string();
+
+        } else {
+
+            //TODO AQUI TEM QUE FAZER A PARTE DE PRINTAR OS VALORES DAS EXPRESSOES
+
+        }
+
+    }
 
     if (print_graphviz) {
         if (runner->expressoes_printf != nullptr) {
@@ -1052,7 +1364,36 @@ void ast::traversal::traversal_Comando_While(ast::AST_Node_Comando_While* runner
     }
 
     ast::traversal::traversal_Condicao_Parada(runner->condicao_parada, print_graphviz, free_AST, produce_MIPS);
+
+    if (produce_MIPS) {
+
+        int reg1 = runner->condicao_parada->mapped_to_register;
+
+        if (reg1 == -1) {
+            std::cout << "ERROR: While condition not mapped to register" << std::endl;
+            exit(1);
+        }
+
+        std::cout << "\twhile_test_" << runner->node_number << ":" << std::endl;
+        std::cout << "\tbeq $0, $" << reg1 << ", " << "while_end_" << runner->node_number << std::endl;
+
+    }
+
+    if (produce_MIPS) {
+        std::cout << "while_start_" << runner->node_number << ":" << std::endl;
+    }
+
     ast::traversal::traversal_Lista_Comandos(runner->lista_comandos, print_graphviz, free_AST, produce_MIPS);
+
+    if (produce_MIPS) {
+        std::cout << "\tj " << "while_test_" << runner->node_number << std::endl;
+    }
+
+    if (produce_MIPS) {
+        std::cout << "while_end_" << runner->node_number << ":" << std::endl;
+    }
+
+
 
     if (print_graphviz) {
         if (runner->condicao_parada != nullptr) {
@@ -1093,8 +1434,40 @@ void ast::traversal::traversal_Comando_If(ast::AST_Node_Comando_If* runner, int 
     }
 
     ast::traversal::traversal_Condicao_Parada(runner->condicao_parada, print_graphviz, free_AST, produce_MIPS);
+
+    if (produce_MIPS) {
+
+        int reg1 = runner->condicao_parada->mapped_to_register;
+
+        if (reg1 == -1) {
+
+            std::cout << "ERROR: IF condition not mapped to register" << std::endl;
+            exit(1);
+        }
+
+        std::cout << "\tbeq $" << reg1 << ", $zero, else_" << runner->node_number << std::endl;
+
+    }
+
+    if (produce_MIPS) {
+        std::cout << "then_" << runner->node_number << ":" << std::endl;
+    }
+
     ast::traversal::traversal_Lista_Comandos(runner->lista_comandos_then, print_graphviz, free_AST, produce_MIPS);
+
+    if (produce_MIPS) {
+        std::cout << "\tj endif_" << runner->node_number << std::endl;
+    }
+
+    if (produce_MIPS) {
+        std::cout << "else_" << runner->node_number << ":" << std::endl;
+    }
+
     ast::traversal::traversal_Lista_Comandos(runner->lista_comandos_else, print_graphviz, free_AST, produce_MIPS);
+
+    if (produce_MIPS) {
+        std::cout << "endif_" << runner->node_number << ":" << std::endl;
+    }
 
     if (print_graphviz) {
         if (runner->condicao_parada != nullptr) {
