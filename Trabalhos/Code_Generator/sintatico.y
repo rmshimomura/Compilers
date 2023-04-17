@@ -443,7 +443,7 @@ TOP: TERNARY_CONDITIONAL L_PAREN Expressao COMMA Expressao COMMA Expressao R_PAR
 int main(int argc, char **argv) {
     
     int print_ASTs = 0;
-    int produce_MIPS = 0;
+    int produce_MIPS = 1;
 
     yyparse();
 
