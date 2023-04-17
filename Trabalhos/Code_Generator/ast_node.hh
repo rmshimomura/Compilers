@@ -171,6 +171,7 @@ class AST_Node_BOP : public AST_Node {
     std::string operation;
     AST_Node_Expressao* left;
     AST_Node_Expressao* right;
+    int mapped_to_register;
 
     AST_Node_BOP(std::string operation, AST_Node_Expressao* left, AST_Node_Expressao* right) {
         init();
@@ -182,6 +183,7 @@ class AST_Node_BOP : public AST_Node {
    private:
     void init() {
         this->node_number = -1;
+        this->mapped_to_register = -1;
         this->parent = nullptr;
         this->node_type = Node_Type::Non_Terminal;
         this->node_content = this;
@@ -196,6 +198,7 @@ class AST_Node_UOP : public AST_Node {
     std::string operation;
     AST_Node_Expressao* child;
     int is_postfix;
+    int mapped_to_register;
 
     AST_Node_UOP(std::string operation, AST_Node_Expressao* child, int is_postfix) {
         init();
@@ -207,6 +210,7 @@ class AST_Node_UOP : public AST_Node {
    private:
     void init() {
         this->node_number = -1;
+        this->mapped_to_register = -1;
         this->parent = nullptr;
         this->node_type = Node_Type::Non_Terminal;
         this->node_content = this;
@@ -268,6 +272,8 @@ class AST_Node_Expressao : public AST_Node {
     int using_char;
     int using_string;
 
+    int mapped_to_register;
+
     int strings_added;
 
     AST_Node_Acesso_Variavel* acesso_variavel;
@@ -318,6 +324,7 @@ class AST_Node_Expressao : public AST_Node {
    private:
     void init() {
         this->strings_added = 0;
+        this->mapped_to_register = -1;
         this->node_number = -1;
         this->parent = nullptr;
         this->node_type = Node_Type::Non_Terminal;
@@ -1059,39 +1066,41 @@ class AST_Node_Strings {
 namespace traversal {
     
     void general_AST_available_functions(ast::AST_Function* function);
-    void traversal_AST(ast::AST_Function* function, int print_graphviz, int free_AST);
+    void traversal_AST(ast::AST_Function* function, int print_graphviz, int free_AST, int produce_MIPS);
     void print_ASTs(std::vector<ast::AST_Function*> funcoes);
     void free_ASTs(std::vector<ast::AST_Function*> funcoes, std::vector<ast::AST_Constant*> constantes, std::vector<ast::AST_Variable*> variaveis_globais, std::vector<ast::AST_Node_Strings*> node_strings);
 
-    void traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz, int free_AST);
-    void traversal_UOP(ast::AST_Node_UOP* runner, int print_graphviz, int free_AST);
-    void traversal_TOP(ast::AST_Node_TOP* runner, int print_graphviz, int free_AST);
-    void traversal_Expressao(ast::AST_Node_Expressao* runner, int print_graphviz, int free_AST);
-    void traversal_Chamada_Funcao(ast::AST_Node_Chamada_Funcao* runner, int print_graphviz, int free_AST);
-    void traversal_Acesso_Variavel(ast::AST_Node_Acesso_Variavel* runner, int print_graphviz, int free_AST);
-    void traversal_Loop_Expressoes(ast::AST_Node_Loop_Expressoes* runner, int print_graphviz, int free_AST);
-    void traversal_Loop_Expressoes_Temporario(ast::AST_Node_Loop_Expressoes_Temporario* runner, int print_graphviz, int free_AST);
-    void traversal_Loop_Matriz(ast::AST_Node_Loop_Matriz* runner, int print_graphviz, int free_AST);
-    void traversal_Condicao_Parada(ast::AST_Node_Condicao_Parada* runner, int print_graphviz, int free_AST);
-    void traversal_Ajuste_Valores(ast::AST_Node_Ajuste_Valores* runner, int print_graphviz, int free_AST);
-    void traversal_Inicializacao_For(ast::AST_Node_Inicializacao_For* runner, int print_graphviz, int free_AST);
-    void traversal_Expressoes_Printf_Temporario(ast::AST_Node_Expressoes_Printf_Temporario* runner, int print_graphviz, int free_AST);
-    void traversal_Expressoes_Printf(ast::AST_Node_Expressoes_Printf* runner, int print_graphviz, int free_AST);
-    void traversal_Endereco_Var(ast::AST_Node_Endereco_Var* runner, int print_graphviz, int free_AST);
-    void traversal_Comando_Return(ast::AST_Node_Comando_Return* runner, int print_graphviz, int free_AST);
-    void traversal_Comando_Exit(ast::AST_Node_Comando_Exit* runner, int print_graphviz, int free_AST);
-    void traversal_Comando_Scanf(ast::AST_Node_Comando_Scanf* runner, int print_graphviz, int free_AST);
-    void traversal_Comando_Printf(ast::AST_Node_Comando_Printf* runner, int print_graphviz, int free_AST);
-    void traversal_Comando_For(ast::AST_Node_Comando_For* runner, int print_graphviz, int free_AST);
-    void traversal_Comando_While(ast::AST_Node_Comando_While* runner, int print_graphviz, int free_AST);
-    void traversal_Comando_If(ast::AST_Node_Comando_If* runner, int print_graphviz, int free_AST);
-    void traversal_Comando_Do_While(ast::AST_Node_Comando_Do_While* runner, int print_graphviz, int free_AST);
-    void traversal_Comando(ast::AST_Node_Comando* runner, int print_graphviz, int free_AST);
-    void traversal_Lista_Comandos_Temporario(ast::AST_Node_Lista_Comandos_Temporario* runner, int print_graphviz, int free_AST);
-    void traversal_Lista_Comandos(ast::AST_Node_Lista_Comandos* runner, int print_graphviz, int free_AST);
-    void traversal_Corpo_Funcao(ast::AST_Node_Corpo_Funcao* runner, int print_graphviz, int free_AST);
+    void traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz, int free_AST, int produce_MIPS);
+    void traversal_UOP(ast::AST_Node_UOP* runner, int print_graphviz, int free_AST, int produce_MIPS);
+    void traversal_TOP(ast::AST_Node_TOP* runner, int print_graphviz, int free_AST, int produce_MIPS);
+    void traversal_Expressao(ast::AST_Node_Expressao* runner, int print_graphviz, int free_AST, int produce_MIPS);
+    void traversal_Chamada_Funcao(ast::AST_Node_Chamada_Funcao* runner, int print_graphviz, int free_AST, int produce_MIPS);
+    void traversal_Acesso_Variavel(ast::AST_Node_Acesso_Variavel* runner, int print_graphviz, int free_AST, int produce_MIPS);
+    void traversal_Loop_Expressoes(ast::AST_Node_Loop_Expressoes* runner, int print_graphviz, int free_AST, int produce_MIPS);
+    void traversal_Loop_Expressoes_Temporario(ast::AST_Node_Loop_Expressoes_Temporario* runner, int print_graphviz, int free_AST, int produce_MIPS);
+    void traversal_Loop_Matriz(ast::AST_Node_Loop_Matriz* runner, int print_graphviz, int free_AST, int produce_MIPS);
+    void traversal_Condicao_Parada(ast::AST_Node_Condicao_Parada* runner, int print_graphviz, int free_AST, int produce_MIPS);
+    void traversal_Ajuste_Valores(ast::AST_Node_Ajuste_Valores* runner, int print_graphviz, int free_AST, int produce_MIPS);
+    void traversal_Inicializacao_For(ast::AST_Node_Inicializacao_For* runner, int print_graphviz, int free_AST, int produce_MIPS);
+    void traversal_Expressoes_Printf_Temporario(ast::AST_Node_Expressoes_Printf_Temporario* runner, int print_graphviz, int free_AST, int produce_MIPS);
+    void traversal_Expressoes_Printf(ast::AST_Node_Expressoes_Printf* runner, int print_graphviz, int free_AST, int produce_MIPS);
+    void traversal_Endereco_Var(ast::AST_Node_Endereco_Var* runner, int print_graphviz, int free_AST, int produce_MIPS);
+    void traversal_Comando_Return(ast::AST_Node_Comando_Return* runner, int print_graphviz, int free_AST, int produce_MIPS);
+    void traversal_Comando_Exit(ast::AST_Node_Comando_Exit* runner, int print_graphviz, int free_AST, int produce_MIPS);
+    void traversal_Comando_Scanf(ast::AST_Node_Comando_Scanf* runner, int print_graphviz, int free_AST, int produce_MIPS);
+    void traversal_Comando_Printf(ast::AST_Node_Comando_Printf* runner, int print_graphviz, int free_AST, int produce_MIPS);
+    void traversal_Comando_For(ast::AST_Node_Comando_For* runner, int print_graphviz, int free_AST, int produce_MIPS);
+    void traversal_Comando_While(ast::AST_Node_Comando_While* runner, int print_graphviz, int free_AST, int produce_MIPS);
+    void traversal_Comando_If(ast::AST_Node_Comando_If* runner, int print_graphviz, int free_AST, int produce_MIPS);
+    void traversal_Comando_Do_While(ast::AST_Node_Comando_Do_While* runner, int print_graphviz, int free_AST, int produce_MIPS);
+    void traversal_Comando(ast::AST_Node_Comando* runner, int print_graphviz, int free_AST, int produce_MIPS);
+    void traversal_Lista_Comandos_Temporario(ast::AST_Node_Lista_Comandos_Temporario* runner, int print_graphviz, int free_AST, int produce_MIPS);
+    void traversal_Lista_Comandos(ast::AST_Node_Lista_Comandos* runner, int print_graphviz, int free_AST, int produce_MIPS);
+    void traversal_Corpo_Funcao(ast::AST_Node_Corpo_Funcao* runner, int print_graphviz, int free_AST, int produce_MIPS);
 
 };  
+
+    void sort_functions(std::vector<ast::AST_Function*> funcoes);
 
 };
 
@@ -1102,6 +1111,7 @@ namespace mips {
 
 namespace helpers {
     void split_format_string(std::string str, int node_number);
-}
+    int return_first_unused_register();
+};
 
 #endif  // AST_H
