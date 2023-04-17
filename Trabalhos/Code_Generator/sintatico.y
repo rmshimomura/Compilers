@@ -443,19 +443,30 @@ TOP: TERNARY_CONDITIONAL L_PAREN Expressao COMMA Expressao COMMA Expressao R_PAR
 int main(int argc, char **argv) {
     
     int print_ASTs = 0;
+    int produce_MIPS = 0;
 
     yyparse();
-    if(print_ASTs) {
-        ast::traversal::print_ASTs(funcoes);
-    } else {
+
+    ast::sort_functions(funcoes);
+
+    for (auto function : funcoes) {
+        ast::traversal::traversal_AST(function, 0, 0, 0);
+    }
+
+
+    if(produce_MIPS) {
+        mips::print_data_segment(constantes, variaveis_globais, node_strings);
         for (auto function : funcoes) {
-            ast::traversal::traversal_AST(function, 0, 0);
+            ast::traversal::traversal_AST(function, 0, 0, 1);
         }
     }
-    mips::print_data_segment(constantes, variaveis_globais, node_strings);
+
+    if(print_ASTs) ast::traversal::print_ASTs(funcoes); 
 
     ast::traversal::free_ASTs(funcoes, constantes, variaveis_globais, node_strings);
+
     yylex_destroy();
+
     if(!print_ASTs) std::remove("test.dot");
 
 }
