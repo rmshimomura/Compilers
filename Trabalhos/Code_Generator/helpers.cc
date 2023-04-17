@@ -1,7 +1,7 @@
 #include "ast_node.hh"
 
 extern std::vector<ast::AST_Node_Strings*> node_strings;
-extern bool used_registers[10];
+extern bool used_registers[32];
 
 namespace helpers {
 
@@ -52,13 +52,54 @@ namespace helpers {
     }
 
     int return_first_unused_register() {
-        for(int i = 0; i < 10; i++) {
+
+        for(int i = 8; i < 16; i++) {
             if(!used_registers[i]) {
                 used_registers[i] = true;
                 return i;
             }
         }
+
+        for(int i = 24; i < 26; i++) {
+            if(!used_registers[i]) {
+                used_registers[i] = true;
+                return i;
+            }
+        }
+
         return -1;
+    }
+
+    int return_register_type(int reg) {
+
+        if (reg == 0) {
+            return ZERO;
+        } else if (reg == 1) {
+            return AT;
+        } else if (reg >= 2 && reg <= 3) {
+            return V;
+        } else if (reg >= 4 && reg <= 7) {
+            return A;
+        } else if (reg >= 8 && reg <= 15) {
+            return T;
+        } else if (reg >= 16 && reg <= 23) {
+            return S;
+        } else if (reg >= 24 && reg <= 25) {
+            return T;
+        } else if (reg == 26 || reg == 27) {
+            return K;
+        } else if (reg == 28) {
+            return GP;
+        } else if (reg == 29) {
+            return SP;
+        } else if (reg == 30) {
+            return FP;
+        } else if (reg == 31) {
+            return RA;
+        } else {
+            return -1;
+        }
+
     }
 
 };

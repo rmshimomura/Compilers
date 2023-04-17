@@ -376,6 +376,8 @@ class AST_Node_Acesso_Variavel : public AST_Node {
     // Second rule
     AST_Node_Loop_Matriz* loop_matriz;
 
+    int mapped_to_register;
+
     AST_Node_Acesso_Variavel(std::string* variable_name, AST_Node_Loop_Matriz* loop_matriz) {
         init();
         this->variable_name = variable_name;
@@ -391,6 +393,7 @@ class AST_Node_Acesso_Variavel : public AST_Node {
     void init() {
         this->node_number = -1;
         this->parent = nullptr;
+        this->mapped_to_register = -1;
         this->node_type = Node_Type::Non_Terminal;
         this->node_content = this;
         this->node_name = AST_Nonterminals::AcessoVariavel;
@@ -474,6 +477,8 @@ class AST_Node_Condicao_Parada : public AST_Node {
     // First rule
     AST_Node_Expressao* expressao;
 
+    int mapped_to_register;
+
     AST_Node_Condicao_Parada(AST_Node_Expressao* expressao) {
         init();
         this->expressao = expressao;
@@ -482,6 +487,7 @@ class AST_Node_Condicao_Parada : public AST_Node {
    private:
     void init() {
         this->node_number = -1;
+        this->mapped_to_register = -1;
         this->parent = nullptr;
         this->node_type = Node_Type::Non_Terminal;
         this->node_content = this;
@@ -1107,11 +1113,44 @@ namespace traversal {
 namespace mips {
     void print_data_segment(std::vector<ast::AST_Constant*> consts, std::vector<ast::AST_Variable*> global_vars, std::vector<ast::AST_Node_Strings*> node_strings);
     int calculate_bytes_multipler(std::string type);
+
+    namespace ops {
+        void exit();
+        void print_int();
+        void print_char();
+        void print_string();
+        void read_int();
+        void read_char();
+        void read_string();
+        void save_register_on_stack(std::string reg);
+        void load_register_from_stack(std::string reg);
+        void jump_and_link_function(std::string function_name);
+        void print_label(std::string label);
+        void save_s_registers_on_stack();
+        void restore_s_registers_on_stack();
+    }
+
 };
 
 namespace helpers {
     void split_format_string(std::string str, int node_number);
     int return_first_unused_register();
+    int return_register_type(int reg);
+
+    enum register_types {
+        ZERO,
+        AT,
+        V,
+        A,
+        T,
+        S,
+        K,
+        GP,
+        SP,
+        FP,
+        RA
+    };
+
 };
 
 #endif  // AST_H
