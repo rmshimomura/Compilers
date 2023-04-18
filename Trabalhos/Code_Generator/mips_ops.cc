@@ -53,6 +53,8 @@ namespace mips {
             }
         }
 
+        std::cout << ".text" << std::endl;
+
     }
 
     int calculate_bytes_multipler(std::string type) {
@@ -129,28 +131,41 @@ namespace mips {
             std::cout << label << ":" << std::endl;
         }
 
-        void save_s_registers_on_stack() {
-            std::cout << "\tsw $s0, 0($sp)" << std::endl;
-            std::cout << "\tsw $s1, 4($sp)" << std::endl;
-            std::cout << "\tsw $s2, 8($sp)" << std::endl;
-            std::cout << "\tsw $s3, 12($sp)" << std::endl;
-            std::cout << "\tsw $s4, 16($sp)" << std::endl;
-            std::cout << "\tsw $s5, 20($sp)" << std::endl;
-            std::cout << "\tsw $s6, 24($sp)" << std::endl;
-            std::cout << "\tsw $s7, 28($sp)" << std::endl;
-            std::cout << "\taddiu $sp, $sp, -32" << std::endl;
+        void save_context_on_stack() {
+            std::cout << std::endl;
+            std::cout << "\taddiu $sp, $sp, -52" << std::endl;
+            std::cout << "\tsw $a0, 0($sp)" << std::endl;
+            std::cout << "\tsw $a1, 4($sp)" << std::endl;
+            std::cout << "\tsw $a2, 8($sp)" << std::endl;
+            std::cout << "\tsw $a3, 12($sp)" << std::endl;
+            std::cout << "\tsw $s0, 16($sp)" << std::endl;
+            std::cout << "\tsw $s1, 20($sp)" << std::endl;
+            std::cout << "\tsw $s2, 24($sp)" << std::endl;
+            std::cout << "\tsw $s3, 28($sp)" << std::endl;
+            std::cout << "\tsw $s4, 32($sp)" << std::endl;
+            std::cout << "\tsw $s5, 36($sp)" << std::endl;
+            std::cout << "\tsw $s6, 40($sp)" << std::endl;
+            std::cout << "\tsw $s7, 44($sp)" << std::endl;
+            std::cout << "\tsw $ra, 48($sp)" << std::endl;
+            
         }
 
-        void restore_s_registers_on_stack() {
-            std::cout << "\taddiu $sp, $sp, 32" << std::endl;
-            std::cout << "\tlw $s0, 0($sp)" << std::endl;
-            std::cout << "\tlw $s1, 4($sp)" << std::endl;
-            std::cout << "\tlw $s2, 8($sp)" << std::endl;
-            std::cout << "\tlw $s3, 12($sp)" << std::endl;
-            std::cout << "\tlw $s4, 16($sp)" << std::endl;
-            std::cout << "\tlw $s5, 20($sp)" << std::endl;
-            std::cout << "\tlw $s6, 24($sp)" << std::endl;
-            std::cout << "\tlw $s7, 28($sp)" << std::endl;
+        void load_context_from_stack() {
+            std::cout << std::endl;
+            std::cout << "\tlw $a0, 0($sp)" << std::endl;
+            std::cout << "\tlw $a1, 4($sp)" << std::endl;
+            std::cout << "\tlw $a2, 8($sp)" << std::endl;
+            std::cout << "\tlw $a3, 12($sp)" << std::endl;
+            std::cout << "\tlw $s0, 16($sp)" << std::endl;
+            std::cout << "\tlw $s1, 20($sp)" << std::endl;
+            std::cout << "\tlw $s2, 24($sp)" << std::endl;
+            std::cout << "\tlw $s3, 28($sp)" << std::endl;
+            std::cout << "\tlw $s4, 32($sp)" << std::endl;
+            std::cout << "\tlw $s5, 36($sp)" << std::endl;
+            std::cout << "\tlw $s6, 40($sp)" << std::endl;
+            std::cout << "\tlw $s7, 44($sp)" << std::endl;
+            std::cout << "\tlw $ra, 48($sp)" << std::endl;
+            std::cout << "\taddiu $sp, $sp, 52" << std::endl;
         }
 
     };

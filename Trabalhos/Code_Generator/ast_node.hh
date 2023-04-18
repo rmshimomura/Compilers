@@ -349,6 +349,7 @@ class AST_Node_Chamada_Funcao : public AST_Node {
     // First rule
     std::string* function_name;
     AST_Node_Loop_Expressoes* loop_expressoes;
+    int mapped_to_register;
 
     AST_Node_Chamada_Funcao(std::string* function_name, AST_Node_Loop_Expressoes* loop_expressoes) {
         init();
@@ -359,6 +360,7 @@ class AST_Node_Chamada_Funcao : public AST_Node {
    private:
     void init() {
         this->node_number = -1;
+        this->mapped_to_register = -1;
         this->parent = nullptr;
         this->node_type = Node_Type::Non_Terminal;
         this->node_content = this;
@@ -1106,7 +1108,7 @@ namespace traversal {
 
 };  
 
-    void sort_functions(std::vector<ast::AST_Function*> funcoes);
+    void sort_functions(std::vector<ast::AST_Function*> &funcoes);
 
 };
 
@@ -1126,8 +1128,8 @@ namespace mips {
         void load_register_from_stack(std::string reg);
         void jump_and_link_function(std::string function_name);
         void print_label(std::string label);
-        void save_s_registers_on_stack();
-        void restore_s_registers_on_stack();
+        void save_context_on_stack();
+        void load_context_from_stack();
     }
 
 };
