@@ -43,7 +43,8 @@ enum registers {
     $RA
 };
 
-void ast::sort_functions(std::vector<ast::AST_Function*> funcoes) {
+void ast::sort_functions(std::vector<ast::AST_Function*> &funcoes) {
+    // Print the name of the first function
     std::reverse(funcoes.begin(), funcoes.end());
 }
 
@@ -128,11 +129,12 @@ void ast::traversal::traversal_AST(ast::AST_Function* function, int print_graphv
 
     if (produce_MIPS) {
 
-        if (*function->function_name == "main") {
-            std::cout << ".text" << std::endl;
+        std::cout << *function->function_name << ":" << std::endl;
+
+        if (*function->function_name != "main") {
+            mips::ops::save_context_on_stack();
         }
 
-        std::cout << *function->function_name << ":" << std::endl;
     }
 
     ast::traversal::traversal_Corpo_Funcao(function->function_body, print_graphviz, free_AST, produce_MIPS);
@@ -168,7 +170,7 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
 
         if (reg1 == -1 || reg2 == -1) {
             std::cout << runner->node_number << std::endl;
-            std::cout << "Error: Trying to perform a BOP with two values that are not mapped to registers." << std::endl;
+            std::cout << "Error: Trying to perform a " << runner->operation << " with two values that are not mapped to registers." << std::endl;
             exit(1);
         }
 
@@ -189,36 +191,44 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
 
         if (runner->operation == "PLUS") {
 
+            std::cout << "\t#PLUS" << std::endl;
             std::cout << "\tadd $" << reg_to_store << ", $" << reg1 << ", $" << reg2 << std::endl;
 
         } else if (runner->operation == "MINUS") {
 
+            std::cout << "\t#MINUS" << std::endl;
             std::cout << "\tsub $" << reg_to_store << ", $" << reg1 << ", $" << reg2 << std::endl;
 
         } else if (runner->operation == "MULTIPLY") {
 
+            std::cout << "\t#MULTIPLY" << std::endl;
             std::cout << "\tmul $" << reg_to_store << ", $" << reg1 << ", $" << reg2 << std::endl;
 
         } else if (runner->operation == "DIV") {
 
+            std::cout << "\t#DIV" << std::endl;
             std::cout << "\tdiv $" << reg_to_store << ", $" << reg1 << ", $" << reg2 << std::endl;
             std::cout << "\tmflo $" << reg_to_store << std::endl;
             
         } else if (runner->operation == "REMAINDER") {
 
+            std::cout << "\t#REMAINDER" << std::endl;
             std::cout << "\tdiv $" << reg_to_store << ", $" << reg1 << ", $" << reg2 << std::endl;
             std::cout << "\tmfhi $" << reg_to_store << std::endl;
             
         } else if (runner->operation == "BITWISE_AND") {
 
+            std::cout << "\t#BITWISE_AND" << std::endl;
             std::cout << "\tand $" << reg_to_store << ", $" << reg1 << ", $" << reg2 << std::endl;
             
         } else if (runner->operation == "BITWISE_OR") {
 
+            std::cout << "\t#BITWISE_OR" << std::endl;
             std::cout << "\tor $" << reg_to_store << ", $" << reg1 << ", $" << reg2 << std::endl;
             
         } else if (runner->operation == "BITWISE_XOR") {
 
+            std::cout << "\t#BITWISE_XOR" << std::endl;
             std::cout << "\txor $" << reg_to_store << ", $" << reg1 << ", $" << reg2 << std::endl;
             
         } else if (runner->operation == "LOGICAL_AND") {
@@ -226,6 +236,7 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
             int first_temp = helpers::return_first_unused_register();
             int second_temp = helpers::return_first_unused_register();
 
+            std::cout << "\t#LOGICAL_AND" << std::endl;
             std::cout << "\tsltu $" << first_temp << ", $zero" << ", $" << reg1 << std::endl;
             std::cout << "\tsltu $" << second_temp << ", $zero" << ", $" << reg2 << std::endl;
             std::cout << "\tand $" << reg_to_store << ", $" << first_temp << ", $" << second_temp << std::endl;
@@ -237,6 +248,7 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
             int first_temp = helpers::return_first_unused_register();
             int second_temp = helpers::return_first_unused_register();
 
+            std::cout << "\t#LOGICAL_OR" << std::endl;
             std::cout << "\tsltu $" << first_temp << ", $zero" << ", $" << reg1 << std::endl;
             std::cout << "\tsltu $" << second_temp << ", $zero" << ", $" << reg2 << std::endl;
             std::cout << "\tor $" << reg_to_store << ", $" << first_temp << ", $" << second_temp << std::endl;
@@ -245,52 +257,67 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
             
         } else if (runner->operation == "EQUAL") {
 
+            std::cout << "\t#EQUAL" << std::endl;
             std::cout << "\tsubu $" << reg_to_store << ", $" << reg1 << ", $" << reg2 << std::endl;
             std::cout << "\tsltiu $" << reg_to_store << ", $" << reg_to_store << ", 1" << std::endl;
             
         } else if (runner->operation == "NOT_EQUAL") {
 
+            std::cout << "\t#NOT_EQUAL" << std::endl;
             std::cout << "\tsubu $" << reg_to_store << ", $" << reg1 << ", $" << reg2 << std::endl;
             std::cout << "\tsltu $" << reg_to_store << ", $zero" << ", $" << reg1 << std::endl;
             
         } else if (runner->operation == "LESS_THAN") {
 
+            std::cout << "\t#LESS_THAN" << std::endl;
             std::cout << "\tslt $" << reg_to_store << ", $" << reg1 << ", $" << reg2 << std::endl;
             
         } else if (runner->operation == "GREATER_THAN") {
 
+            std::cout << "\t#GREATER_THAN" << std::endl;
             std::cout << "\tslt $" << reg_to_store << ", $" << reg2 << ", $" << reg1 << std::endl;
             
         } else if (runner->operation == "LESS_EQUAL") {
 
+            int reg_temp = helpers::return_first_unused_register();
+
+            std::cout << "\t#LESS_EQUAL" << std::endl;
             std::cout << "\tslt $" << reg_to_store << ", $" << reg2 << ", $" << reg1 << std::endl;
-            std::cout << "\tori $" << reg2 << ", $zero" << ", 1" << std::endl;
-            std::cout << "\tsubu $" << reg_to_store << ", $" << reg2 << ", $" << reg1 << std::endl;
+            std::cout << "\tori $" << reg_temp << ", $zero" << ", 1" << std::endl;
+            std::cout << "\tsubu $" << reg_to_store << ", $" << reg_temp << ", $" << reg_to_store << std::endl;
             
         } else if (runner->operation == "GREATER_EQUAL") {
 
+            int reg_temp = helpers::return_first_unused_register();
+
+            std::cout << "\t#GREATER_EQUAL" << std::endl;
             std::cout << "\tslt $" << reg_to_store << ", $" << reg1 << ", $" << reg2 << std::endl;
-            std::cout << "\tori $" << reg2 << ", $zero" << ", 1" << std::endl;
-            std::cout << "\tsubu $" << reg_to_store << ", $" << reg2 << ", $" << reg1 << std::endl;
+            std::cout << "\tori $" << reg_temp << ", $zero" << ", 1" << std::endl;
+            std::cout << "\tsubu $" << reg_to_store << ", $" << reg_temp << ", $" << reg1 << std::endl;
             
         } else if (runner->operation == "R_SHIFT") {
 
+            std::cout << "\t#R_SHIFT" << std::endl;
             std::cout << "\tsrl $" << reg_to_store << ", $" << reg1 << ", $" << reg2 << std::endl;
             
         } else if (runner->operation == "L_SHIFT") {
 
+            std::cout << "\t#L_SHIFT" << std::endl;
             std::cout << "\tsll $" << reg_to_store << ", $" << reg1 << ", $" << reg2 << std::endl;
             
         } else if (runner->operation == "ASSIGN") {
 
+            std::cout << "\t#ASSIGN" << std::endl;
             std::cout << "\tmove $" << reg_to_store << ", $" << reg2 << std::endl;
             
         } else if (runner->operation == "ADD_ASSIGN") {
 
+            std::cout << "\t#ADD_ASSIGN" << std::endl;
             std::cout << "\tadd $" << reg_to_store << ", $" << reg1 << ", $" << reg2 << std::endl;
             
         } else if (runner->operation == "MINUS_ASSIGN") {
 
+            std::cout << "\t#MINUS_ASSIGN" << std::endl;
             std::cout << "\tsub $" << reg_to_store << ", $" << reg1 << ", $" << reg2 << std::endl;
             
         } 
@@ -603,11 +630,16 @@ void ast::traversal::traversal_Chamada_Funcao(ast::AST_Node_Chamada_Funcao* runn
         runner->loop_expressoes->parent = runner;
     }
 
-    if(produce_MIPS) std::cout << "\tjal " << *(runner->function_name) << std::endl;
-
     ast::traversal::traversal_Loop_Expressoes(runner->loop_expressoes, print_graphviz, free_AST, produce_MIPS);
 
-    if(produce_MIPS) std::cout << "\tjr $ra" << std::endl;
+    if (produce_MIPS) {
+        std::cout << "\tjal " << *(runner->function_name) << std::endl;
+        mips::ops::load_context_from_stack();
+        runner->mapped_to_register = $V0;
+
+        ((AST_Node_Expressao*)(runner->parent))->mapped_to_register = $V0;
+
+    }
 
     if (print_graphviz) {
         if (runner->loop_expressoes != nullptr) {
@@ -645,6 +677,7 @@ void ast::traversal::traversal_Acesso_Variavel(ast::AST_Node_Acesso_Variavel* ru
         if(runner->loop_matriz == nullptr) {
 
             int is_global_var = 0;
+            int is_local_var = 0;
 
             for (auto var_global: variaveis_globais) {
 
@@ -670,6 +703,27 @@ void ast::traversal::traversal_Acesso_Variavel(ast::AST_Node_Acesso_Variavel* ru
                         runner->mapped_to_register = $S0 + i;
 
                         ((AST_Node_Expressao*)runner->parent)->mapped_to_register = $S0 + i;
+
+                        is_local_var = 1;
+
+                        std::cout << "Variable : " << *(runner->variable_name) << " is local and mapped to register $" << $S0 + i << std::endl;
+
+                        break;
+                    }
+
+                }
+
+            } 
+
+            if (!is_local_var && !is_global_var) {
+
+                for (int i = 0; i < current_function->parameters.size(); i++) {
+
+                    if (*(current_function->parameters[i]->name) == *(runner->variable_name)) {
+
+                        runner->mapped_to_register = $A0 + i;
+
+                        ((AST_Node_Expressao*)runner->parent)->mapped_to_register = $A0 + i;
 
                         break;
                     }
@@ -711,6 +765,24 @@ void ast::traversal::traversal_Loop_Expressoes(ast::AST_Node_Loop_Expressoes* ru
     }
 
     ast::traversal::traversal_Expressao(runner->expressao, print_graphviz, free_AST, produce_MIPS);
+
+    if (produce_MIPS) {
+
+        if (runner->expressao != nullptr) {
+            
+            std::cout << "\tadd $" << $A0 << ", $" << runner->expressao->mapped_to_register << ", $0" << std::endl;
+
+            if (runner->loop_expressoes_temporario != nullptr) {
+                std::cout << "\tadd $" << $A1 << ", $" << runner->loop_expressoes_temporario->expressao->mapped_to_register << ", $0" << std::endl;
+                if (runner->loop_expressoes_temporario->loop_expressoes_temporario != nullptr) {
+                    std::cout << "\tadd $" << $A2 << ", $" << runner->loop_expressoes_temporario->loop_expressoes_temporario->expressao->mapped_to_register << ", $0" << std::endl;
+                }
+            }
+
+                
+        }
+    }
+
     ast::traversal::traversal_Loop_Expressoes_Temporario(runner->loop_expressoes_temporario, print_graphviz, free_AST, produce_MIPS);
 
     if (print_graphviz) {
@@ -748,6 +820,7 @@ void ast::traversal::traversal_Loop_Expressoes_Temporario(ast::AST_Node_Loop_Exp
     }
 
     ast::traversal::traversal_Expressao(runner->expressao, print_graphviz, free_AST, produce_MIPS);
+
     ast::traversal::traversal_Loop_Expressoes_Temporario(runner->loop_expressoes_temporario, print_graphviz, free_AST, produce_MIPS);
 
     if (print_graphviz) {
@@ -1007,6 +1080,10 @@ void ast::traversal::traversal_Comando_Return(ast::AST_Node_Comando_Return* runn
     if (produce_MIPS) {
         if(runner->CondicaoParada->expressao != nullptr) {
             std::cout << "\tmove $v0, $" << runner->CondicaoParada->expressao->mapped_to_register << std::endl;
+            
+            if (*(current_function->function_name) != "main") {
+                std::cout << "\tjr $ra" << std::endl;
+            }
         } else {
             // Already mapped on corpo funcao
         }
