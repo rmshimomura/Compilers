@@ -5,6 +5,7 @@ int node_counter = 0;
 
 extern std::vector<ast::AST_Constant*> constantes;
 extern std::vector<ast::AST_Variable*> variaveis_globais;
+extern std::vector<ast::AST_Node_Strings*> node_strings;
 ast::AST_Function* current_function;
 bool used_registers[32] = {0};
 
@@ -634,10 +635,21 @@ void ast::traversal::traversal_Chamada_Funcao(ast::AST_Node_Chamada_Funcao* runn
 
     if (produce_MIPS) {
         std::cout << "\tjal " << *(runner->function_name) << std::endl;
-        mips::ops::load_context_from_stack();
+        
+        if (*(current_function->function_name) != "main") {
+            mips::ops::load_context_from_stack();
+        }
         runner->mapped_to_register = $V0;
 
         ((AST_Node_Expressao*)(runner->parent))->mapped_to_register = $V0;
+
+        used_registers[$V0] = 1;
+
+        if (*(current_function->function_name) == "main") {
+            std::cout << "\tsw $" << $V0 << ", 0($sp)" << std::endl;
+            std::cout << "\taddiu $sp, $sp, -4" << std::endl;
+        }
+
 
     }
 
@@ -706,8 +718,6 @@ void ast::traversal::traversal_Acesso_Variavel(ast::AST_Node_Acesso_Variavel* ru
 
                         is_local_var = 1;
 
-                        std::cout << "Variable : " << *(runner->variable_name) << " is local and mapped to register $" << $S0 + i << std::endl;
-
                         break;
                     }
 
@@ -772,10 +782,18 @@ void ast::traversal::traversal_Loop_Expressoes(ast::AST_Node_Loop_Expressoes* ru
             
             std::cout << "\tadd $" << $A0 << ", $" << runner->expressao->mapped_to_register << ", $0" << std::endl;
 
+            used_registers[runner->expressao->mapped_to_register] = 0;
+
             if (runner->loop_expressoes_temporario != nullptr) {
                 std::cout << "\tadd $" << $A1 << ", $" << runner->loop_expressoes_temporario->expressao->mapped_to_register << ", $0" << std::endl;
+
+                used_registers[runner->loop_expressoes_temporario->expressao->mapped_to_register] = 0;
+
                 if (runner->loop_expressoes_temporario->loop_expressoes_temporario != nullptr) {
                     std::cout << "\tadd $" << $A2 << ", $" << runner->loop_expressoes_temporario->loop_expressoes_temporario->expressao->mapped_to_register << ", $0" << std::endl;
+
+                    used_registers[runner->loop_expressoes_temporario->loop_expressoes_temporario->expressao->mapped_to_register] = 0;
+
                 }
             }
 
@@ -1341,7 +1359,94 @@ void ast::traversal::traversal_Comando_Printf(ast::AST_Node_Comando_Printf* runn
 
         } else {
 
-            //TODO AQUI TEM QUE FAZER A PARTE DE PRINTAR OS VALORES DAS EXPRESSOES
+            int position = -1;
+
+            for (int i = 0; i < node_strings.size(); i++) {
+                if (node_strings[i]->node_number == runner->node_number) {
+                    position = i;
+                    break;
+                }
+            }
+
+            if (position == -1) {
+                std::cout << "Error: Could not find node number " << runner->node_number << " in node_strings" << std::endl;
+                exit(1);
+            }
+
+            AST_Node_Expressoes_Printf* current_printf_expression = runner->expressoes_printf;
+
+            AST_Node_Expressoes_Printf_Temporario* next_printf_expression = nullptr;
+
+            for (int i = 0; i < node_strings[position]->strings.size(); i++) {
+
+                std::string current_string = node_strings[position]->strings[i];
+
+                if (current_string == "%d" || current_string == "%c") {
+
+                    if (next_printf_expression == nullptr) { // Primeiro argumento
+
+                        if (current_printf_expression == nullptr) {
+                            std::cout << "Error: Not enough expressions to print" << std::endl;
+                            exit(1);
+                        }
+
+                        if (current_printf_expression->expressao->mapped_to_register == -1) {
+                            std::cout << "Error: Expression not mapped to register" << std::endl;
+                            exit(1);
+                        }
+
+                        if (current_printf_expression->expressao->mapped_to_register == $V0) {
+                            std::cout << "addi $sp, $sp, 4" << std::endl;
+                            std::cout << "lw $v0, 0($sp)" << std::endl;
+                        }
+
+                        std::cout << "\tmove $a0, $" << current_printf_expression->expressao->mapped_to_register << std::endl;
+
+                    } else { // Argumento seguinte
+                            
+                        if (next_printf_expression == nullptr) {
+                            std::cout << "Error: Not enough expressions to print" << std::endl;
+                            exit(1);
+                        }
+
+                        if (next_printf_expression->expressao->mapped_to_register == -1) {
+                            std::cout << "Error: Expression not mapped to register" << std::endl;
+                            exit(1);
+                        }
+
+                        if (next_printf_expression->expressao->mapped_to_register == $V0) {
+                            std::cout << "addi $sp, $sp, 4" << std::endl;
+                            std::cout << "lw $v0, 0($sp)" << std::endl;
+                        }
+
+                        std::cout << "\tmove $a0, $" << next_printf_expression->expressao->mapped_to_register << std::endl;
+
+
+                    }
+
+                    if (current_string == "%d") {
+                        mips::ops::print_int();
+                    } else if (current_string == "%c") {
+                        mips::ops::print_char();
+                    } else {
+                        std::cout << "Error: Invalid format string" << std::endl;
+                        exit(1);
+                    }
+
+                    if (next_printf_expression == nullptr) {
+                        next_printf_expression = current_printf_expression->expressoes_printf_temporario;
+                    } else {
+                        next_printf_expression = next_printf_expression->expressoes_printf_temporario;
+                    }
+
+                } else {
+
+                    std::cout << "\tla $a0, string_" << runner->node_number << "_" << i << std::endl;
+                    mips::ops::print_string();
+                }
+                    
+
+            }
 
         }
 
