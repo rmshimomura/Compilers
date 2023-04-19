@@ -997,6 +997,7 @@ class AST_Variable {
     std::string* name;
     std::string* type;
     std::string* value;
+    std::vector<int> dimensions;
 
     AST_Variable(std::string* name, std::string* type, std::string* value) {
         this->name = name;
@@ -1008,6 +1009,26 @@ class AST_Variable {
         this->name = name;
         this->type = type;
         this->value = nullptr;
+
+        if (type->find("[") == std::string::npos) {
+            return;
+        }
+
+        std::string dimension = "";
+
+        // Decompose like this: int[2][3] -> 2, 3 and store 2 and 3 in the dimensions vector
+        for (int i = 0; i < type->length(); i++) {
+            if (type->at(i) == '[') {
+                int j = i + 1;
+                while (type->at(j) != ']') {
+                    dimension += type->at(j);
+                    j++;
+                }
+                this->dimensions.push_back(std::stoi(dimension));
+                dimension = "";
+            }
+        }
+
     }
 };
 
