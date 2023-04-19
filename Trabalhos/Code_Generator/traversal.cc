@@ -45,7 +45,6 @@ enum registers {
 };
 
 void ast::sort_functions(std::vector<ast::AST_Function*> &funcoes) {
-    // Print the name of the first function
     std::reverse(funcoes.begin(), funcoes.end());
 }
 
@@ -742,8 +741,10 @@ void ast::traversal::traversal_Acesso_Variavel(ast::AST_Node_Acesso_Variavel* ru
 
             }
 
+        } else {
+
         }
-    }
+    } else 
 
     if (print_graphviz) {
         if (runner->loop_matriz != nullptr) {
