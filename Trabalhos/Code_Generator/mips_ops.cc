@@ -6,10 +6,6 @@ namespace mips {
         
         std::cout << ".data" << std::endl;
 
-        for (auto c : consts) {
-            std::cout << "\t" << *(c->name) << ": .word " << c->value << std::endl;
-        }
-
         for (auto v : global_vars) {
 
             std::string type = *(v->type);
@@ -41,6 +37,10 @@ namespace mips {
 
             }
 
+        }
+
+        for (auto c : consts) {
+            std::cout << "\t" << *(c->name) << ": .word " << c->value << std::endl;
         }
 
         for (auto s : node_strings) {
