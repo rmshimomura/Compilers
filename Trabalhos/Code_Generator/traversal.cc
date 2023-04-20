@@ -141,7 +141,6 @@ void ast::traversal::traversal_AST(ast::AST_Function* function, int print_graphv
         std::cout << *function->function_name << ":" << std::endl;
 
         if (*function->function_name != "main") {
-            mips::ops::save_context_on_stack();
 
             for (int i = 0; i < 32; i++) {
                 helpers::free_register(i);
@@ -1055,9 +1054,7 @@ void ast::traversal::traversal_Chamada_Funcao(ast::AST_Node_Chamada_Funcao* runn
 
         std::cout << "\tjal " << *(runner->function_name) << std::endl;
         
-        if (*(current_function->function_name) != "main") {
-            mips::ops::load_context_from_stack();
-        }
+        mips::ops::load_context_from_stack();
         runner->mapped_to_register = $V0;
 
         ((AST_Node_Expressao*)(runner->parent))->mapped_to_register = $V0;
@@ -1319,6 +1316,8 @@ void ast::traversal::traversal_Loop_Expressoes(ast::AST_Node_Loop_Expressoes* ru
     ast::traversal::traversal_Loop_Expressoes_Temporario(runner->loop_expressoes_temporario, print_graphviz, free_AST, produce_MIPS);
 
     if (produce_MIPS) {
+
+        mips::ops::save_context_on_stack();
 
         if (runner->expressao != nullptr) {
             
