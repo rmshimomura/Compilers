@@ -541,9 +541,9 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
             int reg_temp = helpers::return_first_unused_register();
 
             std::cout << "\t#LESS_EQUAL" << std::endl;
-            std::cout << "\tslt " << register_names[reg_to_store] << ", " << register_names[reg2] << ", " << register_names[reg1] << std::endl;
-            std::cout << "\tori " << register_names[reg_temp] << ", $zero" << ", 1" << std::endl;
-            std::cout << "\tsubu " << register_names[reg_to_store] << ", " << register_names[reg_temp] << ", " << register_names[reg_to_store] << std::endl;
+            std::cout << "\tslt " << register_names[reg_temp] << ", " << register_names[reg2] << ", " << register_names[reg1] << std::endl;
+            std::cout << "\tori " << register_names[reg_to_store] << ", $zero" << ", 1" << std::endl;
+            std::cout << "\tsubu " << register_names[reg_to_store] << ", " << register_names[reg_to_store] << ", " << register_names[reg_temp] << std::endl;
 
             if (is_left_memory_access) {
                 if(reg_to_store != reg1) helpers::free_register(reg1);
@@ -564,9 +564,9 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
             int reg_temp = helpers::return_first_unused_register();
 
             std::cout << "\t#GREATER_EQUAL" << std::endl;
-            std::cout << "\tslt " << register_names[reg_to_store] << ", " << register_names[reg1] << ", " << register_names[reg2] << std::endl;
-            std::cout << "\tori " << register_names[reg_temp] << ", $zero" << ", 1" << std::endl;
-            std::cout << "\tsubu " << register_names[reg_to_store] << ", " << register_names[reg_temp] << ", " << register_names[reg1] << std::endl;
+            std::cout << "\tslt " << register_names[reg_temp] << ", " << register_names[reg1] << ", " << register_names[reg2] << std::endl;
+            std::cout << "\tori " << register_names[reg_to_store] << ", $zero" << ", 1" << std::endl;
+            std::cout << "\tsubu " << register_names[reg_to_store] << ", " << register_names[reg_to_store] << ", " << register_names[reg_temp] << std::endl;
 
             if (is_left_memory_access) {
                 if(reg_to_store != reg1) helpers::free_register(reg1);
@@ -1311,13 +1311,13 @@ void ast::traversal::traversal_Loop_Expressoes(ast::AST_Node_Loop_Expressoes* ru
         runner->loop_expressoes_temporario->parent = runner;
     }
 
+    if (produce_MIPS) mips::ops::save_context_on_stack();
+
     ast::traversal::traversal_Expressao(runner->expressao, print_graphviz, free_AST, produce_MIPS);
 
     ast::traversal::traversal_Loop_Expressoes_Temporario(runner->loop_expressoes_temporario, print_graphviz, free_AST, produce_MIPS);
 
     if (produce_MIPS) {
-
-        mips::ops::save_context_on_stack();
 
         if (runner->expressao != nullptr) {
             
@@ -1973,7 +1973,13 @@ void ast::traversal::traversal_Comando_Printf(ast::AST_Node_Comando_Printf* runn
                             std::cout << "lw $v0, 0($sp)" << std::endl;
                         }
 
-                        std::cout << "\tmove $a0, " << register_names[current_printf_expression->expressao->mapped_to_register] << std::endl;
+                        // Mudar aqui se for a[i], mudar para lw $a0, <label>($offset)
+                        if (!memory_acess.empty()) {
+                            std::cout << "\tlw $a0, " << memory_acess[0]->name << "(" << register_names[memory_acess[0]->offset] << ")" << std::endl;
+                            memory_acess.pop_back();
+                        } else {
+                            std::cout << "\tmove $a0, " << register_names[current_printf_expression->expressao->mapped_to_register] << std::endl;
+                        }
 
                         if (helpers::return_register_type(current_printf_expression->expressao->mapped_to_register) == helpers::T) {
                             helpers::free_register(current_printf_expression->expressao->mapped_to_register);
@@ -1996,7 +2002,13 @@ void ast::traversal::traversal_Comando_Printf(ast::AST_Node_Comando_Printf* runn
                             std::cout << "lw $v0, 0($sp)" << std::endl;
                         }
 
-                        std::cout << "\tmove $a0, " << register_names[next_printf_expression->expressao->mapped_to_register] << std::endl;
+                        if (!memory_acess.empty()) {
+                            std::cout << "\tlw $a0, " << memory_acess[0]->name << "(" << register_names[memory_acess[0]->offset] << ")" << std::endl;
+                            memory_acess.pop_back();
+                        } else {
+                            std::cout << "\tmove $a0, " << register_names[next_printf_expression->expressao->mapped_to_register] << std::endl;
+                            
+                        }
 
                         if (helpers::return_register_type(next_printf_expression->expressao->mapped_to_register) == helpers::T) {
                             helpers::free_register(next_printf_expression->expressao->mapped_to_register);
