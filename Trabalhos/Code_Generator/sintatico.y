@@ -309,7 +309,7 @@ Expressoes_Printf_Temporario: COMMA Expressao Expressoes_Printf_Temporario {$$ =
                         | {$$ = nullptr;};
 /* For */
 
-Inicializacao_For: ASSIGN L_PAREN IDENTIFIER COMMA Expressao R_PAREN {$$ = new ast::AST_Node_Inicializacao_For($3, $5);};
+Inicializacao_For: Expressao {$$ = new ast::AST_Node_Inicializacao_For($1);};
                 | {$$ = nullptr;};
 
 Condicao_Parada: Expressao {$$ = new ast::AST_Node_Condicao_Parada($1);};
