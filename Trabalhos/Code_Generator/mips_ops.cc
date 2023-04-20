@@ -21,7 +21,7 @@ namespace mips {
             } else {
 
                 int bytes = 0;
-                int multiplier = calculate_bytes_multipler(type);
+                int multiplier = calculate_bytes_multipler(v->dimensions);
 
                 if (type.find("int") != std::string::npos) {
                     bytes = 4 * multiplier;
@@ -57,20 +57,16 @@ namespace mips {
 
     }
 
-    int calculate_bytes_multipler(std::string type) {
+    int calculate_bytes_multipler(std::vector<int> dimensions) {
+
+        if (dimensions.size() == 0) {
+            return 1;
+        }
 
         int multiplier = 1;
 
-        for(int i = 0; i < type.length(); i++) {
-            if (type[i] == '[') {
-                int j = i + 1;
-                std::string number = "";
-                while (type[j] != ']') {
-                    number += type[j];
-                    j++;
-                }
-                multiplier *= std::stoi(number);
-            }
+        for (auto d : dimensions) {
+            multiplier *= d;
         }
 
         return multiplier;

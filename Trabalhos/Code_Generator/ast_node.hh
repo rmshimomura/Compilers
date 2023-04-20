@@ -523,12 +523,10 @@ class AST_Node_Inicializacao_For : public AST_Node {
    public:
     // First rule
     AST_Node_Expressao* expressao;
-    std::string* identifier;
 
-    AST_Node_Inicializacao_For(std::string* identifier, AST_Node_Expressao* expressao) {
+    AST_Node_Inicializacao_For(AST_Node_Expressao* expressao) {
         init();
         this->expressao = expressao;
-        this->identifier = identifier;
     }
 
    private:
@@ -539,7 +537,6 @@ class AST_Node_Inicializacao_For : public AST_Node {
         this->node_content = this;
         this->node_name = AST_Nonterminals::InicializacaoFor;
         this->expressao = nullptr;
-        this->identifier = nullptr;
     }
 };
 
@@ -1009,6 +1006,7 @@ class AST_Variable {
         this->name = name;
         this->type = type;
         this->value = nullptr;
+        this->dimensions = std::vector<int>();
 
         if (type->find("[") == std::string::npos) {
             return;
@@ -1092,6 +1090,21 @@ class AST_Node_Strings {
 
 };
 
+class AST_Memory_Access {
+    public:
+        std::string name;
+        int base;
+        int offset;
+        int is_vector;
+
+        AST_Memory_Access(std::string name, int base, int offset, int is_vector) {
+            this->name = name;
+            this->base = base;
+            this->offset = offset;
+            this->is_vector = is_vector;
+        }
+};
+
 namespace traversal {
     
     void general_AST_available_functions(ast::AST_Function* function);
@@ -1135,7 +1148,7 @@ namespace traversal {
 
 namespace mips {
     void print_data_segment(std::vector<ast::AST_Constant*> consts, std::vector<ast::AST_Variable*> global_vars, std::vector<ast::AST_Node_Strings*> node_strings);
-    int calculate_bytes_multipler(std::string type);
+    int calculate_bytes_multipler(std::vector<int> v);
 
     namespace ops {
         void exit();
@@ -1159,6 +1172,7 @@ namespace helpers {
     void split_format_string(std::string str, int node_number);
     int return_first_unused_register();
     int return_register_type(int reg);
+    void free_register(int reg);
 
     enum register_types {
         ZERO,
