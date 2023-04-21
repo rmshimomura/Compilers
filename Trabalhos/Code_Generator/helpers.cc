@@ -2,6 +2,7 @@
 
 extern std::vector<ast::AST_Node_Strings*> node_strings;
 extern bool used_registers[32];
+extern std::vector<std::string> register_names;
 
 namespace helpers {
 
@@ -56,7 +57,7 @@ namespace helpers {
         for(int i = 8; i < 16; i++) {
             if(!used_registers[i]) {
                 used_registers[i] = true;
-                // std::cout << "\t\t\t\t\t#ALLOCATTING REGISTER: " << i << "\n";
+                std::cout << "\t\t\t\t\t#ALLOCATTING REGISTER: " << register_names[i] << "\n";
                 return i;
             }
         }
@@ -64,7 +65,7 @@ namespace helpers {
         for(int i = 24; i < 26; i++) {
             if(!used_registers[i]) {
                 used_registers[i] = true;
-                // std::cout << "\t\t\t\t\t#ALLOCATTING REGISTER: " << i << "\n";
+                std::cout << "\t\t\t\t\t#ALLOCATTING REGISTER: " << register_names[i] << "\n";
                 return i;
             }
         }
@@ -73,8 +74,8 @@ namespace helpers {
     }
 
     void free_register(int reg) {
+        if(used_registers[reg]) std::cout << "\t\t\t\t\t#FREEING REGISTER: " << register_names[reg] << "\n";
         used_registers[reg] = false;
-        // std::cout << "\t\t\t\t\t#FREEING REGISTER: " << reg << "\n";
     }
 
     int return_register_type(int reg) {
