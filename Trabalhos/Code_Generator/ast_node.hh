@@ -1096,12 +1096,14 @@ class AST_Memory_Access {
         int base;
         int offset;
         int is_vector;
+        int mapped;
 
         AST_Memory_Access(std::string name, int base, int offset, int is_vector) {
             this->name = name;
             this->base = base;
             this->offset = offset;
             this->is_vector = is_vector;
+            this->mapped = 0;
         }
 };
 
