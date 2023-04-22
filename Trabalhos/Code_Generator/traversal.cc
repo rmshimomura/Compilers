@@ -156,7 +156,7 @@ void ast::traversal::traversal_AST(ast::AST_Function* function, int print_graphv
         for (int i = 0; i < 32; i++) {
             helpers::free_register(i);
         }
-        std::cout << "jr $ra" << std::endl;
+        std::cout << "\tjr $ra" << std::endl;
     }
 
     if(produce_MIPS) mips::ops::exit();
@@ -199,25 +199,25 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
             reg1 = helpers::return_first_unused_register();
             reg2 = helpers::return_first_unused_register();
 
-            std::cout << "lw " << register_names[reg1] << ", 0($sp)" << std::endl;
-            std::cout << "addi $sp, $sp, 4" << std::endl;
-            std::cout << "lw " << register_names[reg2] << ", 0($sp)" << std::endl;
-            std::cout << "addi $sp, $sp, 4" << std::endl;
+            std::cout << "\tlw " << register_names[reg1] << ", 0($sp)" << std::endl;
+            std::cout << "\taddi $sp, $sp, 4" << std::endl;
+            std::cout << "\tlw " << register_names[reg2] << ", 0($sp)" << std::endl;
+            std::cout << "\taddi $sp, $sp, 4" << std::endl;
 
             variable_type_1 = helpers::return_register_type(reg1);
             variable_type_2 = helpers::return_register_type(reg2);
 
         } else if (variable_type_1 == helpers::V) {
 
-            std::cout << "lw " << register_names[reg1] << ", 0($sp)" << std::endl;
-            std::cout << "addi $sp, $sp, 4" << std::endl;
+            std::cout << "\tlw " << register_names[reg1] << ", 0($sp)" << std::endl;
+            std::cout << "\taddi $sp, $sp, 4" << std::endl;
 
             variable_type_1 = helpers::return_register_type(reg1);
 
         } else if (variable_type_2 == helpers::V) {
 
-            std::cout << "lw " << register_names[reg2] << ", 0($sp)" << std::endl;
-            std::cout << "addi $sp, $sp, 4" << std::endl;
+            std::cout << "\tlw " << register_names[reg2] << ", 0($sp)" << std::endl;
+            std::cout << "\taddi $sp, $sp, 4" << std::endl;
 
             variable_type_2 = helpers::return_register_type(reg2);
 
@@ -260,8 +260,6 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
             for (auto mem : memory_acess) {
                 if (mem->name == *(runner->left->acesso_variavel->variable_name) && !mem->mapped) {
 
-                    std::cout << "\t#LOADING " << *(runner->left->acesso_variavel->variable_name) << " FROM MEMORY" << std::endl;
-                    std::cout << "\t#OFFSET: " << register_names[mem->offset] << " BASE: " << register_names[mem->base] << std::endl;
                     std::cout << "\tla " << register_names[mem->base] << ", " << *(runner->left->acesso_variavel->variable_name) << std::endl;
                     std::cout << "\tadd " << register_names[reg1] << ", " << register_names[mem->base] << ", " << register_names[mem->offset] << std::endl;
 
@@ -289,8 +287,6 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
             for (auto mem : memory_acess) {
                 if (mem->name == *(runner->right->acesso_variavel->variable_name) && !mem->mapped) {
 
-                    std::cout << "\t#LOADING " << *(runner->right->acesso_variavel->variable_name) << " FROM MEMORY" << std::endl;
-                    std::cout << "\t#OFFSET: " << register_names[mem->offset] << " BASE: " << register_names[mem->base] << std::endl;
                     std::cout << "\tla " << register_names[mem->base] << ", " << *(runner->right->acesso_variavel->variable_name) << std::endl;
                     std::cout << "\tadd " << register_names[reg2] << ", " << register_names[mem->base] << ", " << register_names[mem->offset] << std::endl;
 
@@ -313,13 +309,14 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
 
         if (runner->operation == "PLUS") {
 
-            std::cout << "\t#PLUS" << std::endl;
+            // std::cout << "\t#PLUS" << std::endl;
             std::cout << "\tadd " << register_names[reg_to_store] << ", " << register_names[reg1] << ", " << register_names[reg2] << std::endl;
 
             if (is_left_memory_access) {
                 if(reg_to_store != reg1) helpers::free_register(reg1);
                 for (int i = 0; i < memory_acess.size(); i++) {
                     if (memory_acess[i]->name == variable_name_left && memory_acess[i]->base == base_left && memory_acess[i]->offset == offset_left && memory_acess[i]->mapped) {
+                        delete memory_acess[i];
                         memory_acess.erase(memory_acess.begin() + i);
                         break;
                     }
@@ -330,6 +327,7 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
                 if(reg_to_store != reg2) helpers::free_register(reg2);
                 for (int i = 0; i < memory_acess.size(); i++) {
                     if (memory_acess[i]->name == variable_name_right && memory_acess[i]->base == base_right && memory_acess[i]->offset == offset_right && memory_acess[i]->mapped) {
+                        delete memory_acess[i];
                         memory_acess.erase(memory_acess.begin() + i);
                         break;
                     }
@@ -348,13 +346,14 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
 
         } else if (runner->operation == "MINUS") {
 
-            std::cout << "\t#MINUS" << std::endl;
+            // std::cout << "\t#MINUS" << std::endl;
             std::cout << "\tsub " << register_names[reg_to_store] << ", " << register_names[reg1] << ", " << register_names[reg2] << std::endl;
 
             if (is_left_memory_access) {
                 if(reg_to_store != reg1) helpers::free_register(reg1);
                 for (int i = 0; i < memory_acess.size(); i++) {
                     if (memory_acess[i]->name == variable_name_left && memory_acess[i]->base == base_left && memory_acess[i]->offset == offset_left && memory_acess[i]->mapped) {
+                        delete memory_acess[i];
                         memory_acess.erase(memory_acess.begin() + i);
                         break;
                     }
@@ -365,6 +364,7 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
                 if(reg_to_store != reg2) helpers::free_register(reg2);
                 for (int i = 0; i < memory_acess.size(); i++) {
                     if (memory_acess[i]->name == variable_name_right && memory_acess[i]->base == base_right && memory_acess[i]->offset == offset_right && memory_acess[i]->mapped) {
+                        delete memory_acess[i];
                         memory_acess.erase(memory_acess.begin() + i);
                         break;
                     }
@@ -382,13 +382,14 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
 
         } else if (runner->operation == "MULTIPLY") {
 
-            std::cout << "\t#MULTIPLY" << std::endl;
+            // std::cout << "\t#MULTIPLY" << std::endl;
             std::cout << "\tmul " << register_names[reg_to_store] << ", " << register_names[reg1] << ", " << register_names[reg2] << std::endl;
 
             if (is_left_memory_access) {
                 if(reg_to_store != reg1) helpers::free_register(reg1);
                 for (int i = 0; i < memory_acess.size(); i++) {
                     if (memory_acess[i]->name == variable_name_left && memory_acess[i]->base == base_left && memory_acess[i]->offset == offset_left && memory_acess[i]->mapped) {
+                        delete memory_acess[i];
                         memory_acess.erase(memory_acess.begin() + i);
                         break;
                     }
@@ -399,6 +400,7 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
                 if(reg_to_store != reg2) helpers::free_register(reg2);
                 for (int i = 0; i < memory_acess.size(); i++) {
                     if (memory_acess[i]->name == variable_name_right && memory_acess[i]->base == base_right && memory_acess[i]->offset == offset_right && memory_acess[i]->mapped) {
+                        delete memory_acess[i];
                         memory_acess.erase(memory_acess.begin() + i);
                         break;
                     }
@@ -416,7 +418,7 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
 
         } else if (runner->operation == "DIV") {
 
-            std::cout << "\t#DIV" << std::endl;
+            // std::cout << "\t#DIV" << std::endl;
             std::cout << "\tdiv " << register_names[reg_to_store] << ", " << register_names[reg1] << ", " << register_names[reg2] << std::endl;
             std::cout << "\tmflo " << register_names[reg_to_store] << std::endl;
 
@@ -424,6 +426,7 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
                 if(reg_to_store != reg1) helpers::free_register(reg1);
                 for (int i = 0; i < memory_acess.size(); i++) {
                     if (memory_acess[i]->name == variable_name_left && memory_acess[i]->base == base_left && memory_acess[i]->offset == offset_left && memory_acess[i]->mapped) {
+                        delete memory_acess[i];
                         memory_acess.erase(memory_acess.begin() + i);
                         break;
                     }
@@ -434,6 +437,7 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
                 if(reg_to_store != reg2) helpers::free_register(reg2);
                 for (int i = 0; i < memory_acess.size(); i++) {
                     if (memory_acess[i]->name == variable_name_right && memory_acess[i]->base == base_right && memory_acess[i]->offset == offset_right && memory_acess[i]->mapped) {
+                        delete memory_acess[i];
                         memory_acess.erase(memory_acess.begin() + i);
                         break;
                     }
@@ -451,7 +455,7 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
             
         } else if (runner->operation == "REMAINDER") {
 
-            std::cout << "\t#REMAINDER" << std::endl;
+            // std::cout << "\t#REMAINDER" << std::endl;
             std::cout << "\tdiv " << register_names[reg_to_store] << ", " << register_names[reg1] << ", " << register_names[reg2] << std::endl;
             std::cout << "\tmfhi " << register_names[reg_to_store] << std::endl;
 
@@ -459,6 +463,7 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
                 if(reg_to_store != reg1) helpers::free_register(reg1);
                 for (int i = 0; i < memory_acess.size(); i++) {
                     if (memory_acess[i]->name == variable_name_left && memory_acess[i]->base == base_left && memory_acess[i]->offset == offset_left && memory_acess[i]->mapped) {
+                        delete memory_acess[i];
                         memory_acess.erase(memory_acess.begin() + i);
                         break;
                     }
@@ -469,6 +474,7 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
                 if(reg_to_store != reg2) helpers::free_register(reg2);
                 for (int i = 0; i < memory_acess.size(); i++) {
                     if (memory_acess[i]->name == variable_name_right && memory_acess[i]->base == base_right && memory_acess[i]->offset == offset_right && memory_acess[i]->mapped) {
+                        delete memory_acess[i];
                         memory_acess.erase(memory_acess.begin() + i);
                         break;
                     }
@@ -486,13 +492,14 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
             
         } else if (runner->operation == "BITWISE_AND") {
 
-            std::cout << "\t#BITWISE_AND" << std::endl;
+            // std::cout << "\t#BITWISE_AND" << std::endl;
             std::cout << "\tand " << register_names[reg_to_store] << ", " << register_names[reg1] << ", " << register_names[reg2] << std::endl;
 
             if (is_left_memory_access) {
                 if(reg_to_store != reg1) helpers::free_register(reg1);
                 for (int i = 0; i < memory_acess.size(); i++) {
                     if (memory_acess[i]->name == variable_name_left && memory_acess[i]->base == base_left && memory_acess[i]->offset == offset_left && memory_acess[i]->mapped) {
+                        delete memory_acess[i];
                         memory_acess.erase(memory_acess.begin() + i);
                         break;
                     }
@@ -503,6 +510,7 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
                 if(reg_to_store != reg2) helpers::free_register(reg2);
                 for (int i = 0; i < memory_acess.size(); i++) {
                     if (memory_acess[i]->name == variable_name_right && memory_acess[i]->base == base_right && memory_acess[i]->offset == offset_right && memory_acess[i]->mapped) {
+                        delete memory_acess[i];
                         memory_acess.erase(memory_acess.begin() + i);
                         break;
                     }
@@ -520,13 +528,14 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
             
         } else if (runner->operation == "BITWISE_OR") {
 
-            std::cout << "\t#BITWISE_OR" << std::endl;
+            // std::cout << "\t#BITWISE_OR" << std::endl;
             std::cout << "\tor " << register_names[reg_to_store] << ", " << register_names[reg1] << ", " << register_names[reg2] << std::endl;
 
             if (is_left_memory_access) {
                 if(reg_to_store != reg1) helpers::free_register(reg1);
                 for (int i = 0; i < memory_acess.size(); i++) {
                     if (memory_acess[i]->name == variable_name_left && memory_acess[i]->base == base_left && memory_acess[i]->offset == offset_left && memory_acess[i]->mapped) {
+                        delete memory_acess[i];
                         memory_acess.erase(memory_acess.begin() + i);
                         break;
                     }
@@ -537,6 +546,7 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
                 if(reg_to_store != reg2) helpers::free_register(reg2);
                 for (int i = 0; i < memory_acess.size(); i++) {
                     if (memory_acess[i]->name == variable_name_right && memory_acess[i]->base == base_right && memory_acess[i]->offset == offset_right && memory_acess[i]->mapped) {
+                        delete memory_acess[i];
                         memory_acess.erase(memory_acess.begin() + i);
                         break;
                     }
@@ -554,13 +564,14 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
             
         } else if (runner->operation == "BITWISE_XOR") {
 
-            std::cout << "\t#BITWISE_XOR" << std::endl;
+            // std::cout << "\t#BITWISE_XOR" << std::endl;
             std::cout << "\txor " << register_names[reg_to_store] << ", " << register_names[reg1] << ", " << register_names[reg2] << std::endl;
 
             if (is_left_memory_access) {
                 if(reg_to_store != reg1) helpers::free_register(reg1);
                 for (int i = 0; i < memory_acess.size(); i++) {
                     if (memory_acess[i]->name == variable_name_left && memory_acess[i]->base == base_left && memory_acess[i]->offset == offset_left && memory_acess[i]->mapped) {
+                        delete memory_acess[i];
                         memory_acess.erase(memory_acess.begin() + i);
                         break;
                     }
@@ -571,6 +582,7 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
                 if(reg_to_store != reg2) helpers::free_register(reg2);
                 for (int i = 0; i < memory_acess.size(); i++) {
                     if (memory_acess[i]->name == variable_name_right && memory_acess[i]->base == base_right && memory_acess[i]->offset == offset_right && memory_acess[i]->mapped) {
+                        delete memory_acess[i];
                         memory_acess.erase(memory_acess.begin() + i);
                         break;
                     }
@@ -591,7 +603,7 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
             int first_temp = helpers::return_first_unused_register();
             int second_temp = helpers::return_first_unused_register();
 
-            std::cout << "\t#LOGICAL_AND" << std::endl;
+            // std::cout << "\t#LOGICAL_AND" << std::endl;
             std::cout << "\tsltu " << register_names[first_temp] << ", $zero" << ", " << register_names[reg1] << std::endl;
             std::cout << "\tsltu " << register_names[second_temp] << ", $zero" << ", " << register_names[reg2] << std::endl;
             std::cout << "\tand " << register_names[reg_to_store] << ", " << register_names[first_temp] << ", " << register_names[second_temp] << std::endl;
@@ -602,6 +614,7 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
                 if(reg_to_store != reg1) helpers::free_register(reg1);
                 for (int i = 0; i < memory_acess.size(); i++) {
                     if (memory_acess[i]->name == variable_name_left && memory_acess[i]->base == base_left && memory_acess[i]->offset == offset_left && memory_acess[i]->mapped) {
+                        delete memory_acess[i];
                         memory_acess.erase(memory_acess.begin() + i);
                         break;
                     }
@@ -612,6 +625,7 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
                 if(reg_to_store != reg2) helpers::free_register(reg2);
                 for (int i = 0; i < memory_acess.size(); i++) {
                     if (memory_acess[i]->name == variable_name_right && memory_acess[i]->base == base_right && memory_acess[i]->offset == offset_right && memory_acess[i]->mapped) {
+                        delete memory_acess[i];
                         memory_acess.erase(memory_acess.begin() + i);
                         break;
                     }
@@ -632,7 +646,7 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
             int first_temp = helpers::return_first_unused_register();
             int second_temp = helpers::return_first_unused_register();
 
-            std::cout << "\t#LOGICAL_OR" << std::endl;
+            // std::cout << "\t#LOGICAL_OR" << std::endl;
             std::cout << "\tsltu " << register_names[first_temp] << ", $zero" << ", " << register_names[reg1] << std::endl;
             std::cout << "\tsltu " << register_names[second_temp] << ", $zero" << ", " << register_names[reg2] << std::endl;
             std::cout << "\tor " << register_names[reg_to_store] << ", " << register_names[first_temp] << ", " << register_names[second_temp] << std::endl;
@@ -643,6 +657,7 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
                 if(reg_to_store != reg1) helpers::free_register(reg1);
                 for (int i = 0; i < memory_acess.size(); i++) {
                     if (memory_acess[i]->name == variable_name_left && memory_acess[i]->base == base_left && memory_acess[i]->offset == offset_left && memory_acess[i]->mapped) {
+                        delete memory_acess[i];
                         memory_acess.erase(memory_acess.begin() + i);
                         break;
                     }
@@ -653,6 +668,7 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
                 if(reg_to_store != reg2) helpers::free_register(reg2);
                 for (int i = 0; i < memory_acess.size(); i++) {
                     if (memory_acess[i]->name == variable_name_right && memory_acess[i]->base == base_right && memory_acess[i]->offset == offset_right && memory_acess[i]->mapped) {
+                        delete memory_acess[i];
                         memory_acess.erase(memory_acess.begin() + i);
                         break;
                     }
@@ -670,7 +686,7 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
             
         } else if (runner->operation == "EQUAL") {
 
-            std::cout << "\t#EQUAL" << std::endl;
+            // std::cout << "\t#EQUAL" << std::endl;
             std::cout << "\tsubu " << register_names[reg_to_store] << ", " << register_names[reg1] << ", " << register_names[reg2] << std::endl;
             std::cout << "\tsltiu " << register_names[reg_to_store] << ", " << register_names[reg_to_store] << ", 1" << std::endl;
 
@@ -678,6 +694,7 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
                 if(reg_to_store != reg1) helpers::free_register(reg1);
                 for (int i = 0; i < memory_acess.size(); i++) {
                     if (memory_acess[i]->name == variable_name_left && memory_acess[i]->base == base_left && memory_acess[i]->offset == offset_left && memory_acess[i]->mapped) {
+                        delete memory_acess[i];
                         memory_acess.erase(memory_acess.begin() + i);
                         break;
                     }
@@ -688,6 +705,7 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
                 if(reg_to_store != reg2) helpers::free_register(reg2);
                 for (int i = 0; i < memory_acess.size(); i++) {
                     if (memory_acess[i]->name == variable_name_right && memory_acess[i]->base == base_right && memory_acess[i]->offset == offset_right && memory_acess[i]->mapped) {
+                        delete memory_acess[i];
                         memory_acess.erase(memory_acess.begin() + i);
                         break;
                     }
@@ -705,7 +723,7 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
             
         } else if (runner->operation == "NOT_EQUAL") {
 
-            std::cout << "\t#NOT_EQUAL" << std::endl;
+            // std::cout << "\t#NOT_EQUAL" << std::endl;
             std::cout << "\tsubu " << register_names[reg_to_store] << ", " << register_names[reg1] << ", " << register_names[reg2] << std::endl;
             std::cout << "\tsltu " << register_names[reg_to_store] << ", $zero" << ", " << register_names[reg1] << std::endl;
 
@@ -713,6 +731,7 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
                 if(reg_to_store != reg1) helpers::free_register(reg1);
                 for (int i = 0; i < memory_acess.size(); i++) {
                     if (memory_acess[i]->name == variable_name_left && memory_acess[i]->base == base_left && memory_acess[i]->offset == offset_left && memory_acess[i]->mapped) {
+                        delete memory_acess[i];
                         memory_acess.erase(memory_acess.begin() + i);
                         break;
                     }
@@ -723,6 +742,7 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
                 if(reg_to_store != reg2) helpers::free_register(reg2);
                 for (int i = 0; i < memory_acess.size(); i++) {
                     if (memory_acess[i]->name == variable_name_right && memory_acess[i]->base == base_right && memory_acess[i]->offset == offset_right && memory_acess[i]->mapped) {
+                        delete memory_acess[i];
                         memory_acess.erase(memory_acess.begin() + i);
                         break;
                     }
@@ -740,13 +760,14 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
             
         } else if (runner->operation == "LESS_THAN") {
 
-            std::cout << "\t#LESS_THAN" << std::endl;
+            // std::cout << "\t#LESS_THAN" << std::endl;
             std::cout << "\tslt " << register_names[reg_to_store] << ", " << register_names[reg1] << ", " << register_names[reg2] << std::endl;
 
             if (is_left_memory_access) {
                 if(reg_to_store != reg1) helpers::free_register(reg1);
                 for (int i = 0; i < memory_acess.size(); i++) {
                     if (memory_acess[i]->name == variable_name_left && memory_acess[i]->base == base_left && memory_acess[i]->offset == offset_left && memory_acess[i]->mapped) {
+                        delete memory_acess[i];
                         memory_acess.erase(memory_acess.begin() + i);
                         break;
                     }
@@ -757,6 +778,7 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
                 if(reg_to_store != reg2) helpers::free_register(reg2);
                 for (int i = 0; i < memory_acess.size(); i++) {
                     if (memory_acess[i]->name == variable_name_right && memory_acess[i]->base == base_right && memory_acess[i]->offset == offset_right && memory_acess[i]->mapped) {
+                        delete memory_acess[i];
                         memory_acess.erase(memory_acess.begin() + i);
                         break;
                     }
@@ -774,13 +796,14 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
             
         } else if (runner->operation == "GREATER_THAN") {
 
-            std::cout << "\t#GREATER_THAN" << std::endl;
+            // std::cout << "\t#GREATER_THAN" << std::endl;
             std::cout << "\tslt " << register_names[reg_to_store] << ", " << register_names[reg2] << ", " << register_names[reg1] << std::endl;
 
             if (is_left_memory_access) {
                 if(reg_to_store != reg1) if(reg_to_store != reg1) helpers::free_register(reg1);
                 for (int i = 0; i < memory_acess.size(); i++) {
                     if (memory_acess[i]->name == variable_name_left && memory_acess[i]->base == base_left && memory_acess[i]->offset == offset_left && memory_acess[i]->mapped) {
+                        delete memory_acess[i];
                         memory_acess.erase(memory_acess.begin() + i);
                         break;
                     }
@@ -791,6 +814,7 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
                 if(reg_to_store != reg2) if(reg_to_store != reg2) helpers::free_register(reg2);
                 for (int i = 0; i < memory_acess.size(); i++) {
                     if (memory_acess[i]->name == variable_name_right && memory_acess[i]->base == base_right && memory_acess[i]->offset == offset_right && memory_acess[i]->mapped) {
+                        delete memory_acess[i];
                         memory_acess.erase(memory_acess.begin() + i);
                         break;
                     }
@@ -810,7 +834,7 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
 
             int reg_temp = helpers::return_first_unused_register();
 
-            std::cout << "\t#LESS_EQUAL" << std::endl;
+            // std::cout << "\t#LESS_EQUAL" << std::endl;
             std::cout << "\tslt " << register_names[reg_temp] << ", " << register_names[reg2] << ", " << register_names[reg1] << std::endl;
             std::cout << "\tori " << register_names[reg_to_store] << ", $zero" << ", 1" << std::endl;
             std::cout << "\tsubu " << register_names[reg_to_store] << ", " << register_names[reg_to_store] << ", " << register_names[reg_temp] << std::endl;
@@ -819,6 +843,7 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
                 if(reg_to_store != reg1) helpers::free_register(reg1);
                 for (int i = 0; i < memory_acess.size(); i++) {
                     if (memory_acess[i]->name == variable_name_left && memory_acess[i]->base == base_left && memory_acess[i]->offset == offset_left && memory_acess[i]->mapped) {
+                        delete memory_acess[i];
                         memory_acess.erase(memory_acess.begin() + i);
                         break;
                     }
@@ -829,6 +854,7 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
                 if(reg_to_store != reg2) helpers::free_register(reg2);
                 for (int i = 0; i < memory_acess.size(); i++) {
                     if (memory_acess[i]->name == variable_name_right && memory_acess[i]->base == base_right && memory_acess[i]->offset == offset_right && memory_acess[i]->mapped) {
+                        delete memory_acess[i];
                         memory_acess.erase(memory_acess.begin() + i);
                         break;
                     }
@@ -850,7 +876,7 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
 
             int reg_temp = helpers::return_first_unused_register();
 
-            std::cout << "\t#GREATER_EQUAL" << std::endl;
+            // std::cout << "\t#GREATER_EQUAL" << std::endl;
             std::cout << "\tslt " << register_names[reg_temp] << ", " << register_names[reg1] << ", " << register_names[reg2] << std::endl;
             std::cout << "\tori " << register_names[reg_to_store] << ", $zero" << ", 1" << std::endl;
             std::cout << "\tsubu " << register_names[reg_to_store] << ", " << register_names[reg_to_store] << ", " << register_names[reg_temp] << std::endl;
@@ -859,6 +885,7 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
                 if(reg_to_store != reg1) helpers::free_register(reg1);
                 for (int i = 0; i < memory_acess.size(); i++) {
                     if (memory_acess[i]->name == variable_name_left && memory_acess[i]->base == base_left && memory_acess[i]->offset == offset_left && memory_acess[i]->mapped) {
+                        delete memory_acess[i];
                         memory_acess.erase(memory_acess.begin() + i);
                         break;
                     }
@@ -869,6 +896,7 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
                 if(reg_to_store != reg2) helpers::free_register(reg2);
                 for (int i = 0; i < memory_acess.size(); i++) {
                     if (memory_acess[i]->name == variable_name_right && memory_acess[i]->base == base_right && memory_acess[i]->offset == offset_right && memory_acess[i]->mapped) {
+                        delete memory_acess[i];
                         memory_acess.erase(memory_acess.begin() + i);
                         break;
                     }
@@ -888,13 +916,14 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
             
         } else if (runner->operation == "R_SHIFT") {
 
-            std::cout << "\t#R_SHIFT" << std::endl;
+            // std::cout << "\t#R_SHIFT" << std::endl;
             std::cout << "\tsrlv " << register_names[reg_to_store] << ", " << register_names[reg1] << ", " << register_names[reg2] << std::endl;
 
             if (is_left_memory_access) {
                 if(reg_to_store != reg1) helpers::free_register(reg1);
                 for (int i = 0; i < memory_acess.size(); i++) {
                     if (memory_acess[i]->name == variable_name_left && memory_acess[i]->base == base_left && memory_acess[i]->offset == offset_left && memory_acess[i]->mapped) {
+                        delete memory_acess[i];
                         memory_acess.erase(memory_acess.begin() + i);
                         break;
                     }
@@ -905,6 +934,7 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
                 if(reg_to_store != reg2) helpers::free_register(reg2);
                 for (int i = 0; i < memory_acess.size(); i++) {
                     if (memory_acess[i]->name == variable_name_right && memory_acess[i]->base == base_right && memory_acess[i]->offset == offset_right && memory_acess[i]->mapped) {
+                        delete memory_acess[i];
                         memory_acess.erase(memory_acess.begin() + i);
                         break;
                     }
@@ -923,13 +953,14 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
             
         } else if (runner->operation == "L_SHIFT") {
 
-            std::cout << "\t#L_SHIFT" << std::endl;
+            // std::cout << "\t#L_SHIFT" << std::endl;
             std::cout << "\tsllv " << register_names[reg_to_store] << ", " << register_names[reg1] << ", " << register_names[reg2] << std::endl;
 
             if (is_left_memory_access) {
                 if(reg_to_store != reg1) helpers::free_register(reg1);
                 for (int i = 0; i < memory_acess.size(); i++) {
                     if (memory_acess[i]->name == variable_name_left && memory_acess[i]->base == base_left && memory_acess[i]->offset == offset_left && memory_acess[i]->mapped) {
+                        delete memory_acess[i];
                         memory_acess.erase(memory_acess.begin() + i);
                         break;
                     }
@@ -940,6 +971,7 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
                 if(reg_to_store != reg2) helpers::free_register(reg2);
                 for (int i = 0; i < memory_acess.size(); i++) {
                     if (memory_acess[i]->name == variable_name_right && memory_acess[i]->base == base_right && memory_acess[i]->offset == offset_right && memory_acess[i]->mapped) {
+                        delete memory_acess[i];
                         memory_acess.erase(memory_acess.begin() + i);
                         break;
                     }
@@ -958,7 +990,7 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
             
         } else if (runner->operation == "ASSIGN") {
 
-            std::cout << "\t#ASSIGN" << std::endl;
+            // std::cout << "\t#ASSIGN" << std::endl;
             std::cout << "\tmove " << register_names[reg1] << ", " << register_names[reg2] << std::endl;
 
             std::cout << std::endl;
@@ -976,6 +1008,7 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
 
                 for (int i = 0; i < memory_acess.size(); i++) {
                     if (memory_acess[i]->name == variable_name_left && memory_acess[i]->base == base_left && memory_acess[i]->offset == offset_left && memory_acess[i]->mapped) {
+                        delete memory_acess[i];
                         memory_acess.erase(memory_acess.begin() + i);
                         break;
                     }
@@ -990,6 +1023,7 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
 
                 for (int i = 0; i < memory_acess.size(); i++) {
                     if (memory_acess[i]->name == variable_name_right && memory_acess[i]->base == base_right && memory_acess[i]->offset == offset_right && memory_acess[i]->mapped) {
+                        delete memory_acess[i];
                         memory_acess.erase(memory_acess.begin() + i);
                         break;
                     }
@@ -1022,7 +1056,7 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
                 std::cout << "\tlw " << register_names[reg_temp] << ", " << variable_name_left << "(" << register_names[offset_left] << ")" << std::endl;
             }
 
-            std::cout << "\t#ADD_ASSIGN" << std::endl;
+            // std::cout << "\t#ADD_ASSIGN" << std::endl;
             std::cout << "\tadd " << register_names[reg1] << ", " << register_names[reg_temp] << ", " << register_names[reg2] << std::endl;
 
             ((ast::AST_Node_Expressao*)runner->parent)->mapped_to_register = reg1;
@@ -1039,6 +1073,7 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
 
                 for (int i = 0; i < memory_acess.size(); i++) {
                     if (memory_acess[i]->name == variable_name_left && memory_acess[i]->base == base_left && memory_acess[i]->offset == offset_left && memory_acess[i]->mapped) {
+                        delete memory_acess[i];
                         memory_acess.erase(memory_acess.begin() + i);
                         break;
                     }
@@ -1053,6 +1088,7 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
 
                 for (int i = 0; i < memory_acess.size(); i++) {
                     if (memory_acess[i]->name == variable_name_right && memory_acess[i]->base == base_right && memory_acess[i]->offset == offset_right && memory_acess[i]->mapped) {
+                        delete memory_acess[i];
                         memory_acess.erase(memory_acess.begin() + i);
                         break;
                     }
@@ -1084,7 +1120,7 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
                 std::cout << "\tlw " << register_names[reg_temp] << ", " << variable_name_left << "(" << register_names[offset_left] << ")" << std::endl;
             }
 
-            std::cout << "\t#MINUS_ASSIGN" << std::endl;
+            // std::cout << "\t#MINUS_ASSIGN" << std::endl;
             std::cout << "\tsub " << register_names[reg1] << ", " << register_names[reg_temp] << ", " << register_names[reg2] << std::endl;
 
             ((ast::AST_Node_Expressao*)runner->parent)->mapped_to_register = reg1;
@@ -1101,6 +1137,7 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
 
                 for (int i = 0; i < memory_acess.size(); i++) {
                     if (memory_acess[i]->name == variable_name_left && memory_acess[i]->base == base_left && memory_acess[i]->offset == offset_left && memory_acess[i]->mapped) {
+                        delete memory_acess[i];
                         memory_acess.erase(memory_acess.begin() + i);
                         break;
                     }
@@ -1115,6 +1152,7 @@ void ast::traversal::traversal_BOP(ast::AST_Node_BOP* runner, int print_graphviz
 
                 for (int i = 0; i < memory_acess.size(); i++) {
                     if (memory_acess[i]->name == variable_name_right && memory_acess[i]->base == base_right && memory_acess[i]->offset == offset_right && memory_acess[i]->mapped) {
+                        delete memory_acess[i];
                         memory_acess.erase(memory_acess.begin() + i);
                         break;
                     }
@@ -1567,8 +1605,6 @@ void ast::traversal::traversal_Acesso_Variavel(ast::AST_Node_Acesso_Variavel* ru
 
                         ((AST_Node_Expressao*)runner->parent)->mapped_to_register = $A0 + i;
 
-                        // Aqui?
-
                         break;
                     }
 
@@ -1578,7 +1614,6 @@ void ast::traversal::traversal_Acesso_Variavel(ast::AST_Node_Acesso_Variavel* ru
 
         } else {
 
-            // Por enquanto, considerando apenas vetores unidimensionais
             int offset = runner->loop_matriz->expressao->mapped_to_register;
 
             if (helpers::return_register_type(offset) != helpers::T) {
@@ -1727,9 +1762,11 @@ void ast::traversal::traversal_Loop_Expressoes(ast::AST_Node_Loop_Expressoes* ru
 
                     if (memory_acess[0]->name == *(runner->expressao->acesso_variavel->variable_name) && memory_acess[0]->is_vector) {
 
-                        std::cout << "la, " << register_names[$A0] << ", " << *(runner->expressao->acesso_variavel->variable_name) << std::endl;
-                        std::cout << "add " << register_names[$A0] << ", " << register_names[$A0] << "," << register_names[memory_acess[0]->offset] << std::endl;
-                        std::cout << "lw " << register_names[$A0] << ", " << *(runner->expressao->acesso_variavel->variable_name) << "(" << register_names[memory_acess[0]->offset] << ")" << std::endl;                        memory_acess.erase(memory_acess.begin());
+                        std::cout << "\tla " << register_names[$A0] << ", " << *(runner->expressao->acesso_variavel->variable_name) << std::endl;
+                        std::cout << "\tadd " << register_names[$A0] << ", " << register_names[$A0] << "," << register_names[memory_acess[0]->offset] << std::endl;
+                        std::cout << "\tlw " << register_names[$A0] << ", " << *(runner->expressao->acesso_variavel->variable_name) << "(" << register_names[memory_acess[0]->offset] << ")" << std::endl;                        
+                        delete memory_acess[0];
+                        memory_acess.erase(memory_acess.begin());
                     }
 
                 } else {
@@ -2150,7 +2187,6 @@ void ast::traversal::traversal_Comando_Scanf(ast::AST_Node_Comando_Scanf* runner
         int is_global_var = 0;
         int is_local_var = 0;
 
-        // First search if the variable is a constant
         for (auto constante : constantes) {
 
             if (runner->endereco_var->identifier == constante->name) {
@@ -2165,7 +2201,6 @@ void ast::traversal::traversal_Comando_Scanf(ast::AST_Node_Comando_Scanf* runner
         }
 
         if (!is_const) {
-            // Then search if the variable is a global variable
             for (auto var_global : variaveis_globais) {
 
                 if (*(runner->endereco_var->identifier) == *(var_global->name)) {
@@ -2238,7 +2273,7 @@ void ast::traversal::traversal_Comando_Scanf(ast::AST_Node_Comando_Scanf* runner
         }
 
         if (!is_const && !is_global_var) {
-            // Finally search if the variable is a local variable
+
             for (int i = 0; i < current_function->variables.size(); i++) {
 
                 if(*(current_function->variables[i]->name) == *(runner->endereco_var->identifier)) {
@@ -2248,14 +2283,6 @@ void ast::traversal::traversal_Comando_Scanf(ast::AST_Node_Comando_Scanf* runner
                     std::string* var_type = current_function->variables[i]->type;
 
                     if (var_type->find("int") != std::string::npos) {
-
-                        // if (var_type->find("*") != std::string::npos) {
-                        //     std::cout << "Error: Cannot read pointer variable" << std::endl;
-                        //     exit(1);
-                        // } else if (var_type->find("[") != std::string::npos) {
-                        //     std::cout << "Error: Cannot read array variable" << std::endl;
-                        //     exit(1);
-                        // }
 
                         mips::ops::read_int();
 
@@ -2368,7 +2395,7 @@ void ast::traversal::traversal_Comando_Printf(ast::AST_Node_Comando_Printf* runn
 
                 if (current_string == "%d" || current_string == "%c") {
 
-                    if (next_printf_expression == nullptr) { // Primeiro argumento
+                    if (next_printf_expression == nullptr) {
 
                         if (current_printf_expression == nullptr) {
                             std::cout << "Error: Not enough expressions to print" << std::endl;
@@ -2385,9 +2412,9 @@ void ast::traversal::traversal_Comando_Printf(ast::AST_Node_Comando_Printf* runn
                             std::cout << "addi $sp, $sp, 4" << std::endl;
                         }
 
-                        // Mudar aqui se for a[i], mudar para lw $a0, <label>($offset)
                         if (!memory_acess.empty()) {
                             std::cout << "\tlw $a0, " << memory_acess[0]->name << "(" << register_names[memory_acess[0]->offset] << ")" << std::endl;
+                            delete memory_acess[0];
                             memory_acess.pop_back();
                         } else {
                             std::cout << "\tmove $a0, " << register_names[current_printf_expression->expressao->mapped_to_register] << std::endl;
@@ -2397,7 +2424,7 @@ void ast::traversal::traversal_Comando_Printf(ast::AST_Node_Comando_Printf* runn
                             helpers::free_register(current_printf_expression->expressao->mapped_to_register);
                         }
 
-                    } else { // Argumento seguinte
+                    } else {
                             
                         if (next_printf_expression == nullptr) {
                             std::cout << "Error: Not enough expressions to print" << std::endl;
