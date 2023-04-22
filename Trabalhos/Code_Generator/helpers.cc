@@ -57,7 +57,7 @@ namespace helpers {
         for(int i = 8; i < 16; i++) {
             if(!used_registers[i]) {
                 used_registers[i] = true;
-                std::cout << "\t\t\t\t\t#ALLOCATTING REGISTER: " << register_names[i] << "\n";
+                // std::cout << "\t\t\t\t\t#ALLOCATTING REGISTER: " << register_names[i] << "\n";
                 return i;
             }
         }
@@ -65,7 +65,7 @@ namespace helpers {
         for(int i = 24; i < 26; i++) {
             if(!used_registers[i]) {
                 used_registers[i] = true;
-                std::cout << "\t\t\t\t\t#ALLOCATTING REGISTER: " << register_names[i] << "\n";
+                // std::cout << "\t\t\t\t\t#ALLOCATTING REGISTER: " << register_names[i] << "\n";
                 return i;
             }
         }
@@ -74,7 +74,7 @@ namespace helpers {
     }
 
     void free_register(int reg) {
-        if(used_registers[reg]) std::cout << "\t\t\t\t\t#FREEING REGISTER: " << register_names[reg] << "\n";
+        // if(used_registers[reg]) std::cout << "\t\t\t\t\t#FREEING REGISTER: " << register_names[reg] << "\n";
         used_registers[reg] = false;
     }
 
