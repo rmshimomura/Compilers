@@ -1160,10 +1160,6 @@ namespace mips {
         void read_int();
         void read_char();
         void read_string();
-        void save_register_on_stack(std::string reg);
-        void load_register_from_stack(std::string reg);
-        void jump_and_link_function(std::string function_name);
-        void print_label(std::string label);
         void save_context_on_stack();
         void load_context_from_stack();
     }

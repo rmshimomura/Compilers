@@ -108,24 +108,6 @@ namespace mips {
             std::cout << "\tli $v0, 8" << std::endl;
             std::cout << "\tsyscall" << std::endl;
         }
-        
-        void save_register_on_stack(std::string reg) {
-            std::cout << "\tsw " << reg << ", 0($sp)" << std::endl;
-            std::cout << "\taddiu $sp, $sp, -4" << std::endl;
-        }
-
-        void load_register_from_stack(std::string reg) {
-            std::cout << "\taddiu $sp, $sp, 4" << std::endl;
-            std::cout << "\tlw " << reg << ", 0($sp)" << std::endl;
-        }
-
-        void jump_and_link_function(std::string function_name) {
-            std::cout << "\tjal " << function_name << std::endl;
-        }
-
-        void print_label(std::string label) {
-            std::cout << label << ":" << std::endl;
-        }
 
         void save_context_on_stack() {
             std::cout << std::endl;
