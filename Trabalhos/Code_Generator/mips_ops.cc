@@ -75,37 +75,37 @@ namespace mips {
     namespace ops {
 
         void exit() {
-            std::cout << "\tli $v0, 10" << std::endl;
+            std::cout << "\taddi $v0, $zero, 10" << std::endl;
             std::cout << "\tsyscall" << std::endl;
         }
 
         void print_int() {
-            std::cout << "\tli $v0, 1" << std::endl;
+            std::cout << "\taddi $v0, $zero, 1" << std::endl;
             std::cout << "\tsyscall" << std::endl;
         }
 
         void print_char() {
-            std::cout << "\tli $v0, 11" << std::endl;
+            std::cout << "\taddi $v0, $zero, 11" << std::endl;
             std::cout << "\tsyscall" << std::endl;
         }
 
         void print_string() {
-            std::cout << "\tli $v0, 4" << std::endl;
+            std::cout << "\taddi $v0, $zero, 4" << std::endl;
             std::cout << "\tsyscall" << std::endl;
         }
 
         void read_int() {
-            std::cout << "\tli $v0, 5" << std::endl;
+            std::cout << "\taddi $v0, $zero, 5" << std::endl;
             std::cout << "\tsyscall" << std::endl;
         }
 
         void read_char() {
-            std::cout << "\tli $v0, 12" << std::endl;
+            std::cout << "\taddi $v0, $zero, 12" << std::endl;
             std::cout << "\tsyscall" << std::endl;
         }
 
         void read_string() {
-            std::cout << "\tli $v0, 8" << std::endl;
+            std::cout << "\taddi $v0, $zero, 8" << std::endl;
             std::cout << "\tsyscall" << std::endl;
         }
 

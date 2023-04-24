@@ -1388,7 +1388,7 @@ void ast::traversal::traversal_Expressao(ast::AST_Node_Expressao* runner, int pr
             int reg1 = helpers::return_first_unused_register();
             runner->mapped_to_register = reg1;
 
-            std::cout << "\tadd " << register_names[reg1] << ", $zero, " << runner->num_int << std::endl;
+            std::cout << "\taddi " << register_names[reg1] << ", $zero, " << runner->num_int << std::endl;
 
         } else if (runner->using_char) {
 
@@ -2128,7 +2128,7 @@ void ast::traversal::traversal_Comando_Exit(ast::AST_Node_Comando_Exit* runner, 
     if (produce_MIPS) {
         std::cout << "\tadd $a0, $zero, " << register_names[runner->expressao->mapped_to_register] << std::endl;
         helpers::free_register(runner->expressao->mapped_to_register);
-        std::cout << "\tadd $v0, $zero, 17" << std::endl; 
+        std::cout << "\taddi $v0, $zero, 17" << std::endl; 
         std::cout << "\tsyscall" << std::endl;
     }
 
@@ -2387,8 +2387,8 @@ void ast::traversal::traversal_Comando_Printf(ast::AST_Node_Comando_Printf* runn
                         }
 
                         if (current_printf_expression->expressao->mapped_to_register == $V0) {
-                            std::cout << "lw $v0, 0($sp)" << std::endl;
-                            std::cout << "addi $sp, $sp, 4" << std::endl;
+                            std::cout << "\tlw $v0, 0($sp)" << std::endl;
+                            std::cout << "\taddi $sp, $sp, 4" << std::endl;
                         }
 
                         if (!memory_acess.empty()) {
@@ -2416,8 +2416,8 @@ void ast::traversal::traversal_Comando_Printf(ast::AST_Node_Comando_Printf* runn
                         }
 
                         if (next_printf_expression->expressao->mapped_to_register == $V0) {
-                            std::cout << "lw $v0, 0($sp)" << std::endl;
-                            std::cout << "addi $sp, $sp, 4" << std::endl;
+                            std::cout << "\tlw $v0, 0($sp)" << std::endl;
+                            std::cout << "\taddi $sp, $sp, 4" << std::endl;
                         }
 
                         if (!memory_acess.empty()) {
