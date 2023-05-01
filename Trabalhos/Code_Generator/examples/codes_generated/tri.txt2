@@ -1,0 +1,98 @@
+.data
+	string_3_0: .asciiz "=== Determinar Tipo de Triangulo ===\n\n"
+	string_6_0: .asciiz "Entre com o tamanho do lado A: "
+	string_13_0: .asciiz "Entre com o tamanho do lado B: "
+	string_20_0: .asciiz "Entre com o tamanho do lado C: "
+	string_27_0: .asciiz "\n"
+	string_86_0: .asciiz "Triangulo Equilatero."
+	string_115_0: .asciiz "Triangulo Isosceles."
+	string_118_0: .asciiz "Triangulo Escaleno."
+	string_121_0: .asciiz "Nao eh Triangulo!!!\n"
+.text
+main:
+	la $a0, string_3_0
+	addi $v0, $zero, 4
+	syscall
+	la $a0, string_6_0
+	addi $v0, $zero, 4
+	syscall
+	addi $v0, $zero, 5
+	syscall
+	add $s0, $v0, $zero
+	la $a0, string_13_0
+	addi $v0, $zero, 4
+	syscall
+	addi $v0, $zero, 5
+	syscall
+	add $s1, $v0, $zero
+	la $a0, string_20_0
+	addi $v0, $zero, 4
+	syscall
+	addi $v0, $zero, 5
+	syscall
+	add $s2, $v0, $zero
+	la $a0, string_27_0
+	addi $v0, $zero, 4
+	syscall
+	add $t0, $s1, $s2
+	slt $t0, $s0, $t0
+	add $t1, $s0, $s2
+	slt $t1, $s1, $t1
+	sltu $t2, $zero, $t0
+	sltu $t3, $zero, $t1
+	and $t0, $t2, $t3
+	add $t1, $s0, $s1
+	slt $t1, $s2, $t1
+	sltu $t2, $zero, $t0
+	sltu $t3, $zero, $t1
+	and $t0, $t2, $t3
+	beq $t0, $zero, else_30
+then_30:
+	subu $t0, $s0, $s1
+	sltiu $t0, $t0, 1
+	subu $t1, $s1, $s2
+	sltiu $t1, $t1, 1
+	sltu $t2, $zero, $t0
+	sltu $t3, $zero, $t1
+	and $t0, $t2, $t3
+	beq $t0, $zero, else_68
+then_68:
+	la $a0, string_86_0
+	addi $v0, $zero, 4
+	syscall
+	j endif_68
+else_68:
+	subu $t0, $s0, $s1
+	sltiu $t0, $t0, 1
+	subu $t1, $s0, $s2
+	sltiu $t1, $t1, 1
+	sltu $t2, $zero, $t0
+	sltu $t3, $zero, $t1
+	or $t0, $t2, $t3
+	subu $t1, $s2, $s1
+	sltiu $t1, $t1, 1
+	sltu $t2, $zero, $t0
+	sltu $t3, $zero, $t1
+	or $t0, $t2, $t3
+	beq $t0, $zero, else_89
+then_89:
+	la $a0, string_115_0
+	addi $v0, $zero, 4
+	syscall
+	j endif_89
+else_89:
+	la $a0, string_118_0
+	addi $v0, $zero, 4
+	syscall
+endif_89:
+endif_68:
+	j endif_30
+else_30:
+	la $a0, string_121_0
+	addi $v0, $zero, 4
+	syscall
+endif_30:
+	addi $t0, $zero, 0
+	add $v0, $t0, $zero
+	addi $v0, $zero, 10
+	syscall

@@ -1,0 +1,136 @@
+.data
+	string_3_0: .asciiz "Entre com um valor inteiro:"
+	string_10_0: .asciiz "O fatorial de "
+	string_10_2: .asciiz " eh: "
+	string_10_4: .asciiz "\n"
+.text
+main:
+	la $a0, string_3_0
+	addi $v0, $zero, 4
+	syscall
+	addi $v0, $zero, 5
+	syscall
+	add $s0, $v0, $zero
+
+	addiu $sp, $sp, -52
+	sw $a0, 0($sp)
+	sw $a1, 4($sp)
+	sw $a2, 8($sp)
+	sw $a3, 12($sp)
+	sw $s0, 16($sp)
+	sw $s1, 20($sp)
+	sw $s2, 24($sp)
+	sw $s3, 28($sp)
+	sw $s4, 32($sp)
+	sw $s5, 36($sp)
+	sw $s6, 40($sp)
+	sw $s7, 44($sp)
+	sw $ra, 48($sp)
+	add $a0, $s0, $zero
+	jal fatorial
+
+	lw $a0, 0($sp)
+	lw $a1, 4($sp)
+	lw $a2, 8($sp)
+	lw $a3, 12($sp)
+	lw $s0, 16($sp)
+	lw $s1, 20($sp)
+	lw $s2, 24($sp)
+	lw $s3, 28($sp)
+	lw $s4, 32($sp)
+	lw $s5, 36($sp)
+	lw $s6, 40($sp)
+	lw $s7, 44($sp)
+	lw $ra, 48($sp)
+	addiu $sp, $sp, 52
+	addiu $sp, $sp, -4
+	sw $v0, 0($sp)
+	la $a0, string_10_0
+	addi $v0, $zero, 4
+	syscall
+	add $a0, $s0, $zero
+	addi $v0, $zero, 1
+	syscall
+	la $a0, string_10_2
+	addi $v0, $zero, 4
+	syscall
+	lw $v0, 0($sp)
+	addi $sp, $sp, 4
+	add $a0, $v0, $zero
+	addi $v0, $zero, 1
+	syscall
+	la $a0, string_10_4
+	addi $v0, $zero, 4
+	syscall
+	addi $t0, $zero, 0
+	add $v0, $t0, $zero
+	addi $v0, $zero, 10
+	syscall
+fatorial:
+	addi $t0, $zero, 0
+	slt $t1, $t0, $a0
+	ori $t0, $zero, 1
+	subu $t0, $t0, $t1
+	beq $t0, $zero, else_28
+then_28:
+	addi $t0, $zero, 0
+	add $v0, $t0, $zero
+	jr $ra
+	j endif_28
+else_28:
+endif_28:
+	addi $t0, $zero, 1
+	subu $t0, $a0, $t0
+	sltiu $t0, $t0, 1
+	beq $t0, $zero, else_42
+then_42:
+	addi $t0, $zero, 1
+	add $v0, $t0, $zero
+	jr $ra
+	j endif_42
+else_42:
+
+	addiu $sp, $sp, -52
+	sw $a0, 0($sp)
+	sw $a1, 4($sp)
+	sw $a2, 8($sp)
+	sw $a3, 12($sp)
+	sw $s0, 16($sp)
+	sw $s1, 20($sp)
+	sw $s2, 24($sp)
+	sw $s3, 28($sp)
+	sw $s4, 32($sp)
+	sw $s5, 36($sp)
+	sw $s6, 40($sp)
+	sw $s7, 44($sp)
+	sw $ra, 48($sp)
+	addi $t0, $zero, 1
+	sub $t0, $a0, $t0
+	add $a0, $t0, $zero
+	jal fatorial
+
+	lw $a0, 0($sp)
+	lw $a1, 4($sp)
+	lw $a2, 8($sp)
+	lw $a3, 12($sp)
+	lw $s0, 16($sp)
+	lw $s1, 20($sp)
+	lw $s2, 24($sp)
+	lw $s3, 28($sp)
+	lw $s4, 32($sp)
+	lw $s5, 36($sp)
+	lw $s6, 40($sp)
+	lw $s7, 44($sp)
+	lw $ra, 48($sp)
+	addiu $sp, $sp, 52
+	addiu $sp, $sp, -4
+	sw $v0, 0($sp)
+	lw $v0, 0($sp)
+	addi $sp, $sp, 4
+	mul $t0, $a0, $v0
+	add $v0, $t0, $zero
+	jr $ra
+endif_42:
+	jr $ra
+	addi $v0, $zero, 10
+	syscall
