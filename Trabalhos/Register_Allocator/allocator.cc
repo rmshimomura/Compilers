@@ -120,7 +120,7 @@ bool allocator::register_allocation(allocator::Graph* graph, int available_regis
     }
 
     for (int i = 0; i < graph->virtual_registers_number; i++) {
-            
+
         Vertex* vertex = stack.top();
         stack.pop();
 
@@ -129,21 +129,21 @@ bool allocator::register_allocation(allocator::Graph* graph, int available_regis
         bool used_registers[available_registers] = {0};
 
         for (auto const& [key, interference] : vertex->interferences) {
-            if (interference->active && interference->register_assigned != -1) {
+            if (interference->active && interference->register_assigned != -1 && interference->register_assigned < available_registers) {
                 used_registers[interference->register_assigned] = true;
             }
         }
 
         int error = true;
 
-        for (int i = 0; i < available_registers; i++) {
-            if (!used_registers[i]) {
-                vertex->register_assigned = i;
+        for (int j = 0; j < available_registers; j++) {
+            if (!used_registers[j]) {
+                vertex->register_assigned = j;
                 error = false;
                 break;
             }
         }
-
+        
         if (error) {
 
             if (vertex->print) {
@@ -158,18 +158,13 @@ bool allocator::register_allocation(allocator::Graph* graph, int available_regis
             if (vertex->print) {
                 std::cout << "Pop: " << vertex->id << " -> " << vertex->register_assigned << std::endl;
             }
+
         }
 
         for (auto const& [key, interference] : vertex->interferences) {
             interference->active = true;
         }
-
-        std::cout << &graph->number << std::endl;
-        std::cout << &graph->virtual_registers_number << std::endl;
-        std::cout << &graph->available_registers << std::endl;
-        std::cout << &graph->vertexes << std::endl;
-
-        std::cout << graph->virtual_registers_number << std::endl;
+        
     }
 
     for (auto const& [key, vertex] : graph->vertexes) {
@@ -179,6 +174,7 @@ bool allocator::register_allocation(allocator::Graph* graph, int available_regis
         if (vertex->virtual_register) {
             vertex->register_assigned = -1;
         }
+
     }
 
     return status;
